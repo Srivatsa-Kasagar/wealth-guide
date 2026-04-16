@@ -1,10 +1,11 @@
 # Generated data
 data/
 roadmaps/
-docs/superpowers/
+docs/
 
 # OS files
 .DS_Store
+**/.DS_Store
 Thumbs.db
 
 # Python
