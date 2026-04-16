@@ -814,30 +814,30 @@ print(f"Phase 2 complete - {len(strategies)} strategies evaluated")
 ### Step 5: Strategy Selection
 
 ```python
-# Display strategies with risk/reward summary and expert source
+# Display strategies with risk/reward summary and methodology source
 strategy_options = []
 for s in strategies:
-    risk_label = {"low": "저위험", "medium": "중위험", "high": "고위험"}.get(s.get("risk_level"), "중위험")
-    horizon_label = {"short": "단기(1년)", "mid": "중기(3년)", "long": "장기(10년+)"}.get(s.get("time_horizon"), "중기")
-    expert = s.get("expert_source", {}).get("name", "")
-    expert_tag = f" [{expert}]" if expert else ""
+    risk_label = {"low": "Low Risk", "medium": "Medium Risk", "high": "High Risk"}.get(s.get("risk_level"), "Medium Risk")
+    horizon_label = {"short": "Short-term (1yr)", "mid": "Mid-term (3yr)", "long": "Long-term (10yr+)"}.get(s.get("time_horizon"), "Mid-term")
+    methodology = s.get("strategy_source", {}).get("methodology", "")
+    method_tag = f" [{methodology}]" if methodology else ""
     strategy_options.append({
-        "label": s.get("title", f"전략 {s.get('id', '?')}"),
-        "description": f"{risk_label} | {horizon_label} | {s.get('expected_return', 'N/A')}{expert_tag}"
+        "label": s.get("title", f"Strategy {s.get('id', '?')}"),
+        "description": f"{risk_label} | {horizon_label} | {s.get('expected_return', 'N/A')}{method_tag}"
     })
 
 selected = AskUserQuestion(questions=[{
-    "question": "어떤 전략을 먼저 실행하시겠어요?",
-    "header": "전략 선택",
+    "question": "Which strategy would you like to focus on first?",
+    "header": "Strategy Selection",
     "options": strategy_options
 }])
 
-selected_title = selected.get("전략 선택")
+selected_title = selected.get("Strategy Selection")
 chosen_strategy = next(
     (s for s in strategies if s.get("title") == selected_title),
-    strategies[0] if strategies else {"title": "기본 전략", "description": "ISA 인덱스 ETF 적립식"}
+    strategies[0] if strategies else {"title": "Default Strategy", "description": "Index fund investing"}
 )
-print(f"선택된 전략: {chosen_strategy.get('title')}")
+print(f"Selected strategy: {chosen_strategy.get('title')}")
 ```
 
 ---
@@ -847,78 +847,100 @@ print(f"선택된 전략: {chosen_strategy.get('title')}")
 The action-plan-generator reads the roadmap template AND workflow files, producing a comprehensive 3-section roadmap.
 
 ```python
-print("Phase 3: 학습 + 실행 + 워크플로우 통합 로드맵 생성 중...")
+print("Phase 3: Generating integrated learning + action + workflow roadmap...")
 
 roadmap_path = f"{ROADMAP_DIR}/roadmap-{TS}.md"
-template_path = os.path.expanduser("~/.claude/skills/rich-guide/templates/roadmap-template.md")
+template_path = os.path.expanduser("~/.claude/skills/wealth-guide/templates/roadmap-template.md")
 
-# Read template so action-plan-generator can populate placeholders
+# Read template
 template_content = ""
 try:
     with open(template_path) as f:
         template_content = f.read()
 except FileNotFoundError:
-    template_content = "(템플릿 파일 없음 - 아래 형식으로 직접 생성하세요)"
+    template_content = "(Template file not found - generate roadmap directly)"
 
-# Prepare workflow file paths for agent to Read
+# Prepare workflow file paths
 selected_workflows = phase1['knowledge'].get('selected_workflows', ['first-investment'])
 workflow_paths = [f"{WF_DIR}/{wf}" if wf.endswith('.md') else f"{WF_DIR}/{wf}.md" for wf in selected_workflows]
 
-# BUG FIX: Net worth uses profile fields, not diagnostician fields
-net_worth = phase1['profile'].get('savings', 0) + phase1['profile'].get('investment_assets', 0) - phase1['profile'].get('debt', 0)
+# Net worth calculation
+net_worth = phase1['profile'].get('savings_midpoint', 0) + phase1['profile'].get('investment_midpoint', 0) - phase1['profile'].get('debt_midpoint', 0)
+
+country_resources = ""
+if country == "US":
+    country_resources = """
+    Key resources for US users:
+    - Financial planner: letsmakeaplan.org
+    - Tax authority: irs.gov
+    - Investor education: investor.gov
+    - Retirement calculator: ssa.gov/benefits/calculators
+    - Free credit report: annualcreditreport.com
+    """
+else:
+    country_resources = """
+    Key resources for Canadian users:
+    - Financial planner: fpcanada.ca
+    - Tax authority: canada.ca/cra
+    - Investor education: getsmarteraboutmoney.ca
+    - Retirement calculator: canada.ca/cpp-calculator
+    - Credit report: equifax.ca / transunion.ca
+    """
 
 Task(
     subagent_type="action-plan-generator",
     model="claude-opus-4-6",
-    description="학습+실행+워크플로우 통합 로드맵 생성",
+    description="Integrated roadmap generation",
     prompt=f"""
-    선택된 전략에 대한 3-section 통합 로드맵을 작성하세요:
-    1. 학습 계획 (무엇을 배워야 하는지)
-    2. 실행 계획 (무엇을 해야 하는지)
-    3. 워크플로우 (어떤 순서로 진행해야 하는지)
+    Create a 3-section integrated roadmap for the selected strategy:
+    1. Learning Plan (what to learn first)
+    2. Action Plan (what to do, week by week)
+    3. Workflow (step-by-step execution order)
 
-    선택된 전략:
+    Selected strategy:
     {json.dumps(chosen_strategy, ensure_ascii=False)}
 
-    사용자 레벨: {phase1['knowledge'].get('user_level', '입문')}
+    User level: {phase1['knowledge'].get('user_level', 'beginner')}
+    Country: {country}
 
-    학습 커리큘럼 (knowledge-advisor가 생성한 학습 순서):
+    Learning curriculum (from knowledge-advisor):
     {json.dumps(phase1['knowledge'].get('learning_curriculum', []), ensure_ascii=False)}
 
-    추천 도서:
+    Recommended books:
     {json.dumps(phase1['knowledge'].get('recommended_books', []), ensure_ascii=False)}
 
-    선택된 워크플로우 파일 (Read 도구로 읽어 로드맵에 통합하세요):
+    Workflow files to read and integrate (use Read tool):
     {json.dumps(workflow_paths, ensure_ascii=False)}
 
-    사용자 재무 상황:
-    - 월 잉여금: {phase1['diagnostician'].get('monthly_surplus', 100)}만원
-    - 리스크 성향: {phase1['profile']['risk_tolerance']}
-    - 목표: {phase1['profile'].get('goal', '재테크')}
-    - 재무 건강도: {phase1['diagnostician'].get('health_score', 50)}점
-    - 주요 강점: {json.dumps(phase1['diagnostician'].get('strengths', []), ensure_ascii=False)}
-    - 개선 사항: {json.dumps(phase1['diagnostician'].get('weaknesses', []), ensure_ascii=False)}
-    - 순자산: {net_worth}만원
+    Financial context:
+    - Monthly surplus: ${phase1['diagnostician'].get('monthly_surplus', 1000):,.0f}
+    - Risk tolerance: {phase1['profile']['risk_tolerance']}
+    - Goal: {phase1['profile'].get('goal', 'wealth building')}
+    - Health score: {phase1['diagnostician'].get('health_score', 50)}
+    - Strengths: {json.dumps(phase1['diagnostician'].get('strengths', []), ensure_ascii=False)}
+    - Weaknesses: {json.dumps(phase1['diagnostician'].get('weaknesses', []), ensure_ascii=False)}
+    - Net worth: ${net_worth:,.0f}
 
-    시장 상황: {phase1['market'].get('market_summary', '')}
+    Market conditions: {phase1['market'].get('market_summary', '')}
 
-    평가 요약: {phase2['evaluator'].get('overall_recommendation', '')}
+    Risk evaluation: {phase2['evaluator'].get('overall_recommendation', '')}
 
-    큐레이션 출처:
+    Curated sources:
     {json.dumps(phase1['knowledge'].get('curated_info', [])[:3], ensure_ascii=False)}
 
-    로드맵 템플릿 (아래 플레이스홀더를 실제 값으로 채워서 최종 마크다운을 작성하세요):
+    {country_resources}
+
+    Roadmap template (fill all {{PLACEHOLDER}} values with actual content):
     {template_content}
 
-    위 템플릿의 모든 {{PLACEHOLDER}} 를 실제 내용으로 채워 완성된 마크다운을 {roadmap_path} 에 저장하세요.
-    워크플로우 파일을 Read로 읽어 {{WORKFLOW_CONTENT}} 섹션에 통합하세요.
-
-    Write 도구를 사용해 파일을 저장하세요.
-    반드시 파일 경로 {roadmap_path} 에 저장하세요.
+    Save the completed markdown roadmap to {roadmap_path}.
+    Read workflow files with the Read tool and integrate into the {{WORKFLOW_CONTENT}} section.
+    Use the Write tool to save the file.
+    Save to exactly this path: {roadmap_path}
     """
 )
 
-print(f"Phase 3 완료")
+print(f"Phase 3 complete")
 ```
 
 ---
@@ -927,70 +949,97 @@ print(f"Phase 3 완료")
 
 ```python
 print("\n" + "="*60)
-print("부자 로드맵 생성 완료!")
+print("Wealth Roadmap Complete!")
 print("="*60)
 
+disclaimer_url = "https://www.letsmakeaplan.org/" if country == "US" else "https://fpcanada.ca/"
 print(f"""
-면책 조항
-이 분석은 AI가 생성한 참고용 정보입니다.
-투자 결정은 본인의 판단과 책임 하에 이루어져야 하며,
-중요한 재무 결정 전에는 전문 재무설계사와 상담하시기 바랍니다.
+DISCLAIMER
+This analysis is AI-generated reference information.
+Investment decisions should be made based on your own judgment
+and responsibility. Consult a qualified financial advisor before
+making significant financial decisions.
+Find a CFP: {disclaimer_url}
 """)
 
 user_level = phase1['knowledge'].get('user_level', 'N/A')
-print(f"사용자 레벨: {user_level}")
-print(f"재무 건강 점수: {phase1['diagnostician'].get('health_score', 'N/A')}점")
-print(f"월 잉여금: 약 {phase1['diagnostician'].get('monthly_surplus', 'N/A')}만원")
+currency = "USD" if country == "US" else "CAD"
+print(f"Country: {'United States' if country == 'US' else 'Canada'}")
+print(f"User level: {user_level}")
+print(f"Financial health score: {phase1['diagnostician'].get('health_score', 'N/A')}")
+monthly_surplus = phase1['diagnostician'].get('monthly_surplus', 'N/A')
+if isinstance(monthly_surplus, (int, float)):
+    print(f"Monthly surplus: approx. ${monthly_surplus:,.0f} {currency}")
+else:
+    print(f"Monthly surplus: {monthly_surplus}")
 print()
-print(f"선택된 전략: {chosen_strategy.get('title')}")
-expert_source = chosen_strategy.get('expert_source', {})
-if expert_source:
-    print(f"전문가 근거: {expert_source.get('name', '')} — {expert_source.get('method', '')}")
-print(f"기대 수익: {chosen_strategy.get('expected_return', 'N/A')}")
-print(f"리스크: {chosen_strategy.get('risk_level', 'N/A')}")
+print(f"Selected strategy: {chosen_strategy.get('title')}")
+strategy_source = chosen_strategy.get('strategy_source', {})
+if strategy_source:
+    print(f"Methodology: {strategy_source.get('methodology', '')} - {strategy_source.get('key_principle', '')}")
+    citations = strategy_source.get('citations', [])
+    if citations:
+        print(f"Citations: {', '.join(citations)}")
+print(f"Expected return: {chosen_strategy.get('expected_return', 'N/A')}")
+print(f"Risk level: {chosen_strategy.get('risk_level', 'N/A')}")
+
+# Show country-specific details
+country_details = chosen_strategy.get('country_specific', {})
+if country_details:
+    accounts = country_details.get('accounts', [])
+    if accounts:
+        print(f"Recommended accounts: {', '.join(accounts)}")
+    tax_note = country_details.get('tax_implications', '')
+    if tax_note:
+        print(f"Tax implications: {tax_note}")
 print()
 
 # Show learning curriculum summary
 curriculum = phase1['knowledge'].get('learning_curriculum', [])
 if curriculum:
-    print("학습 계획 요약:")
+    print("Learning plan summary:")
     for item in curriculum[:3]:
         print(f"  {item.get('order', '?')}. {item.get('topic', '')} ({item.get('estimated_time', '')})")
     print()
 
-print(f"생성된 로드맵: {roadmap_path}")
+print(f"Generated roadmap: {roadmap_path}")
 print()
 
 # Show verified sources
 sources = [s for s in phase1['knowledge'].get('curated_info', []) if s.get('verified')]
 if sources:
-    print("참고 자료:")
+    print("References:")
     for src in sources[:3]:
         print(f"  - {src.get('source', '')}: {src.get('title', '')} ({src.get('url', '')})")
 
 print()
-print("다음 단계:")
-print("1. 위 로드맵 파일을 열어 학습 계획부터 확인")
-print("2. 1주차 체크리스트 실행 시작")
-print("3. 재무설계사 상담: https://www.fpsb.or.kr/")
+print("Next steps:")
+print("1. Open the roadmap file above and review the learning plan")
+print("2. Start the Week 1 checklist")
+if country == "US":
+    print("3. Find a CFP: https://www.letsmakeaplan.org/")
+else:
+    print("3. Find a CFP: https://fpcanada.ca/")
 
 # Record session history to DB
 try:
+    matched_strats = json.dumps(phase1["knowledge"].get("matched_strategies", []), ensure_ascii=False)
+    sel_workflows = json.dumps(phase1["knowledge"].get("selected_workflows", []), ensure_ascii=False)
+    user_lvl = phase1["knowledge"].get("user_level", "beginner")
+    strat_title = chosen_strategy.get("title", "")
+
     subprocess.run(["python3", "-c", f"""
 import sqlite3, json
 conn = sqlite3.connect('{DB_PATH}')
-# Get latest profile_id
 row = conn.execute("SELECT id FROM profiles ORDER BY id DESC LIMIT 1").fetchone()
 pid = row[0] if row else None
 if pid:
     conn.execute('''INSERT INTO session_history
-        (profile_id, user_level, selected_strategy, matched_experts, selected_workflows, roadmap_path)
+        (profile_id, user_level, selected_strategy, matched_strategies, selected_workflows, roadmap_path)
         VALUES (?, ?, ?, ?, ?, ?)''',
-        (pid,
-         '{phase1["knowledge"].get("user_level", "입문")}',
-         '{chosen_strategy.get("title", "")}',
-         json.dumps({json.dumps(phase1["knowledge"].get("matched_experts", []), ensure_ascii=False)}),
-         json.dumps({json.dumps(phase1["knowledge"].get("selected_workflows", []), ensure_ascii=False)}),
+        (pid, '{user_lvl}', '{strat_title}',
+         '''{matched_strats}''',
+         '''{sel_workflows}''',
          '{roadmap_path}'))
     conn.commit()
 conn.close()
@@ -1000,7 +1049,7 @@ except (subprocess.CalledProcessError, OSError):
 
 # Cleanup /tmp files for this session
 import glob
-for tmp_file in glob.glob(f"/tmp/rich-guide-*-{TS}.json"):
+for tmp_file in glob.glob(f"/tmp/wealth-guide-*-{TS}.json"):
     try:
         os.remove(tmp_file)
     except OSError:
