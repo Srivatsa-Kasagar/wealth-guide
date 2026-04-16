@@ -355,158 +355,230 @@ print("saved")
 
 ### Step 3: Phase 1 - Parallel Diagnosis + Knowledge Matching
 
-Launch all 3 Phase 1 agents simultaneously. All three Task() calls must appear in a single response block so Claude Code executes them in parallel. The knowledge-advisor replaces the previous info-curator by combining knowledge base reading with web search.
+Launch all 3 Phase 1 agents simultaneously. All three Task() calls must appear in a single response block so Claude Code executes them in parallel. The knowledge-advisor combines knowledge base reading with web search.
 
 ```python
-print("Phase 1: 진단 + 지식 매칭 시작 (3개 에이전트 병렬 실행)...")
+print("Phase 1: Diagnosis + Knowledge Matching (3 agents in parallel)...")
 
-experience = profile.get("experience", "없음")
+experience = profile.get("experience", "none")
+country = profile.get("country", "US")
+currency = "USD" if country == "US" else "CAD"
+monthly_income = profile['annual_income'] / 12
+
+country_context_diagnostician = ""
+if country == "US":
+    country_context_diagnostician = """
+    Country-specific rules (US):
+    - Debt-to-income threshold: 36% DTI is healthy, >43% is concerning
+    - High-interest debt: >20% APR (credit cards)
+    - Emergency fund: 3-6 months expenses in HYSA
+    - Savings rate benchmark: 20%+ (50/30/20 rule)
+    """
+else:
+    country_context_diagnostician = """
+    Country-specific rules (Canada):
+    - Debt ratios: GDS <= 32%, TDS <= 40%
+    - High-interest debt: >20% APR (credit cards)
+    - Emergency fund: 3-6 months expenses in HISA or GIC
+    - Savings rate benchmark: 20%+
+    """
 
 # CRITICAL: All 3 Task calls must be in a single response for parallel execution
 Task(
     subagent_type="financial-diagnostician",
     model="claude-sonnet-4-5-20250929",
-    description="재무 건강도 진단",
+    description="Financial health diagnosis",
     prompt=f"""
-    사용자 재무 프로필을 분석하여 재무 건강도를 진단하세요.
+    Analyze the user's financial profile and produce a financial health diagnosis.
 
-    프로필:
-    - 월수입: {profile['monthly_income']}만원
-    - 월지출: {profile['monthly_expense']}만원
-    - 예금: {profile['savings']}만원
-    - 투자자산: {profile['investment_assets']}만원
-    - 대출: {profile['debt']}만원
-    - 리스크성향: {profile['risk_tolerance']}
-    - 목표: {profile.get('goal', '미지정')}
+    Profile:
+    - Country: {country} ({currency})
+    - Annual income: ${profile['annual_income']:,.0f}
+    - Monthly income: ${monthly_income:,.0f}
+    - Monthly expenses: ${profile['monthly_expense']:,.0f}
+    - Savings: {profile['savings']} (midpoint: ${profile['savings_midpoint']:,.0f})
+    - Investment assets: {profile['investment_assets']} (midpoint: ${profile['investment_midpoint']:,.0f})
+    - Debt: {profile['debt']} (midpoint: ${profile['debt_midpoint']:,.0f})
+    - Risk tolerance: {profile['risk_tolerance']}
+    - Goal: {profile.get('goal', 'Not specified')}
 
-    다음 JSON을 /tmp/rich-guide-diagnostician-{TS}.json 에 저장하세요:
+    {country_context_diagnostician}
+
+    Save the following JSON to /tmp/wealth-guide-diagnostician-{TS}.json:
     {{
       "status": "success",
       "agent": "financial-diagnostician",
-      "health_score": 0-100점,
-      "monthly_surplus": 월 잉여금(만원),
-      "savings_rate": 저축률(%),
-      "debt_ratio": 부채비율(%),
-      "emergency_fund_months": 비상금 버팀 개월수,
-      "diagnosis": "재무 상태 요약 (2-3문장)",
-      "strengths": ["강점1", "강점2"],
-      "weaknesses": ["약점1", "약점2"],
-      "recommended_investment_ratio": 투자 가능 비율(%)
+      "country": "{country}",
+      "health_score": 0-100,
+      "monthly_surplus": monthly surplus in {currency},
+      "savings_rate": savings rate (%),
+      "debt_ratio": debt-to-income ratio (%),
+      "emergency_fund_months": months of expenses covered by savings,
+      "diagnosis": "2-3 sentence summary of financial health",
+      "strengths": ["strength1", "strength2"],
+      "weaknesses": ["weakness1", "weakness2"],
+      "recommended_investment_ratio": recommended % of surplus to invest
     }}
 
-    Write 도구로 파일을 저장하세요.
+    Use the Write tool to save the file.
     """
 )
+
+country_context_knowledge = ""
+if country == "US":
+    country_context_knowledge = """
+    Country: United States
+    Tax-advantaged accounts: 401(k), Traditional IRA, Roth IRA, HSA, 529
+    Common index funds: VTI, VXUS, VOO, BND, target-date funds
+    Tax-loss harvesting: wash sale rule (30 days)
+    Employer match: 401(k) match
+    """
+else:
+    country_context_knowledge = """
+    Country: Canada
+    Tax-advantaged accounts: RRSP, TFSA, RESP, FHSA
+    Common index funds: VEQT, XEQT, VCN, ZAG, VBAL
+    Tax-loss harvesting: superficial loss rule (30 days)
+    Employer match: RRSP group match / DPSP
+    """
 
 Task(
     subagent_type="knowledge-advisor",
     model="claude-sonnet-4-5-20250929",
-    description="지식 베이스 매칭 + 정보 큐레이션",
+    description="Knowledge base matching + learning curriculum",
     prompt=f"""
-    사용자 프로필에 맞는 전문가 방법론을 매칭하고 학습 커리큘럼을 생성하세요.
+    Match the user's profile to strategy-focused methodologies and generate a learning curriculum.
 
-    사용자 프로필:
-    - 월수입: {profile['monthly_income']}만원
-    - 예금: {profile['savings']}만원
-    - 투자자산: {profile['investment_assets']}만원
-    - 대출: {profile['debt']}만원
-    - 리스크성향: {profile['risk_tolerance']}
-    - 재테크 경험: {experience}
-    - 목표: {profile.get('goal', '미지정')}
+    User profile:
+    - Country: {country}
+    - Annual income: ${profile['annual_income']:,.0f}
+    - Savings: {profile['savings']} (midpoint: ${profile['savings_midpoint']:,.0f})
+    - Investment assets: {profile['investment_assets']} (midpoint: ${profile['investment_midpoint']:,.0f})
+    - Debt: {profile['debt']} (midpoint: ${profile['debt_midpoint']:,.0f})
+    - Risk tolerance: {profile['risk_tolerance']}
+    - Experience: {experience}
+    - Goal: {profile.get('goal', 'Not specified')}
 
-    지식 베이스 파일 경로 (Read 도구로 읽으세요):
-    1. {KB_DIR}/investment-masters.md — 투자 대가 방법론
-    2. {KB_DIR}/entrepreneurs.md — 자수성가 인물 방법론
-    3. {KB_DIR}/side-hustles.md — 부업 가이드
-    4. {KB_DIR}/money-fundamentals.md — 돈의 원리
+    {country_context_knowledge}
 
-    워크플로우 파일 경로 (선택 시 파일명만 기록):
+    Knowledge base file paths (Read each with the Read tool):
+    1. {KB_DIR}/index-investing.md - Passive index investing methodology
+    2. {KB_DIR}/real-estate-investing.md - Real estate strategies
+    3. {KB_DIR}/side-hustles.md - Side hustle guide
+    4. {KB_DIR}/money-fundamentals.md - Budgeting, emergency fund, debt payoff
+    5. {KB_DIR}/tax-optimization.md - Tax-advantaged strategies
+    6. {KB_DIR}/retirement-planning.md - Retirement and FIRE strategies
+    7. {KB_DIR}/career-income-growth.md - Career growth and salary optimization
+
+    Workflow file paths (record filename only if selected):
     - first-investment.md, debt-freedom.md, side-hustle-launch.md, wealth-building.md
 
-    레벨 판정 기준:
-    - 입문: health_score < {LEVEL_BEGINNER} 또는 투자자산 = 0 또는 경험 = "없음"/"예적금만"
-    - 중급: {LEVEL_BEGINNER} ≤ score < {LEVEL_INTERMEDIATE} 이고 투자자산 > 0
-    - 고급: score ≥ {LEVEL_INTERMEDIATE} 이고 투자자산 ≥ {LEVEL_ADV_INVEST}만원
+    Level assessment criteria:
+    - Beginner: health_score < {LEVEL_BEGINNER} OR investments = "None" OR experience = "none"/"basic"
+    - Intermediate: {LEVEL_BEGINNER} <= score < {LEVEL_INTERMEDIATE} AND investments > $0
+    - Advanced: score >= {LEVEL_INTERMEDIATE} AND investments >= ${LEVEL_ADV_INVEST:,.0f}
 
-    참고: health_score는 아직 계산 전이므로 투자자산({profile['investment_assets']}만원)과 경험({experience})으로 우선 판정하세요.
+    Note: health_score is not yet calculated. Use investment assets ({profile['investment_assets']}) and experience ({experience}) for initial level assessment.
 
-    작업:
-    1. 4개 지식 베이스 파일을 Read로 읽기
-    2. 사용자 레벨 판정
-    3. 레벨+리스크+목표에 맞는 전문가 방법론 3-5개 매칭
-    4. 학습 커리큘럼 생성 (순서 + 주제 + 출처 + 이유)
-    5. 적합한 워크플로우 1-2개 선택
-    6. WebSearch로 최신 재테크 정보 보충
+    Tasks:
+    1. Read all 7 knowledge base files
+    2. Assess user level
+    3. Match 3-5 strategy methodologies based on level + risk + goal + country
+    4. Generate learning curriculum (order + topic + source + reason)
+    5. Select 1-2 appropriate workflows
+    6. Use WebSearch for current financial news relevant to the user's situation
 
-    다음 JSON을 /tmp/rich-guide-knowledge-{TS}.json 에 저장하세요:
+    Save the following JSON to /tmp/wealth-guide-knowledge-{TS}.json:
     {{
       "status": "success",
       "agent": "knowledge-advisor",
-      "user_level": "입문/중급/고급",
-      "level_reasoning": "판정 이유",
-      "matched_experts": [
-        {{"name": "전문가명", "method": "방법론명", "reason": "매칭 이유", "source_file": "파일명"}}
+      "country": "{country}",
+      "user_level": "beginner/intermediate/advanced",
+      "level_reasoning": "reasoning for level assessment",
+      "matched_strategies": [
+        {{"methodology": "strategy name", "category": "category", "reason": "matching reason", "source_file": "filename", "citations": ["author1", "author2"]}}
       ],
       "learning_curriculum": [
-        {{"order": 1, "topic": "주제", "source": "출처", "why": "이유", "estimated_time": "시간"}}
+        {{"order": 1, "topic": "topic", "source": "source", "why": "reason", "estimated_time": "time"}}
       ],
       "recommended_books": [
-        {{"title": "도서명", "author": "저자", "level": "레벨"}}
+        {{"title": "book title", "author": "author", "level": "level"}}
       ],
-      "selected_workflows": ["워크플로우 파일명"],
-      "workflow_reasoning": "선택 이유",
+      "selected_workflows": ["workflow filename"],
+      "workflow_reasoning": "selection reason",
       "curated_info": [
-        {{"title": "기사 제목", "source": "도메인", "url": "URL", "summary": "요약", "verified": true, "relevance": "high"}}
+        {{"title": "article title", "source": "domain", "url": "URL", "summary": "summary", "verified": true, "relevance": "high"}}
       ],
-      "key_insights": ["인사이트1", "인사이트2"],
-      "tax_benefits": ["세제혜택1", "세제혜택2"]
+      "key_insights": ["insight1", "insight2"],
+      "tax_benefits": ["tax benefit1", "tax benefit2"]
     }}
 
-    Write 도구로 파일을 저장하세요.
+    Use the Write tool to save the file.
     """
 )
+
+country_context_market = ""
+if country == "US":
+    country_context_market = """
+    Country: United States
+    Domestic market: S&P 500, NASDAQ Composite
+    Interest rate: Federal Reserve / Fed Funds rate
+    Real estate: Case-Shiller Home Price Index
+    Savings benchmark: HYSA rates
+    """
+else:
+    country_context_market = """
+    Country: Canada
+    Domestic market: TSX Composite
+    Interest rate: Bank of Canada / overnight rate
+    Real estate: CREA Home Price Index (HPI)
+    Savings benchmark: HISA / GIC rates
+    """
 
 Task(
     subagent_type="market-context-analyzer",
     model="claude-sonnet-4-5-20250929",
-    description="시장 상황 분석",
+    description="Market conditions analysis",
     prompt=f"""
-    현재 한국 및 글로벌 투자 시장 상황을 분석하세요.
+    Analyze current investment market conditions relevant to the user.
 
-    분석 대상:
-    1. 현재 기준금리 환경 (예금 매력도)
-    2. KOSPI/S&P500 밸류에이션 (인덱스 투자 적정성)
-    3. 부동산 시장 동향 (내 집 마련 타이밍)
-    4. 인플레이션 환경 (실질 수익률 관점)
+    User country: {country}
+    User goal: {profile.get('goal', 'Not specified')}
+    Risk tolerance: {profile['risk_tolerance']}
 
-    portfolio-copilot 데이터 확인 시도 (선택적):
-    - {os.path.expanduser("~/.claude/plugins/portfolio-copilot/data/portfolio.db")} 존재 여부 확인 후 활용
-    - 파일이 없으면 경고 없이 WebSearch로 대체
+    {country_context_market}
 
-    다음 JSON을 /tmp/rich-guide-market-{TS}.json 에 저장하세요:
+    Analysis areas:
+    1. Current interest rate environment (savings account attractiveness)
+    2. Equity market valuation (index investing entry point)
+    3. Real estate market trends (home buying timing)
+    4. Inflation environment (real return perspective)
+
+    Save the following JSON to /tmp/wealth-guide-market-{TS}.json:
     {{
       "status": "success",
       "agent": "market-context-analyzer",
-      "market_summary": "현재 시장 상황 2-3문장 요약",
-      "interest_rate_env": "high/medium/low (예금 매력도)",
+      "country": "{country}",
+      "market_summary": "2-3 sentence current market summary",
+      "interest_rate_env": "high/medium/low (savings attractiveness)",
       "equity_valuation": "overvalued/fair/undervalued",
-      "key_opportunities": ["기회1", "기회2"],
-      "key_risks": ["리스크1", "리스크2"],
+      "key_opportunities": ["opportunity1", "opportunity2"],
+      "key_risks": ["risk1", "risk2"],
       "recommended_asset_allocation": {{
-        "deposits": 예금 비중(%),
-        "bonds": 채권 비중(%),
-        "domestic_equity": 국내주식 비중(%),
-        "global_equity": 해외주식 비중(%),
-        "real_estate": 부동산 비중(%),
-        "alternatives": 대안투자 비중(%)
+        "savings_accounts": savings allocation (%),
+        "bonds": bonds allocation (%),
+        "domestic_equity": domestic stocks (%),
+        "international_equity": international stocks (%),
+        "real_estate": real estate (%),
+        "alternatives": alternatives (%)
       }}
     }}
 
-    Write 도구로 파일을 저장하세요.
+    Use the Write tool to save the file.
     """
 )
 
-# Read Phase 1 results — called AFTER all Task() calls above have completed
+# Read Phase 1 results - called AFTER all Task() calls above have completed
 def read_agent_output(path, default):
     try:
         with open(path) as f:
@@ -514,26 +586,28 @@ def read_agent_output(path, default):
     except (FileNotFoundError, json.JSONDecodeError):
         return default
 
-diag = read_agent_output(f"/tmp/rich-guide-diagnostician-{TS}.json",
-    {"status": "failed", "health_score": 50, "monthly_surplus": profile['monthly_income'] - profile['monthly_expense'],
-     "diagnosis": "진단 데이터 없음", "strengths": [], "weaknesses": [], "recommended_investment_ratio": 20})
+default_surplus = monthly_income - profile['monthly_expense']
 
-knowledge = read_agent_output(f"/tmp/rich-guide-knowledge-{TS}.json",
-    {"status": "failed", "user_level": "입문", "matched_experts": [],
+diag = read_agent_output(f"/tmp/wealth-guide-diagnostician-{TS}.json",
+    {"status": "failed", "health_score": 50, "monthly_surplus": default_surplus,
+     "diagnosis": "Diagnostic data unavailable", "strengths": [], "weaknesses": [], "recommended_investment_ratio": 20})
+
+knowledge = read_agent_output(f"/tmp/wealth-guide-knowledge-{TS}.json",
+    {"status": "failed", "user_level": "beginner", "matched_strategies": [],
      "learning_curriculum": [], "recommended_books": [],
      "selected_workflows": ["first-investment"],
      "curated_info": [], "key_insights": [], "tax_benefits": []})
 
-market = read_agent_output(f"/tmp/rich-guide-market-{TS}.json",
-    {"status": "failed", "market_summary": "시장 데이터 없음", "key_opportunities": [], "key_risks": [],
-     "recommended_asset_allocation": {"deposits": 40, "bonds": 10, "domestic_equity": 20, "global_equity": 20, "real_estate": 10, "alternatives": 0}})
+market = read_agent_output(f"/tmp/wealth-guide-market-{TS}.json",
+    {"status": "failed", "market_summary": "Market data unavailable", "key_opportunities": [], "key_risks": [],
+     "recommended_asset_allocation": {"savings_accounts": 40, "bonds": 10, "domestic_equity": 20, "international_equity": 20, "real_estate": 10, "alternatives": 0}})
 
 # Save Phase 1 combined
 phase1 = {"diagnostician": diag, "knowledge": knowledge, "market": market, "profile": profile}
-with open(f"/tmp/rich-guide-phase1-{TS}.json", "w") as f:
+with open(f"/tmp/wealth-guide-phase1-{TS}.json", "w") as f:
     json.dump(phase1, f, ensure_ascii=False, indent=2)
 
-print(f"Phase 1 완료 - 재무건강점수: {diag.get('health_score', 'N/A')}점, 레벨: {knowledge.get('user_level', 'N/A')}")
+print(f"Phase 1 complete - Health score: {diag.get('health_score', 'N/A')}, Level: {knowledge.get('user_level', 'N/A')}")
 ```
 
 ---
