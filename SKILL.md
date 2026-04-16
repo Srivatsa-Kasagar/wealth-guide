@@ -614,163 +614,199 @@ print(f"Phase 1 complete - Health score: {diag.get('health_score', 'N/A')}, Leve
 
 ### Step 4: Phase 2 - Sequential Strategy then Evaluation
 
-wealth-strategist runs first with knowledge context (matched experts), so strategies are grounded in real expert methodologies. risk-reward-evaluator then runs with those actual strategies.
+wealth-strategist runs first with knowledge context (matched strategies), so strategies are grounded in real methodologies. risk-reward-evaluator then runs with those actual strategies.
 
 ```python
-print("Phase 2-A: 전문가 방법론 기반 전략 생성 중 (wealth-strategist)...")
+print("Phase 2-A: Strategy generation (wealth-strategist)...")
+
+country_context_strategist = ""
+if country == "US":
+    country_context_strategist = """
+    Country: United States (USD)
+    Retirement accounts: 401(k) ($23,500 limit), Traditional IRA ($7,000), Roth IRA ($7,000), HSA ($4,300 individual / $8,550 family)
+    First home: FHA loan (3.5% down), down payment assistance programs
+    Tax optimization: standard/itemized deduction, 0%/15%/20% long-term capital gains brackets, QBI deduction for self-employed
+    Side hustle: Schedule C, 15.3% self-employment tax, quarterly estimated taxes
+    College savings: 529 plans (state tax deduction)
+    """
+else:
+    country_context_strategist = """
+    Country: Canada (CAD)
+    Retirement accounts: RRSP ($31,560 limit), TFSA ($7,000 limit), FHSA ($8,000/yr, $40,000 lifetime)
+    First home: FHSA, RRSP Home Buyers' Plan ($60,000), First Home Buyer Incentive
+    Tax optimization: basic personal amount, 50% capital gains inclusion, dividend tax credit, RRSP/TFSA decision framework
+    Side hustle: T2125, CPP self-employed contributions, GST/HST registration at $30K
+    Education savings: RESP (20% CESG match up to $500/yr)
+    """
 
 Task(
     subagent_type="wealth-strategist",
     model="claude-opus-4-6",
-    description="전문가 기반 부자 전략 생성",
+    description="Strategy generation",
     prompt=f"""
-    Phase 1 진단 결과와 지식 베이스 매칭 결과를 바탕으로 3-5개의 전문가 방법론 기반 부자 전략을 생성하세요.
+    Based on Phase 1 diagnosis and knowledge matching, generate 3-5 wealth-building strategies.
 
-    재무 프로필:
+    Financial profile:
     {json.dumps(phase1['profile'], ensure_ascii=False)}
 
-    재무 진단:
+    Financial diagnosis:
     {json.dumps(phase1['diagnostician'], ensure_ascii=False)}
 
-    시장 상황:
+    Market conditions:
     {json.dumps(phase1['market'], ensure_ascii=False)}
 
-    사용자 레벨: {phase1['knowledge'].get('user_level', '입문')}
+    User level: {phase1['knowledge'].get('user_level', 'beginner')}
 
-    매칭된 전문가 방법론 (각 전략은 아래 전문가 중 1명의 방법론에 기반해야 합니다):
-    {json.dumps(phase1['knowledge'].get('matched_experts', []), ensure_ascii=False)}
+    Matched strategy methodologies (each strategy must be grounded in one of these):
+    {json.dumps(phase1['knowledge'].get('matched_strategies', []), ensure_ascii=False)}
 
-    학습 커리큘럼 (각 전략에 learning_prerequisites 포함):
+    Learning curriculum (include learning_prerequisites per strategy):
     {json.dumps(phase1['knowledge'].get('learning_curriculum', []), ensure_ascii=False)}
 
-    세금 혜택:
+    Tax benefits:
     {json.dumps(phase1['knowledge'].get('tax_benefits', []), ensure_ascii=False)}
 
-    전략 다양성 필수 요건:
-    - 리스크 범위: 저위험(예금/채권) + 중위험(인덱스) + 고위험(개별주식) 포함
-    - 시간 범위: 단기(1년) + 중기(3년) + 장기(10년) 고루 포함
-    - 분야: 투자 / 부업 / 커리어 성장 / 비용 절감 중 최소 2개 이상
+    {country_context_strategist}
 
-    각 전략에는 반드시 expert_source 필드를 포함하세요:
-    "expert_source": {{
-      "name": "전문가명",
-      "method": "방법론명",
-      "key_principle": "핵심 원칙 1문장"
+    Strategy diversity requirements:
+    - Risk range: must include low-risk + medium-risk + high-risk strategies
+    - Time range: must include short-term (1yr) + mid-term (3yr) + long-term (10yr+)
+    - Categories: at least 3 of these 7: investment / tax-optimization / side-hustle / career-growth / real-estate / debt-payoff / cost-saving
+    - MUST include at least 1 tax optimization strategy
+
+    Each strategy must include a strategy_source field:
+    "strategy_source": {{
+      "methodology": "methodology name",
+      "key_principle": "core principle in one sentence",
+      "citations": ["author1", "author2"]
     }}
 
-    그리고 learning_prerequisites 필드도 포함하세요:
-    "learning_prerequisites": ["이 전략 실행 전 배워야 할 것1", "것2"]
+    And a country_specific field:
+    "country_specific": {{
+      "accounts": ["relevant tax-advantaged accounts"],
+      "tax_implications": "tax impact summary",
+      "regulatory_notes": "any regulatory considerations"
+    }}
 
-    다음 JSON을 /tmp/rich-guide-strategist-{TS}.json 에 저장하세요:
+    And a learning_prerequisites field:
+    "learning_prerequisites": ["prerequisite1", "prerequisite2"]
+
+    Save the following JSON to /tmp/wealth-guide-strategist-{TS}.json:
     {{
       "status": "success",
       "agent": "wealth-strategist",
+      "country": "{country}",
       "strategies": [
         {{
           "id": "S1",
-          "title": "전략명 (전문가명 방법론)",
-          "category": "investment/side-hustle/business/cost-saving",
+          "title": "Strategy name (methodology)",
+          "category": "investment/tax-optimization/side-hustle/career-growth/real-estate/debt-payoff/cost-saving",
           "risk_level": "low/medium/high",
           "time_horizon": "short/mid/long",
-          "expected_return": "연 X%",
-          "initial_capital": 초기 자본(만원),
-          "monthly_commitment": "월 X시간 또는 X만원",
-          "description": "전략 설명 (3-4문장, 전문가 방법론 언급)",
-          "expert_source": {{"name": "...", "method": "...", "key_principle": "..."}},
+          "expected_return": "annual X%",
+          "initial_capital": initial capital needed,
+          "monthly_commitment": "$ amount or hours per month",
+          "description": "3-4 sentence strategy description with methodology reference",
+          "strategy_source": {{"methodology": "...", "key_principle": "...", "citations": ["..."]}},
+          "country_specific": {{"accounts": ["..."], "tax_implications": "...", "regulatory_notes": "..."}},
           "learning_prerequisites": ["...", "..."],
-          "pros": ["장점1", "장점2"],
-          "cons": ["단점1", "단점2"],
-          "first_step": "당장 할 수 있는 첫 번째 행동",
+          "pros": ["pro1", "pro2"],
+          "cons": ["con1", "con2"],
+          "first_step": "Immediate actionable first step",
           "sources": []
         }}
       ]
     }}
 
-    Write 도구로 파일을 저장하세요.
+    Use the Write tool to save the file.
     """
 )
 
 # Read strategist output before launching evaluator
-strategist = read_agent_output(f"/tmp/rich-guide-strategist-{TS}.json",
+strategist = read_agent_output(f"/tmp/wealth-guide-strategist-{TS}.json",
     {"status": "failed", "strategies": [
-        {"id": "S1", "title": "ISA 인덱스 ETF 적립식 (존 리 방법론)", "category": "investment", "risk_level": "medium",
-         "time_horizon": "long", "expected_return": "연 7-10%", "initial_capital": 0,
-         "monthly_commitment": "월 30만원",
-         "description": "존 리의 적립식 투자 철학에 기반하여 ISA 계좌를 통해 국내외 인덱스 ETF에 매월 자동 적립하는 방법입니다.",
-         "expert_source": {"name": "존 리", "method": "적립식 인덱스 투자", "key_principle": "매월 일정액을 인덱스 펀드에 자동 적립"},
-         "learning_prerequisites": ["복리의 원리 이해", "ETF 기초 학습"],
-         "pros": ["전문가 검증 방법론", "세제 혜택", "자동화 가능"], "cons": ["장기 투자 필요"],
-         "first_step": "증권사 ISA 계좌 개설", "sources": []}
+        {"id": "S1", "title": "Index Fund Investing (Passive Strategy)", "category": "investment", "risk_level": "medium",
+         "time_horizon": "long", "expected_return": "annual 7-10%", "initial_capital": 0,
+         "monthly_commitment": "$500/month",
+         "description": "Dollar-cost average into a diversified index fund portfolio through tax-advantaged accounts.",
+         "strategy_source": {"methodology": "Passive Index Investing", "key_principle": "Buy the whole market at low cost and hold long-term", "citations": ["John Bogle", "Burton Malkiel"]},
+         "country_specific": {"accounts": ["401(k)", "Roth IRA"] if country == "US" else ["RRSP", "TFSA"], "tax_implications": "Tax-deferred or tax-free growth", "regulatory_notes": "Annual contribution limits apply"},
+         "learning_prerequisites": ["Understanding compound interest", "Index fund basics"],
+         "pros": ["Expert-validated methodology", "Tax advantages", "Fully automatable"], "cons": ["Requires long time horizon"],
+         "first_step": "Open a brokerage account and set up automatic contributions", "sources": []}
     ]})
 
 strategies = strategist.get("strategies", [])
 
 # Guard against empty strategies list
 if not strategies:
+    default_accounts = ["HYSA", "401(k)"] if country == "US" else ["HISA", "TFSA"]
     strategies = [
-        {"id": "S1", "title": "비상금 확보 + 파킹통장 (기본 전략)", "category": "cost-saving", "risk_level": "low",
-         "time_horizon": "short", "expected_return": "연 3-4%", "initial_capital": 0,
-         "monthly_commitment": "월 20만원",
-         "description": "비상금 확보를 최우선으로 하고 파킹통장에 예치하는 기본 전략입니다.",
-         "expert_source": {"name": "기본 원칙", "method": "비상금 우선 확보", "key_principle": "투자 전 최소 3개월 생활비를 비상금으로 확보"},
-         "learning_prerequisites": ["자동화 시스템 이해"],
-         "pros": ["원금 보장", "즉시 시작 가능"], "cons": ["낮은 수익률"],
-         "first_step": "파킹통장 개설", "sources": []}
+        {"id": "S1", "title": "Emergency Fund + High-Yield Savings (Foundation)", "category": "cost-saving", "risk_level": "low",
+         "time_horizon": "short", "expected_return": "annual 4-5%", "initial_capital": 0,
+         "monthly_commitment": "$200/month",
+         "description": "Build an emergency fund covering 3-6 months of expenses in a high-yield savings account before investing.",
+         "strategy_source": {"methodology": "Emergency Fund First", "key_principle": "Build a financial safety net before investing", "citations": ["Dave Ramsey", "Elizabeth Warren"]},
+         "country_specific": {"accounts": default_accounts, "tax_implications": "Interest is taxable income", "regulatory_notes": "FDIC/CDIC insured up to limits"},
+         "learning_prerequisites": ["Budgeting basics"],
+         "pros": ["Zero risk", "Immediate start"], "cons": ["Low returns"],
+         "first_step": "Open a high-yield savings account", "sources": []}
     ]
 
-print(f"전략 생성 완료 - {len(strategies)}개 전략")
+print(f"Strategy generation complete - {len(strategies)} strategies")
 
-print("Phase 2-B: 리스크/보상 평가 중 (risk-reward-evaluator)...")
+print("Phase 2-B: Risk/reward evaluation (risk-reward-evaluator)...")
 
 Task(
     subagent_type="risk-reward-evaluator",
     model="claude-sonnet-4-5-20250929",
-    description="전략별 리스크/보상 평가",
+    description="Strategy risk/reward evaluation",
     prompt=f"""
-    사용자 재무 상황에서 아래에 실제 생성된 전략들의 리스크/보상을 평가하세요.
+    Evaluate the risk/reward of each strategy for this specific user.
 
-    재무 프로필:
+    Financial profile:
     {json.dumps(phase1['profile'], ensure_ascii=False)}
 
-    재무 건강도 점수: {phase1['diagnostician'].get('health_score', 50)}
-    월 잉여금: {phase1['diagnostician'].get('monthly_surplus', 100)}만원
-    리스크 성향: {phase1['profile']['risk_tolerance']}
+    Health score: {phase1['diagnostician'].get('health_score', 50)}
+    Monthly surplus: ${phase1['diagnostician'].get('monthly_surplus', 1000):,.0f}
+    Risk tolerance: {phase1['profile']['risk_tolerance']}
+    Country: {country}
 
-    실제 생성된 전략 목록 (각 전략의 id와 title을 evaluations에서 그대로 사용하세요):
+    Strategies to evaluate (use each strategy's id and title exactly as given):
     {json.dumps(strategies, ensure_ascii=False)}
 
-    다음 JSON을 /tmp/rich-guide-evaluator-{TS}.json 에 저장하세요:
+    Save the following JSON to /tmp/wealth-guide-evaluator-{TS}.json:
     {{
       "status": "success",
       "agent": "risk-reward-evaluator",
-      "user_risk_capacity": "실제 감당 가능 리스크 수준 평가",
+      "user_risk_capacity": "assessment of actual risk capacity",
       "evaluations": [
         {{
-          "strategy_id": "strategist가 생성한 실제 id (예: S1)",
-          "strategy_title": "전략 제목 (strategist와 동일)",
+          "strategy_id": "exact id from strategist (e.g., S1)",
+          "strategy_title": "exact title from strategist",
           "risk_score": 1-10,
-          "reward_potential": "연 예상 수익률 범위",
+          "reward_potential": "expected annual return range",
           "suitable_for_user": true/false,
-          "suitability_reason": "적합/부적합 이유",
-          "max_allocation": "최대 권장 비중(%)"
+          "suitability_reason": "reason for suitability assessment",
+          "max_allocation": "maximum recommended allocation (%)"
         }}
       ],
-      "overall_recommendation": "전반적 포트폴리오 방향성 2-3문장"
+      "overall_recommendation": "2-3 sentence overall portfolio direction"
     }}
 
-    Write 도구로 파일을 저장하세요.
+    Use the Write tool to save the file.
     """
 )
 
 # Read evaluator output
-evaluator = read_agent_output(f"/tmp/rich-guide-evaluator-{TS}.json",
-    {"status": "failed", "overall_recommendation": "리스크 분산을 통한 균형 포트폴리오 구성을 권장합니다.", "evaluations": []})
+evaluator = read_agent_output(f"/tmp/wealth-guide-evaluator-{TS}.json",
+    {"status": "failed", "overall_recommendation": "A balanced, diversified approach is recommended to manage risk while building long-term wealth.", "evaluations": []})
 
 phase2 = {"strategist": strategist, "evaluator": evaluator}
-with open(f"/tmp/rich-guide-phase2-{TS}.json", "w") as f:
+with open(f"/tmp/wealth-guide-phase2-{TS}.json", "w") as f:
     json.dump(phase2, f, ensure_ascii=False, indent=2)
 
-print(f"Phase 2 완료 - {len(strategies)}개 전략 평가 완료")
+print(f"Phase 2 complete - {len(strategies)} strategies evaluated")
 ```
 
 ---
