@@ -1,24 +1,23 @@
 ---
-name: rich-guide
-description: Use when user says "부자 되는 법", "재테크 가이드", "rich guide", "wealth strategy", "재테크 시작", "투자 방법", "부업 추천", or wants personalized wealth strategy. Conducts financial interview, runs 7-agent pipeline with expert knowledge base, and generates comprehensive learning + action + workflow roadmap.
-version: 3.0.0
+name: wealth-guide
+description: Use when user says "wealth guide", "financial plan", "investment strategy", "how to build wealth", "money strategy", "retirement planning", "side hustle ideas", or wants personalized wealth strategy. Conducts financial interview, runs 7-agent pipeline with expert knowledge base, and generates comprehensive learning + action + workflow roadmap.
+version: 1.0.0
 model: claude-sonnet-4-5-20250929
 ---
 
-# Rich Guide Skill
+# Wealth Guide Skill
 
-Personalized Korean wealth coaching via 7-agent multi-agent pipeline with curated expert knowledge base.
+Personalized US/Canada wealth coaching via 7-agent multi-agent pipeline with curated strategy-focused knowledge base.
 
 ## Trigger Phrases
 
-- "부자 되는 법"
-- "재테크 가이드"
-- "rich guide"
-- "wealth strategy"
-- "재테크 시작"
-- "투자 방법 알려줘"
-- "부업 추천"
-- "/rich-guide"
+- "wealth guide"
+- "financial plan"
+- "investment strategy"
+- "how to build wealth"
+- "retirement planning"
+- "side hustle ideas"
+- "/wealth-guide"
 
 ## Execution Algorithm
 
@@ -28,31 +27,30 @@ Personalized Korean wealth coaching via 7-agent multi-agent pipeline with curate
 import subprocess, os, json
 from datetime import datetime
 
-DB_DIR = os.path.expanduser("~/.claude/skills/rich-guide/data")
+DB_DIR = os.path.expanduser("~/.claude/skills/wealth-guide/data")
 DB_PATH = f"{DB_DIR}/profiles.db"
-ROADMAP_DIR = os.path.expanduser("~/.claude/skills/rich-guide/roadmaps")
-KB_DIR = os.path.expanduser("~/.claude/skills/rich-guide/knowledge")
-WF_DIR = os.path.expanduser("~/.claude/skills/rich-guide/workflows")
+ROADMAP_DIR = os.path.expanduser("~/.claude/skills/wealth-guide/roadmaps")
+KB_DIR = os.path.expanduser("~/.claude/skills/wealth-guide/knowledge")
+WF_DIR = os.path.expanduser("~/.claude/skills/wealth-guide/workflows")
 TS = datetime.now().strftime("%Y%m%d_%H%M%S")
 
 # Create directories
 os.makedirs(DB_DIR, exist_ok=True)
 os.makedirs(ROADMAP_DIR, exist_ok=True)
 
-# Init DB using absolute path (os.path.dirname(__file__) does not resolve in skill context)
-init_script = os.path.expanduser("~/.claude/skills/rich-guide/config/init_db.py")
+# Init DB
+init_script = os.path.expanduser("~/.claude/skills/wealth-guide/config/init_db.py")
 subprocess.run(["python3", init_script, DB_PATH], check=True)
 os.chmod(DB_PATH, 0o600)
 
-# Load agent-config.yaml for timeout/retry values
-config_path = os.path.expanduser("~/.claude/skills/rich-guide/config/agent-config.yaml")
+# Load agent-config.yaml
+config_path = os.path.expanduser("~/.claude/skills/wealth-guide/config/agent-config.yaml")
 agent_config = {}
 try:
     import yaml
     with open(config_path) as f:
         agent_config = yaml.safe_load(f) or {}
 except Exception:
-    # Fallback defaults if yaml unavailable or config missing
     agent_config = {
         "timeouts": {
             "wealth_strategist": 120,
@@ -64,7 +62,7 @@ except Exception:
         },
         "retry": {"max_attempts": 2, "fallback_on_fail": True},
         "interview": {"cache_hours": 24, "refresh_days": 30},
-        "levels": {"beginner_threshold": 50, "intermediate_threshold": 75, "min_investment_for_advanced": 2000},
+        "levels": {"beginner_threshold": 50, "intermediate_threshold": 75, "min_investment_for_advanced": 50000},
     }
 
 TIMEOUT_STRATEGIST = agent_config.get("timeouts", {}).get("wealth_strategist", 120)
@@ -75,7 +73,7 @@ CACHE_HOURS = agent_config.get("interview", {}).get("cache_hours", 24)
 REFRESH_DAYS = agent_config.get("interview", {}).get("refresh_days", 30)
 LEVEL_BEGINNER = agent_config.get("levels", {}).get("beginner_threshold", 50)
 LEVEL_INTERMEDIATE = agent_config.get("levels", {}).get("intermediate_threshold", 75)
-LEVEL_ADV_INVEST = agent_config.get("levels", {}).get("min_investment_for_advanced", 2000)
+LEVEL_ADV_INVEST = agent_config.get("levels", {}).get("min_investment_for_advanced", 50000)
 
 # Check existing profile
 result = subprocess.run(
