@@ -1044,18 +1044,88 @@ Task(
     model="claude-opus-4-6",
     description="Integrated roadmap generation",
     prompt=f"""
-    Create a 3-section integrated roadmap for the selected strategy:
-    1. Learning Plan (what to learn first)
-    2. Action Plan (what to do, week by week)
-    3. Workflow (step-by-step execution order)
+    Generate a comprehensive, professional wealth roadmap document. This is the final deliverable
+    the user receives — it must be polished, actionable, and visually well-structured.
+
+    ## Document Requirements
+
+    Fill ALL {{PLACEHOLDER}} values in the template. Every section must have real content — no empty
+    sections, no "TBD", no "N/A" unless genuinely not applicable. Be specific with dollar amounts,
+    fund tickers, dates, and percentages throughout.
+
+    ## Key Sections to Generate
+
+    **1. Executive Summary (3-4 sentences)**
+    - One-line financial health assessment
+    - Key strength to leverage
+    - Primary strategy recommendation with expected impact
+    - Timeline to goal achievement
+
+    **2. Financial Health Check**
+    - Fill the metrics table with actual values and benchmarks
+    - Use status indicators: EXCELLENT / GOOD / NEEDS WORK / CRITICAL
+    - Health score bar: use ASCII art like [████████░░] 82/100
+
+    **3. Strategy Blueprint**
+    - Priority matrix table showing ALL strategies ranked by priority, risk, timeline, and annual dollar impact
+    - For each strategy, create a detailed section with:
+      - Specific fund tickers, account types, dollar amounts
+      - Pros/cons table
+      - Verdict line from risk evaluator
+
+    **4. Action Plan (most critical section)**
+    - Immediate actions as a TABLE with columns: #, Action, Account/Tool, Amount, Why
+    - 30-day checklist with [ ] checkboxes
+    - 90-day milestones with measurable targets
+    - 6-month review targets
+    - 1-year goals with dollar amounts
+
+    **5. Wealth Projection Table**
+    - Show portfolio growth at Year 1, 3, 5, 10, 15, 20
+    - Include annual contributions and cumulative tax savings columns
+    - State the return assumption clearly
+
+    **6. Account Strategy**
+    - Contribution waterfall: show priority order as ASCII diagram
+      Example for Canada:
+      1. Employer RRSP match ──► FREE MONEY
+      2. TFSA ($7,000/yr) ──► Tax-free growth
+      3. RRSP (remaining room) ──► Tax deduction at marginal rate
+      4. Non-registered ──► Overflow
+    - Asset location map: which funds go in which accounts and why
+
+    **7. Learning Path**
+    - 3 phases: Foundations (month 1), Strategy-Specific (month 2-3), Advanced (month 4+)
+    - Include specific book/video/resource recommendations with estimated time
+
+    **8. Risk Assessment**
+    - Overall rating out of 10
+    - Stress test scenario: what happens if market drops 40% AND job loss simultaneously
+    - Specific mitigations for each risk
+
+    **9. Key Dates & Deadlines**
+    - Tax deadlines (RRSP deadline, tax filing, estimated payments)
+    - Account contribution deadlines
+    - Mortgage renewal date (if applicable)
+    - Review/rebalance schedule
+
+    **10. Workflow**
+    - Read the workflow files and integrate step-by-step execution instructions
+    - Include country-specific account opening steps
+
+    ## Input Data
 
     Selected strategy:
     {json.dumps(chosen_strategy, ensure_ascii=False)}
 
+    ALL strategies from strategist:
+    {json.dumps(strategies, ensure_ascii=False)}
+
     User level: {phase1['knowledge'].get('user_level', 'beginner')}
     Country: {country}
+    Currency: {currency}
 
-    Learning curriculum (from knowledge-advisor):
+    Learning curriculum:
     {json.dumps(phase1['knowledge'].get('learning_curriculum', []), ensure_ascii=False)}
 
     Recommended books:
@@ -1065,17 +1135,24 @@ Task(
     {json.dumps(workflow_paths, ensure_ascii=False)}
 
     Financial context:
+    - Annual income: ${profile['annual_income']:,.0f}
+    - Monthly expenses: ${profile['monthly_expense']:,.0f}
     - Monthly surplus: ${phase1['diagnostician'].get('monthly_surplus', 1000):,.0f}
     - Risk tolerance: {phase1['profile']['risk_tolerance']}
+    - Experience: {phase1['profile'].get('experience', 'none')}
     - Goal: {phase1['profile'].get('goal', 'wealth building')}
     - Health score: {phase1['diagnostician'].get('health_score', 50)}
     - Strengths: {json.dumps(phase1['diagnostician'].get('strengths', []), ensure_ascii=False)}
     - Weaknesses: {json.dumps(phase1['diagnostician'].get('weaknesses', []), ensure_ascii=False)}
     - Net worth: ${net_worth:,.0f}
+    - Savings: ${profile.get('savings_midpoint', 0):,.0f}
+    - Investments: ${profile.get('investment_midpoint', 0):,.0f}
+    - Debt: ${profile.get('debt_midpoint', 0):,.0f}
 
     Market conditions: {phase1['market'].get('market_summary', '')}
 
     Risk evaluation: {phase2['evaluator'].get('overall_recommendation', '')}
+    Risk evaluations per strategy: {json.dumps(phase2['evaluator'].get('evaluations', []), ensure_ascii=False)}
 
     Curated sources:
     {json.dumps(phase1['knowledge'].get('curated_info', [])[:3], ensure_ascii=False)}
@@ -1085,10 +1162,13 @@ Task(
     Roadmap template (fill all {{PLACEHOLDER}} values with actual content):
     {template_content}
 
-    Save the completed markdown roadmap to {roadmap_path}.
-    Read workflow files with the Read tool and integrate into the {{WORKFLOW_CONTENT}} section.
-    Use the Write tool to save the file.
-    Save to exactly this path: {roadmap_path}
+    ## Output Instructions
+    - Read workflow files with the Read tool and integrate into the workflow section
+    - Use the Write tool to save the completed markdown roadmap
+    - Save to exactly this path: {roadmap_path}
+    - Every placeholder must be replaced with real, specific content
+    - Use tables, ASCII charts, and checkboxes for visual structure
+    - Dollar amounts should always include the currency context ({currency})
     """
 )
 
