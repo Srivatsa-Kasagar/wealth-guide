@@ -58,7 +58,7 @@ Primary residence, rental properties, and REITs for US and Canadian investors.
 ### Canadian Tax Treatment
 - **No mortgage interest deduction** (unlike US)
 - **Principal residence exemption:** No capital gains tax on primary home sale (must designate)
-- **Smith Manoeuvre:** Borrow against home equity to invest, making mortgage interest tax-deductible. Complex strategy requiring discipline and professional advice.
+- **Smith Manoeuvre (advanced, controversial):** Borrow against home equity to invest, making mortgage interest tax-deductible. This is a leveraged strategy with significant risk — amplifies both gains AND losses. Requires readvanceable mortgage, meticulous CRA documentation, and professional advice. NOT suitable for most homeowners. Only consider if: (1) already maxed RRSP/TFSA, (2) stable income with high risk tolerance, (3) long time horizon, (4) working with an accountant experienced in this strategy. Many financial advisors do not recommend it.
 
 ## Rental Property Investing
 

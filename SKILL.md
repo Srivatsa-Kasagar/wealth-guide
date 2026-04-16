@@ -820,6 +820,12 @@ Task(
     - Categories: at least 3 of these 7: investment / tax-optimization / side-hustle / career-growth / real-estate / debt-payoff / cost-saving
     - MUST include at least 1 tax optimization strategy
 
+    Strategy caution rules:
+    - Leveraged strategies (Smith Manoeuvre, margin investing, HELOCs for investing) must ALWAYS be flagged as HIGH RISK with clear warnings. These are advanced, controversial tactics — never present as default debt strategies.
+    - Debt strategies should prioritize: avalanche/snowball payoff, refinancing, consolidation BEFORE suggesting leverage-based approaches.
+    - For real-estate debt (mortgages): focus on renewal optimization, prepayment vs investing tradeoff, rate lock decisions — not leveraged re-borrowing.
+    - Never recommend leveraged strategies for users with experience below "advanced" or risk tolerance below "high".
+
     Each strategy must include a strategy_source field:
     "strategy_source": {{
       "methodology": "methodology name",
