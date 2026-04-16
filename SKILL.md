@@ -109,73 +109,62 @@ Decide data strategy based on loaded config thresholds:
 ### Step 2: Financial Interview (or Reuse / Refresh Existing)
 
 ```python
+def parse_currency(val):
+    """Strip $, commas, spaces and return float or None."""
+    cleaned = str(val).replace("$", "").replace(",", "").strip()
+    try:
+        return float(cleaned)
+    except ValueError:
+        return None
+
 if existing.get("exists") and existing["age_days"] < (CACHE_HOURS / 24):
     reuse_choice = AskUserQuestion(questions=[{
-        "question": f"기존 재무 데이터({existing['data']['updated_at'][:10]} 작성)를 사용할까요?",
-        "header": "기존 데이터 활용",
+        "question": f"Use existing financial data (created {existing['data']['updated_at'][:10]})?",
+        "header": "Existing Data",
         "options": [
-            {"label": "기존 데이터 사용", "description": "빠르게 전략 분석 시작"},
-            {"label": "새로 입력", "description": "최신 재무 정보로 다시 시작"}
+            {"label": "Use existing data", "description": "Jump straight to strategy analysis"},
+            {"label": "Start fresh", "description": "Re-enter all financial information"}
         ]
     }])
-    if reuse_choice["기존 데이터 활용"] == "기존 데이터 사용":
+    if reuse_choice["Existing Data"] == "Use existing data":
         profile = existing["data"]
 
 elif existing.get("exists") and (CACHE_HOURS / 24) <= existing["age_days"] <= REFRESH_DAYS:
-    # 1-30 day refresh branch
     refresh_choice = AskUserQuestion(questions=[{
-        "question": f"재무 데이터가 {int(existing['age_days'])}일 전 것입니다. 어떻게 할까요?",
-        "header": "데이터 갱신",
+        "question": f"Your financial data is {int(existing['age_days'])} days old. What would you like to do?",
+        "header": "Data Refresh",
         "options": [
-            {"label": "기존 데이터 사용", "description": f"{existing['data']['updated_at'][:10]} 데이터로 계속 진행"},
-            {"label": "일부 항목 업데이트", "description": "수입/지출 등 변경된 항목만 수정"},
-            {"label": "처음부터 다시 입력", "description": "최신 재무 정보로 전체 재입력"}
+            {"label": "Use existing data", "description": f"Continue with {existing['data']['updated_at'][:10]} data"},
+            {"label": "Update key fields", "description": "Update income/expenses only"},
+            {"label": "Start from scratch", "description": "Re-enter all financial information"}
         ]
     }])
-    refresh_answer = refresh_choice.get("데이터 갱신", "처음부터 다시 입력")
-    if refresh_answer == "기존 데이터 사용":
+    refresh_answer = refresh_choice.get("Data Refresh", "Start from scratch")
+    if refresh_answer == "Use existing data":
         profile = existing["data"]
-    elif refresh_answer == "일부 항목 업데이트":
-        # Pre-fill with existing, ask only for key fields
+    elif refresh_answer == "Update key fields":
         partial_responses = AskUserQuestion(questions=[
             {
-                "question": f"월 세후 수입 (현재: {existing['data'].get('monthly_income', '?')}만원)",
-                "header": "월수입_갱신",
-                "options": [
-                    {"label": "변경 없음", "description": "기존 값 유지"},
-                    {"label": "200만원 미만", "description": ""},
-                    {"label": "200-300만원", "description": ""},
-                    {"label": "300-400만원", "description": ""},
-                    {"label": "400-500만원", "description": ""},
-                    {"label": "500만원 이상", "description": ""}
-                ]
+                "question": f"Annual pre-tax income (current: ${existing['data'].get('annual_income', 0):,.0f}). Enter new amount or type 'same':",
+                "header": "income_refresh"
             },
             {
-                "question": f"월 지출 (현재: {existing['data'].get('monthly_expense', '?')}만원)",
-                "header": "월지출_갱신",
-                "options": [
-                    {"label": "변경 없음", "description": "기존 값 유지"},
-                    {"label": "100만원 미만", "description": ""},
-                    {"label": "100-150만원", "description": ""},
-                    {"label": "150-250만원", "description": ""},
-                    {"label": "250만원 이상", "description": ""}
-                ]
+                "question": f"Monthly expenses (current: ${existing['data'].get('monthly_expense', 0):,.0f}). Enter new amount or type 'same':",
+                "header": "expense_refresh"
             }
         ])
-        income_map = {
-            "200만원 미만": 150, "200-300만원": 250, "300-400만원": 350,
-            "400-500만원": 450, "500만원 이상": 550
-        }
-        expense_map = {
-            "100만원 미만": 80, "100-150만원": 130, "150-250만원": 200, "250만원 이상": 280
-        }
         profile = dict(existing["data"])
-        new_income = partial_responses.get("월수입_갱신", "변경 없음")
-        new_expense = partial_responses.get("월지출_갱신", "변경 없음")
-        if new_income != "변경 없음":
-            profile["monthly_income"] = income_map.get(new_income, profile["monthly_income"])
-        if new_expense != "변경 없음":
-            profile["monthly_expense"] = expense_map.get(new_expense, profile["monthly_expense"])
+        new_income = partial_responses.get("income_refresh", "same").strip()
+        new_expense = partial_responses.get("expense_refresh", "same").strip()
+
+        if new_income.lower() != "same":
+            parsed = parse_currency(new_income)
+            if parsed is not None:
+                profile["annual_income"] = parsed
+        if new_expense.lower() != "same":
+            parsed = parse_currency(new_expense)
+            if parsed is not None:
+                profile["monthly_expense"] = parsed
 
         # Persist partial refresh to DB
         subprocess.run(["python3", "-c", f"""
@@ -183,147 +172,156 @@ import sqlite3, json
 conn = sqlite3.connect('{DB_PATH}')
 d = json.loads('''{json.dumps(profile)}''')
 conn.execute('''INSERT INTO profiles
-    (monthly_income, monthly_expense, savings, investment_assets, debt, risk_tolerance, goal)
-    VALUES (?, ?, ?, ?, ?, ?, ?)''',
-    (d.get('monthly_income',300), d.get('monthly_expense',180), d.get('savings',500),
-     d.get('investment_assets',0), d.get('debt',0), d.get('risk_tolerance','medium'), d.get('goal','')))
+    (country, annual_income, monthly_expense, savings, investment_assets, debt, risk_tolerance, experience, goal)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)''',
+    (d.get('country','US'), d.get('annual_income',75000), d.get('monthly_expense',4000),
+     d.get('savings','$5,000 - $25,000'), d.get('investment_assets','None'),
+     d.get('debt','None'), d.get('risk_tolerance','medium'),
+     d.get('experience','none'), d.get('goal','')))
 conn.commit()
 conn.close()
 """], check=True)
-    # else: fall through to new interview below
 
 if profile is None:
-    # Conduct 8-field interview (added: experience for level assessment)
-    responses = AskUserQuestion(questions=[
+    # Question 1: Country
+    country_response = AskUserQuestion(questions=[
         {
-            "question": "월 세후 수입은 얼마인가요? (만원 단위)",
-            "header": "월수입",
+            "question": "Which country are you based in?",
+            "header": "country",
             "options": [
-                {"label": "200만원 미만", "description": ""},
-                {"label": "200-300만원", "description": ""},
-                {"label": "300-400만원", "description": ""},
-                {"label": "400-500만원", "description": ""},
-                {"label": "500만원 이상", "description": ""},
-                {"label": "잘 모르겠어요", "description": "기본값 적용 (300만원)"}
+                {"label": "United States", "description": "US tax system, 401(k), IRA, etc."},
+                {"label": "Canada", "description": "Canadian tax system, RRSP, TFSA, etc."}
+            ]
+        }
+    ])
+    country = "US" if country_response.get("country") == "United States" else "CA"
+
+    # Questions 2-3: Free-text income and expenses
+    income_expense = AskUserQuestion(questions=[
+        {
+            "question": "What is your annual pre-tax household income? (e.g., 75000)",
+            "header": "annual_income"
+        },
+        {
+            "question": "What are your total monthly expenses? (e.g., 4500)",
+            "header": "monthly_expense"
+        }
+    ])
+
+    annual_income = parse_currency(income_expense.get("annual_income", "75000")) or 75000.0
+    monthly_expense = parse_currency(income_expense.get("monthly_expense", "4000")) or 4000.0
+
+    # Questions 4-6: Savings, investments, debt (multiple choice)
+    assets_debt = AskUserQuestion(questions=[
+        {
+            "question": "How much do you have in savings/checking accounts?",
+            "header": "savings",
+            "options": [
+                {"label": "Under $1,000", "description": ""},
+                {"label": "$1,000 - $5,000", "description": ""},
+                {"label": "$5,000 - $25,000", "description": ""},
+                {"label": "$25,000 - $100,000", "description": ""},
+                {"label": "$100,000+", "description": ""}
             ]
         },
         {
-            "question": "월 지출은 얼마인가요? (고정비+변동비 합계)",
-            "header": "월지출",
+            "question": "Total investment assets (stocks, bonds, funds, crypto, etc.)?",
+            "header": "investment_assets",
             "options": [
-                {"label": "100만원 미만", "description": ""},
-                {"label": "100-150만원", "description": ""},
-                {"label": "150-250만원", "description": ""},
-                {"label": "250만원 이상", "description": ""},
-                {"label": "잘 모르겠어요", "description": "기본값 적용 (180만원)"}
+                {"label": "None", "description": "No investment experience"},
+                {"label": "Under $10,000", "description": ""},
+                {"label": "$10,000 - $50,000", "description": ""},
+                {"label": "$50,000 - $200,000", "description": ""},
+                {"label": "$200,000 - $500,000", "description": ""},
+                {"label": "$500,000+", "description": ""}
             ]
         },
         {
-            "question": "현재 예금/저축액은 총 얼마인가요?",
-            "header": "예금액",
+            "question": "Total outstanding debt (mortgage, student loans, credit cards, etc.)?",
+            "header": "debt",
             "options": [
-                {"label": "500만원 미만", "description": ""},
-                {"label": "500-1000만원", "description": ""},
-                {"label": "1000-3000만원", "description": ""},
-                {"label": "3000만원 이상", "description": ""},
-                {"label": "잘 모르겠어요", "description": "기본값 적용 (500만원)"}
-            ]
-        },
-        {
-            "question": "투자 자산(주식, 펀드, 코인 등)은 얼마인가요?",
-            "header": "투자자산",
-            "options": [
-                {"label": "없음", "description": "투자 경험 없음"},
-                {"label": "500만원 미만", "description": ""},
-                {"label": "500-2000만원", "description": ""},
-                {"label": "2000만원 이상", "description": ""},
-                {"label": "잘 모르겠어요", "description": "기본값 적용 (0원)"}
+                {"label": "None", "description": ""},
+                {"label": "Under $5,000", "description": ""},
+                {"label": "$5,000 - $25,000", "description": ""},
+                {"label": "$25,000 - $100,000", "description": ""},
+                {"label": "$100,000 - $300,000", "description": ""},
+                {"label": "$300,000+", "description": "Mortgage territory"}
             ]
         }
     ])
 
-    responses2 = AskUserQuestion(questions=[
+    # Questions 7-9: Risk tolerance, experience, goal (multiple choice)
+    preferences = AskUserQuestion(questions=[
         {
-            "question": "대출/부채 총액은 얼마인가요?",
-            "header": "대출",
+            "question": "What is your risk tolerance?",
+            "header": "risk_tolerance",
             "options": [
-                {"label": "없음", "description": ""},
-                {"label": "1000만원 미만", "description": ""},
-                {"label": "1000-5000만원", "description": ""},
-                {"label": "5000만원 이상", "description": ""},
-                {"label": "잘 모르겠어요", "description": "기본값 적용 (0원)"}
+                {"label": "Low", "description": "Capital preservation first - prefer savings accounts, bonds, GICs/CDs"},
+                {"label": "Medium", "description": "Balanced growth - index funds, some individual stocks"},
+                {"label": "High", "description": "Aggressive growth - individual stocks, crypto, leveraged positions"}
             ]
         },
         {
-            "question": "리스크 성향은 어떻게 되세요?",
-            "header": "리스크성향",
+            "question": "What is your investment experience?",
+            "header": "experience",
             "options": [
-                {"label": "저위험", "description": "원금 보전 최우선, 예금/채권 선호"},
-                {"label": "중위험", "description": "적당한 수익, 인덱스 펀드 등"},
-                {"label": "고위험", "description": "고수익 추구, 개별주식/코인 등 가능"}
+                {"label": "None", "description": "I'm completely new to investing"},
+                {"label": "Basic", "description": "I have a savings account, maybe a workplace retirement plan"},
+                {"label": "Intermediate", "description": "I actively invest in stocks/funds"},
+                {"label": "Advanced", "description": "I manage a diversified portfolio across asset classes"}
             ]
         },
         {
-            "question": "현재 재테크/투자 경험은?",
-            "header": "경험",
+            "question": "What is your primary financial goal?",
+            "header": "goal",
             "options": [
-                {"label": "없음", "description": "재테크를 처음 시작합니다"},
-                {"label": "예적금만", "description": "적금/예금만 해봤습니다"},
-                {"label": "주식/펀드 경험", "description": "주식이나 펀드 투자 경험이 있습니다"},
-                {"label": "적극 투자 중", "description": "다양한 자산에 투자하고 있습니다"}
-            ]
-        },
-        {
-            "question": "재테크 목표를 선택해주세요",
-            "header": "목표",
-            "options": [
-                {"label": "긴급자금 마련 (1년 내)", "description": "당장 돈이 필요한 상황"},
-                {"label": "내 집 마련 (3-5년)", "description": "주택 구매 준비"},
-                {"label": "노후 준비 (10년+)", "description": "연금/장기 투자"},
-                {"label": "부업 소득 창출", "description": "N잡러 목표"},
-                {"label": "조기 은퇴 (FIRE)", "description": "경제적 자유 추구"}
+                {"label": "Build emergency fund (within 1 year)", "description": "Need a financial safety net"},
+                {"label": "Buy a home (3-5 years)", "description": "Saving for a down payment"},
+                {"label": "Retirement planning (10+ years)", "description": "Long-term wealth building"},
+                {"label": "Generate side income", "description": "Start a side hustle or freelance"},
+                {"label": "Early retirement / FIRE", "description": "Financial independence, retire early"},
+                {"label": "Pay off debt", "description": "Eliminate high-interest or total debt"}
             ]
         }
     ])
 
-    # Merge responses
-    responses.update(responses2)
+    # Midpoint mappings for numeric calculations
+    savings_midpoints = {
+        "Under $1,000": 500, "$1,000 - $5,000": 3000,
+        "$5,000 - $25,000": 15000, "$25,000 - $100,000": 62500, "$100,000+": 150000
+    }
+    investment_midpoints = {
+        "None": 0, "Under $10,000": 5000, "$10,000 - $50,000": 30000,
+        "$50,000 - $200,000": 125000, "$200,000 - $500,000": 350000, "$500,000+": 750000
+    }
+    debt_midpoints = {
+        "None": 0, "Under $5,000": 2500, "$5,000 - $25,000": 15000,
+        "$25,000 - $100,000": 62500, "$100,000 - $300,000": 200000, "$300,000+": 400000
+    }
 
-    # Map responses to numeric defaults
-    income_map = {
-        "200만원 미만": 150, "200-300만원": 250, "300-400만원": 350,
-        "400-500만원": 450, "500만원 이상": 550, "잘 모르겠어요": 300
-    }
-    expense_map = {
-        "100만원 미만": 80, "100-150만원": 130, "150-250만원": 200,
-        "250만원 이상": 280, "잘 모르겠어요": 180
-    }
-    savings_map = {
-        "500만원 미만": 250, "500-1000만원": 750, "1000-3000만원": 2000,
-        "3000만원 이상": 5000, "잘 모르겠어요": 500
-    }
-    invest_map = {
-        "없음": 0, "500만원 미만": 250, "500-2000만원": 1000,
-        "2000만원 이상": 3000, "잘 모르겠어요": 0
-    }
-    debt_map = {
-        "없음": 0, "1000만원 미만": 500, "1000-5000만원": 3000,
-        "5000만원 이상": 7000, "잘 모르겠어요": 0
-    }
-    risk_map = {"저위험": "low", "중위험": "medium", "고위험": "high"}
+    risk_map = {"Low": "low", "Medium": "medium", "High": "high"}
+    experience_map = {"None": "none", "Basic": "basic", "Intermediate": "intermediate", "Advanced": "advanced"}
+
+    savings_label = assets_debt.get("savings", "Under $1,000")
+    investments_label = assets_debt.get("investment_assets", "None")
+    debt_label = assets_debt.get("debt", "None")
 
     profile = {
-        "monthly_income": income_map.get(responses["월수입"], 300),
-        "monthly_expense": expense_map.get(responses["월지출"], 180),
-        "savings": savings_map.get(responses["예금액"], 500),
-        "investment_assets": invest_map.get(responses["투자자산"], 0),
-        "debt": debt_map.get(responses["대출"], 0),
-        "risk_tolerance": risk_map.get(responses["리스크성향"], "medium"),
-        "goal": responses.get("목표", "내 집 마련 (3-5년)"),
-        "experience": responses.get("경험", "없음")
+        "country": country,
+        "annual_income": annual_income,
+        "monthly_expense": monthly_expense,
+        "savings": savings_label,
+        "savings_midpoint": savings_midpoints.get(savings_label, 3000),
+        "investment_assets": investments_label,
+        "investment_midpoint": investment_midpoints.get(investments_label, 0),
+        "debt": debt_label,
+        "debt_midpoint": debt_midpoints.get(debt_label, 0),
+        "risk_tolerance": risk_map.get(preferences.get("risk_tolerance", "Medium"), "medium"),
+        "experience": experience_map.get(preferences.get("experience", "None"), "none"),
+        "goal": preferences.get("goal", "Retirement planning (10+ years)")
     }
 
-    # Save to DB via temp JSON file to avoid quote-escaping issues
+    # Save to DB
     import tempfile
     profile_tmp = tempfile.mktemp(suffix=".json")
     with open(profile_tmp, "w") as f:
@@ -335,10 +333,10 @@ with open('{profile_tmp}') as f:
     d = json.load(f)
 conn = sqlite3.connect('{DB_PATH}')
 conn.execute('''INSERT INTO profiles
-    (monthly_income, monthly_expense, savings, investment_assets, debt, risk_tolerance, goal)
-    VALUES (?, ?, ?, ?, ?, ?, ?)''',
-    (d['monthly_income'], d['monthly_expense'], d['savings'],
-     d['investment_assets'], d['debt'], d['risk_tolerance'], d['goal']))
+    (country, annual_income, monthly_expense, savings, investment_assets, debt, risk_tolerance, experience, goal)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)''',
+    (d['country'], d['annual_income'], d['monthly_expense'], d['savings'],
+     d['investment_assets'], d['debt'], d['risk_tolerance'], d['experience'], d['goal']))
 conn.commit()
 conn.close()
 import os
@@ -346,8 +344,11 @@ os.remove('{profile_tmp}')
 print("saved")
 """], check=True)
 
-    print("재무 정보 저장 완료")
-    print(f"월 저축 가능액: 약 {profile['monthly_income'] - profile['monthly_expense']}만원")
+    monthly_income = profile['annual_income'] / 12
+    monthly_surplus = monthly_income - profile['monthly_expense']
+    currency = "USD" if country == "US" else "CAD"
+    print(f"Financial profile saved")
+    print(f"Monthly surplus: approx. ${monthly_surplus:,.0f} {currency}")
 ```
 
 ---
