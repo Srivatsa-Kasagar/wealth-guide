@@ -1,0 +1,18 @@
+# Generated data
+data/
+roadmaps/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Python
+__pycache__/
+*.pyc
+
+# IDE
+.vscode/
+.idea/
+
+# Claude Code local settings
+.claude/

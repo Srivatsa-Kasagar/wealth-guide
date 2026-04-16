@@ -172,45 +172,105 @@ import sqlite3, json
 conn = sqlite3.connect('{DB_PATH}')
 d = json.loads('''{json.dumps(profile)}''')
 conn.execute('''INSERT INTO profiles
-    (country, annual_income, monthly_expense, savings, investment_assets, debt, risk_tolerance, experience, goal)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)''',
-    (d.get('country','US'), d.get('annual_income',75000), d.get('monthly_expense',4000),
+    (country, age, annual_income, monthly_expense, savings, investment_assets,
+     debt_credit_card, debt_personal_student, debt_mortgage,
+     risk_tolerance, experience, goal)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''',
+    (d.get('country','US'), d.get('age',35), d.get('annual_income',75000), d.get('monthly_expense',4000),
      d.get('savings','$5,000 - $25,000'), d.get('investment_assets','None'),
-     d.get('debt','None'), d.get('risk_tolerance','medium'),
+     d.get('debt_credit_card','None'), d.get('debt_personal_student','None'),
+     d.get('debt_mortgage','None'), d.get('risk_tolerance','medium'),
      d.get('experience','none'), d.get('goal','')))
 conn.commit()
 conn.close()
 """], check=True)
 
 if profile is None:
-    # Question 1: Country
-    country_response = AskUserQuestion(questions=[
+    # ── Screen 1: About You (country + goal) ──
+    about_you = AskUserQuestion(questions=[
         {
             "question": "Which country are you based in?",
             "header": "country",
+            "multiSelect": False,
             "options": [
                 {"label": "United States", "description": "US tax system, 401(k), IRA, etc."},
                 {"label": "Canada", "description": "Canadian tax system, RRSP, TFSA, etc."}
             ]
+        },
+        {
+            "question": "What is your age? (select a bracket or type your exact age)",
+            "header": "age",
+            "multiSelect": False,
+            "options": [
+                {"label": "Under 30", "description": "Will use 27 — or type exact age"},
+                {"label": "30-39", "description": "Will use 35 — or type exact age"},
+                {"label": "40-49", "description": "Will use 45 — or type exact age"},
+                {"label": "50+", "description": "Will use 55 — or type exact age"}
+            ]
+        },
+        {
+            "question": "What is your primary financial goal?",
+            "header": "goal",
+            "multiSelect": False,
+            "options": [
+                {"label": "Build wealth long-term", "description": "Grow net worth steadily over 10+ years"},
+                {"label": "Early retirement / FIRE", "description": "Financial independence, retire early"},
+                {"label": "Buy a home", "description": "Save for a down payment (3-5 years)"},
+                {"label": "Pay off debt", "description": "Eliminate high-interest or total debt"}
+            ]
         }
     ])
-    country = "US" if country_response.get("country") == "United States" else "CA"
 
-    # Question 2: Annual income (two-step for precision within 4-option limit)
-    income_coarse = AskUserQuestion(questions=[
+    country = "US" if about_you.get("country") == "United States" else "CA"
+    age_raw = about_you.get("age", "35")
+    # Parse age — handle bracket labels, exact numbers, or free-text
+    age_bracket_map = {"Under 30": 27, "30-39": 35, "40-49": 45, "50+": 55}
+    if age_raw in age_bracket_map:
+        user_age = age_bracket_map[age_raw]
+    else:
+        try:
+            user_age = int(str(age_raw).strip())
+        except ValueError:
+            import re
+            nums = re.findall(r'\d+', str(age_raw))
+            user_age = int(nums[0]) if nums else 35
+    user_age = max(18, min(user_age, 80))  # Clamp to reasonable range
+
+    # ── Screen 2: Income & Expenses ──
+    income_expenses = AskUserQuestion(questions=[
         {
             "question": "What is your annual pre-tax household income?",
             "header": "income_range",
+            "multiSelect": False,
             "options": [
                 {"label": "Under $80,000", "description": "Entry-level to mid career"},
                 {"label": "$80,000 - $150,000", "description": "Mid to senior career"},
                 {"label": "$150,000 - $400,000", "description": "Senior, specialist, or executive"},
                 {"label": "Over $400,000", "description": "C-suite, partner, or business owner"}
             ]
+        },
+        {
+            "question": "What are your total monthly living expenses?",
+            "header": "monthly_expense",
+            "multiSelect": False,
+            "options": [
+                {"label": "Under $3,000", "description": "Frugal or low cost of living"},
+                {"label": "$3,000 - $5,000", "description": "Moderate spending"},
+                {"label": "$5,000 - $8,000", "description": "Comfortable lifestyle"},
+                {"label": "Over $8,000", "description": "High cost of living or family"}
+            ]
         }
     ])
 
-    income_coarse_label = income_coarse.get("income_range", "$80,000 - $150,000")
+    income_coarse_label = income_expenses.get("income_range", "$80,000 - $150,000")
+    expense_label = income_expenses.get("monthly_expense", "$3,000 - $5,000")
+    expense_midpoints = {
+        "Under $3,000": 2000, "$3,000 - $5,000": 4000,
+        "$5,000 - $8,000": 6500, "Over $8,000": 10000
+    }
+    monthly_expense = expense_midpoints.get(expense_label, 4000)
+
+    # ── Screen 3: Narrow income range ──
     income_sub_options = {
         "Under $80,000": [
             {"label": "Under $40,000", "description": "Entry-level or part-time"},
@@ -236,8 +296,9 @@ if profile is None:
 
     income_narrow = AskUserQuestion(questions=[
         {
-            "question": f"Narrow your income range (you selected {income_coarse_label}):",
+            "question": f"Can you narrow it down? (you selected {income_coarse_label})",
             "header": "annual_income",
+            "multiSelect": False,
             "options": income_sub_options.get(income_coarse_label, income_sub_options["$80,000 - $150,000"])
         }
     ])
@@ -251,22 +312,12 @@ if profile is None:
     income_label = income_narrow.get("annual_income", "$80,000 - $100,000")
     annual_income = income_midpoints.get(income_label, 90000)
 
-    # Question 3: Monthly expenses (free-text for precision)
-    expense_response = AskUserQuestion(questions=[
-        {
-            "question": "What are your total monthly expenses? (e.g., 4500)",
-            "header": "monthly_expense"
-        }
-    ])
-
-    monthly_expense = parse_currency(expense_response.get("monthly_expense", "4000")) or 4000.0
-
-    # Questions 4-6: Savings, investments, debt (two-step narrowing for precision)
-    # Step A: Coarse range for all three
-    coarse_ranges = AskUserQuestion(questions=[
+    # ── Screen 4: Savings & Investments (coarse) ──
+    assets_coarse = AskUserQuestion(questions=[
         {
             "question": "How much do you have in savings (cash, HYSA, GICs/CDs)?",
             "header": "savings_range",
+            "multiSelect": False,
             "options": [
                 {"label": "Under $15,000", "description": "Building an emergency fund"},
                 {"label": "$15,000 - $100,000", "description": "Solid cash reserves"},
@@ -275,29 +326,20 @@ if profile is None:
             ]
         },
         {
-            "question": "Total investment assets (RRSP/401k, TFSA/Roth, stocks, bonds, funds, crypto)?",
+            "question": "Total investment assets (retirement accounts, stocks, bonds, funds)?",
             "header": "invest_range",
+            "multiSelect": False,
             "options": [
                 {"label": "Under $50,000", "description": "Getting started or building"},
                 {"label": "$50,000 - $250,000", "description": "Growing portfolio"},
                 {"label": "$250,000 - $1,000,000", "description": "Substantial portfolio"},
-                {"label": "Over $1,000,000", "description": "Millionaire investor"}
-            ]
-        },
-        {
-            "question": "Total outstanding debt (mortgage, student loans, credit cards, car)?",
-            "header": "debt_range",
-            "options": [
-                {"label": "Under $25,000", "description": "No debt or minor loans"},
-                {"label": "$25,000 - $200,000", "description": "Student loans or small mortgage"},
-                {"label": "$200,000 - $600,000", "description": "Typical mortgage range"},
-                {"label": "Over $600,000", "description": "Large mortgage or multiple properties"}
+                {"label": "Over $1,000,000", "description": "Seven-figure portfolio"}
             ]
         }
     ])
 
-    # Step B: Narrow sub-range based on coarse answer
-    savings_coarse = coarse_ranges.get("savings_range", "Under $15,000")
+    # ── Screen 5: Narrow savings & investments ──
+    savings_coarse = assets_coarse.get("savings_range", "Under $15,000")
     savings_sub_options = {
         "Under $15,000": [
             {"label": "Under $1,000", "description": "Just getting started"},
@@ -319,7 +361,7 @@ if profile is None:
         ]
     }
 
-    invest_coarse = coarse_ranges.get("invest_range", "Under $50,000")
+    invest_coarse = assets_coarse.get("invest_range", "Under $50,000")
     invest_sub_options = {
         "Under $50,000": [
             {"label": "None", "description": "Haven't started investing"},
@@ -342,85 +384,151 @@ if profile is None:
         ]
     }
 
-    debt_coarse = coarse_ranges.get("debt_range", "Under $25,000")
-    debt_sub_options = {
-        "Under $25,000": [
-            {"label": "No debt", "description": "Completely debt-free"},
-            {"label": "Under $5,000", "description": "Minor debt"},
-            {"label": "$5,000 - $25,000", "description": "Car loan or student loan"}
-        ],
-        "$25,000 - $200,000": [
-            {"label": "$25,000 - $75,000", "description": "Student or personal loans"},
-            {"label": "$75,000 - $150,000", "description": "Large loans or small mortgage"},
-            {"label": "$150,000 - $200,000", "description": "Moderate mortgage"}
-        ],
-        "$200,000 - $600,000": [
-            {"label": "$200,000 - $350,000", "description": "Standard mortgage"},
-            {"label": "$350,000 - $500,000", "description": "Mid-range mortgage"},
-            {"label": "$500,000 - $600,000", "description": "Above-average mortgage"}
-        ],
-        "Over $600,000": [
-            {"label": "$600,000 - $800,000", "description": "Large mortgage"},
-            {"label": "$800,000 - $1,000,000", "description": "High-value property"},
-            {"label": "Over $1,000,000", "description": "Multiple properties or jumbo"}
-        ]
-    }
-
-    narrow_ranges = AskUserQuestion(questions=[
+    narrow_si = AskUserQuestion(questions=[
         {
-            "question": f"Narrow your savings range (you selected {savings_coarse}):",
+            "question": f"Narrow your savings ({savings_coarse}):",
             "header": "savings",
+            "multiSelect": False,
             "options": savings_sub_options.get(savings_coarse, savings_sub_options["Under $15,000"])
         },
         {
-            "question": f"Narrow your investment range (you selected {invest_coarse}):",
+            "question": f"Narrow your investments ({invest_coarse}):",
             "header": "investment_assets",
+            "multiSelect": False,
             "options": invest_sub_options.get(invest_coarse, invest_sub_options["Under $50,000"])
-        },
-        {
-            "question": f"Narrow your debt range (you selected {debt_coarse}):",
-            "header": "debt",
-            "options": debt_sub_options.get(debt_coarse, debt_sub_options["Under $25,000"])
         }
     ])
 
+    # ── Screen 6: Debt (conditional — skip if no debt) ──
+    debt_check = AskUserQuestion(questions=[{
+        "question": "Do you have any outstanding debt?",
+        "header": "has_debt",
+        "multiSelect": False,
+        "options": [
+            {"label": "No debt", "description": "Completely debt-free"},
+            {"label": "Yes", "description": "One or more types of debt"}
+        ]
+    }])
+
+    has_debt = debt_check.get("has_debt", "No debt")
+    debt_cc_label = "None"
+    debt_ps_label = "None"
+    debt_mortgage_label = "None"
+    home_value_label = "None"
+
+    if has_debt == "Yes":
+        # ── Screen 7: Debt types (multiSelect) ──
+        debt_types = AskUserQuestion(questions=[{
+            "question": "Which types of debt do you have? (select all that apply)",
+            "header": "debt_types",
+            "multiSelect": True,
+            "options": [
+                {"label": "Credit card", "description": "Revolving balances (typically 19-29% APR)"},
+                {"label": "Loans", "description": "Personal, car, student loans, or lines of credit"},
+                {"label": "Mortgage", "description": "Home mortgage or HELOC"}
+            ]
+        }])
+
+        debt_types_selected = debt_types.get("debt_types", "")
+
+        # ── Screen 8: Debt amounts (combine applicable types into one screen, max 4 questions) ──
+        debt_questions = []
+
+        if "Credit card" in debt_types_selected:
+            debt_questions.append({
+                "question": "Total credit card balance?",
+                "header": "debt_cc",
+                "multiSelect": False,
+                "options": [
+                    {"label": "Under $2,000", "description": "Minor — payable in 1-2 months"},
+                    {"label": "$2,000 - $5,000", "description": "Moderate — consider balance transfer"},
+                    {"label": "$5,000 - $15,000", "description": "Significant — high interest adding up"},
+                    {"label": "Over $15,000", "description": "Urgent — priority to eliminate"}
+                ]
+            })
+
+        if "Loans" in debt_types_selected:
+            debt_questions.append({
+                "question": "Total personal / car / student loans?",
+                "header": "debt_ps",
+                "multiSelect": False,
+                "options": [
+                    {"label": "Under $10,000", "description": "Small balance"},
+                    {"label": "$10,000 - $30,000", "description": "Typical car loan or partial student debt"},
+                    {"label": "$30,000 - $75,000", "description": "Significant loan balance"},
+                    {"label": "Over $75,000", "description": "Large combined loan debt"}
+                ]
+            })
+
+        if "Mortgage" in debt_types_selected:
+            debt_questions.append({
+                "question": "Outstanding mortgage balance?",
+                "header": "debt_mortgage",
+                "multiSelect": False,
+                "options": [
+                    {"label": "Under $200,000", "description": "Small or nearly paid off"},
+                    {"label": "$200,000 - $400,000", "description": "Standard mortgage"},
+                    {"label": "$400,000 - $700,000", "description": "Mid to large mortgage"},
+                    {"label": "Over $700,000", "description": "Large mortgage"}
+                ]
+            })
+
+        if debt_questions:
+            debt_amounts = AskUserQuestion(questions=debt_questions)
+            debt_cc_label = debt_amounts.get("debt_cc", "None")
+            debt_ps_label = debt_amounts.get("debt_ps", "None")
+            debt_mortgage_label = debt_amounts.get("debt_mortgage", "None")
+
+        # ── Screen 9: Home value (only if mortgage) ──
+        if "Mortgage" in debt_types_selected:
+            home_value_response = AskUserQuestion(questions=[{
+                "question": "Estimated current value of your home?",
+                "header": "home_value",
+                "multiSelect": False,
+                "options": [
+                    {"label": "Under $400,000", "description": "Starter home or smaller market"},
+                    {"label": "$400,000 - $700,000", "description": "Average home in most markets"},
+                    {"label": "$700,000 - $1,200,000", "description": "Above-average or metro area"},
+                    {"label": "Over $1,200,000", "description": "High-value or premium market"}
+                ]
+            }])
+            home_value_label = home_value_response.get("home_value", "Under $400,000")
+
+    home_value_midpoints = {
+        "None": 0, "Under $400,000": 300000, "$400,000 - $700,000": 550000,
+        "$700,000 - $1,200,000": 950000, "Over $1,200,000": 1500000
+    }
+    home_value_label = home_value_label if debt_mortgage_label != "None" else "None"
+    home_value_mid = home_value_midpoints.get(home_value_label, 0)
+
     assets_debt = {
-        "savings": narrow_ranges.get("savings", "Under $1,000"),
-        "investment_assets": narrow_ranges.get("investment_assets", "None"),
-        "debt": narrow_ranges.get("debt", "No debt")
+        "savings": narrow_si.get("savings", "Under $1,000"),
+        "investment_assets": narrow_si.get("investment_assets", "None"),
+        "debt_credit_card": debt_cc_label,
+        "debt_personal_student": debt_ps_label,
+        "debt_mortgage": debt_mortgage_label
     }
 
-    # Questions 7-9: Risk tolerance, experience, goal (multiple choice)
+    # ── Screen 10: Risk & Experience ──
     preferences = AskUserQuestion(questions=[
         {
-            "question": "What is your risk tolerance?",
+            "question": "How would you describe your risk tolerance?",
             "header": "risk_tolerance",
+            "multiSelect": False,
             "options": [
-                {"label": "Low", "description": "Capital preservation first - prefer savings accounts, bonds, GICs/CDs"},
-                {"label": "Medium", "description": "Balanced growth - index funds, some individual stocks"},
-                {"label": "High", "description": "Aggressive growth - individual stocks, crypto, leveraged positions"}
+                {"label": "Conservative", "description": "Protect what I have — savings accounts, bonds, GICs"},
+                {"label": "Balanced", "description": "Steady growth — index funds, some stocks"},
+                {"label": "Aggressive", "description": "Maximize growth — stocks, crypto, higher volatility OK"}
             ]
         },
         {
-            "question": "What is your investment experience?",
+            "question": "How would you rate your investing experience?",
             "header": "experience",
+            "multiSelect": False,
             "options": [
-                {"label": "None", "description": "I'm completely new to investing"},
-                {"label": "Basic", "description": "I have a savings account, maybe a workplace retirement plan"},
-                {"label": "Intermediate", "description": "I actively invest in stocks/funds"},
+                {"label": "Beginner", "description": "New to investing or just have a savings account"},
+                {"label": "Intermediate", "description": "I invest regularly in stocks or funds"},
                 {"label": "Advanced", "description": "I manage a diversified portfolio across asset classes"}
-            ]
-        },
-        {
-            "question": "What is your primary financial goal?",
-            "header": "goal",
-            "options": [
-                {"label": "Build emergency fund (within 1 year)", "description": "Need a financial safety net"},
-                {"label": "Buy a home (3-5 years)", "description": "Saving for a down payment"},
-                {"label": "Retirement planning (10+ years)", "description": "Long-term wealth building"},
-                {"label": "Generate side income", "description": "Start a side hustle or freelance"},
-                {"label": "Early retirement / FIRE", "description": "Financial independence, retire early"},
-                {"label": "Pay off debt", "description": "Eliminate high-interest or total debt"}
             ]
         }
     ])
@@ -438,33 +546,56 @@ if profile is None:
         "$250,000 - $500,000": 375000, "$500,000 - $750,000": 625000,
         "$750,000 - $1,000,000": 875000, "$1,000,000 - $2,000,000": 1500000, "Over $2,000,000": 3000000
     }
-    debt_midpoints = {
-        "No debt": 0, "Under $5,000": 2500, "$5,000 - $25,000": 15000,
-        "$25,000 - $75,000": 50000, "$75,000 - $150,000": 112500, "$150,000 - $200,000": 175000,
-        "$200,000 - $350,000": 275000, "$350,000 - $500,000": 425000, "$500,000 - $600,000": 550000,
-        "$600,000 - $800,000": 700000, "$800,000 - $1,000,000": 900000, "Over $1,000,000": 1500000
+    debt_cc_midpoints = {
+        "None": 0, "Under $2,000": 1000, "$2,000 - $5,000": 3500,
+        "$5,000 - $15,000": 10000, "Over $15,000": 25000
+    }
+    debt_ps_midpoints = {
+        "None": 0, "Under $10,000": 5000, "$10,000 - $30,000": 20000,
+        "$30,000 - $75,000": 52500, "Over $75,000": 125000
+    }
+    debt_mortgage_midpoints = {
+        "None": 0, "Under $200,000": 100000, "$200,000 - $400,000": 300000,
+        "$400,000 - $700,000": 550000, "Over $700,000": 900000
     }
 
-    risk_map = {"Low": "low", "Medium": "medium", "High": "high"}
-    experience_map = {"None": "none", "Basic": "basic", "Intermediate": "intermediate", "Advanced": "advanced"}
+    risk_map = {"Conservative": "low", "Balanced": "medium", "Aggressive": "high"}
+    experience_map = {"Beginner": "beginner", "Intermediate": "intermediate", "Advanced": "advanced"}
 
     savings_label = assets_debt.get("savings", "Under $1,000")
     investments_label = assets_debt.get("investment_assets", "None")
-    debt_label = assets_debt.get("debt", "None")
+    cc_label = assets_debt.get("debt_credit_card", "None")
+    ps_label = assets_debt.get("debt_personal_student", "None")
+    mortgage_label = assets_debt.get("debt_mortgage", "None")
+
+    debt_cc_mid = debt_cc_midpoints.get(cc_label, 0)
+    debt_ps_mid = debt_ps_midpoints.get(ps_label, 0)
+    debt_mortgage_mid = debt_mortgage_midpoints.get(mortgage_label, 0)
+    total_debt_midpoint = debt_cc_mid + debt_ps_mid + debt_mortgage_mid
 
     profile = {
         "country": country,
+        "age": user_age,
+        "age_label": str(user_age),
         "annual_income": annual_income,
         "monthly_expense": monthly_expense,
         "savings": savings_label,
         "savings_midpoint": savings_midpoints.get(savings_label, 3000),
         "investment_assets": investments_label,
         "investment_midpoint": investment_midpoints.get(investments_label, 0),
-        "debt": debt_label,
-        "debt_midpoint": debt_midpoints.get(debt_label, 0),
-        "risk_tolerance": risk_map.get(preferences.get("risk_tolerance", "Medium"), "medium"),
-        "experience": experience_map.get(preferences.get("experience", "None"), "none"),
-        "goal": preferences.get("goal", "Retirement planning (10+ years)")
+        "debt_credit_card": cc_label,
+        "debt_cc_midpoint": debt_cc_mid,
+        "debt_personal_student": ps_label,
+        "debt_ps_midpoint": debt_ps_mid,
+        "debt_mortgage": mortgage_label,
+        "debt_mortgage_midpoint": debt_mortgage_mid,
+        "total_debt_midpoint": total_debt_midpoint,
+        "home_value": home_value_label,
+        "home_value_midpoint": home_value_mid,
+        "real_estate_equity": max(0, home_value_mid - debt_mortgage_mid),
+        "risk_tolerance": risk_map.get(preferences.get("risk_tolerance", "Balanced"), "medium"),
+        "experience": experience_map.get(preferences.get("experience", "Beginner"), "beginner"),
+        "goal": preferences.get("goal", "Build wealth long-term")
     }
 
     # Save to DB
@@ -479,10 +610,14 @@ with open('{profile_tmp}') as f:
     d = json.load(f)
 conn = sqlite3.connect('{DB_PATH}')
 conn.execute('''INSERT INTO profiles
-    (country, annual_income, monthly_expense, savings, investment_assets, debt, risk_tolerance, experience, goal)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)''',
-    (d['country'], d['annual_income'], d['monthly_expense'], d['savings'],
-     d['investment_assets'], d['debt'], d['risk_tolerance'], d['experience'], d['goal']))
+    (country, age, annual_income, monthly_expense, savings, investment_assets,
+     debt_credit_card, debt_personal_student, debt_mortgage,
+     risk_tolerance, experience, goal)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''',
+    (d['country'], d.get('age', 35), d['annual_income'], d['monthly_expense'], d['savings'],
+     d['investment_assets'], d.get('debt_credit_card', 'None'),
+     d.get('debt_personal_student', 'None'), d.get('debt_mortgage', 'None'),
+     d['risk_tolerance'], d['experience'], d['goal']))
 conn.commit()
 conn.close()
 import os
@@ -539,14 +674,24 @@ Task(
 
     Profile:
     - Country: {country} ({currency})
+    - Age: {profile.get('age', '--')} (exact age)
     - Annual income: ${profile['annual_income']:,.0f}
     - Monthly income: ${monthly_income:,.0f}
     - Monthly expenses: ${profile['monthly_expense']:,.0f}
     - Savings: {profile['savings']} (midpoint: ${profile['savings_midpoint']:,.0f})
     - Investment assets: {profile['investment_assets']} (midpoint: ${profile['investment_midpoint']:,.0f})
-    - Debt: {profile['debt']} (midpoint: ${profile['debt_midpoint']:,.0f})
+    - Debt — Credit card: {profile['debt_credit_card']} (midpoint: ${profile['debt_cc_midpoint']:,.0f})
+    - Debt — Personal/student loans: {profile['debt_personal_student']} (midpoint: ${profile['debt_ps_midpoint']:,.0f})
+    - Debt — Mortgage: {profile['debt_mortgage']} (midpoint: ${profile['debt_mortgage_midpoint']:,.0f})
+    - Total debt midpoint: ${profile['total_debt_midpoint']:,.0f}
     - Risk tolerance: {profile['risk_tolerance']}
     - Goal: {profile.get('goal', 'Not specified')}
+
+    Debt analysis guidelines:
+    - Credit card debt: highest priority (19-29% APR). Calculate monthly interest cost. Recommend avalanche or snowball.
+    - Personal/student loans: medium priority (4-10% APR). Consider refinancing, income-driven repayment (US), or consolidation.
+    - Mortgage: lowest priority (productive leverage). Focus on rate, renewal timing, prepayment vs investing tradeoff.
+    - Calculate debt-to-income (DTI) as: estimated total monthly debt PAYMENTS / monthly gross income. Estimate mortgage payment using standard amortization (25yr CA, 30yr US) at current rates. CC minimum ~3% of balance. Loan payments estimated from balance and typical terms. The benchmark is <36% (monthly payments, NOT total balance). Flag high-interest debt separately.
 
     {country_context_diagnostician}
 
@@ -558,7 +703,7 @@ Task(
       "health_score": 0-100,
       "monthly_surplus": monthly surplus in {currency},
       "savings_rate": savings rate (%),
-      "debt_ratio": debt-to-income ratio (%),
+      "debt_ratio": debt-to-income ratio (%) — calculated as monthly debt PAYMENTS / monthly gross income (NOT total balance / income),
       "emergency_fund_months": months of expenses covered by savings,
       "diagnosis": "2-3 sentence summary of financial health",
       "strengths": ["strength1", "strength2"],
@@ -597,10 +742,14 @@ Task(
 
     User profile:
     - Country: {country}
+    - Age: {profile.get('age', '--')} (exact age)
     - Annual income: ${profile['annual_income']:,.0f}
     - Savings: {profile['savings']} (midpoint: ${profile['savings_midpoint']:,.0f})
     - Investment assets: {profile['investment_assets']} (midpoint: ${profile['investment_midpoint']:,.0f})
-    - Debt: {profile['debt']} (midpoint: ${profile['debt_midpoint']:,.0f})
+    - Debt — Credit card: {profile['debt_credit_card']} (midpoint: ${profile['debt_cc_midpoint']:,.0f})
+    - Debt — Personal/student loans: {profile['debt_personal_student']} (midpoint: ${profile['debt_ps_midpoint']:,.0f})
+    - Debt — Mortgage: {profile['debt_mortgage']} (midpoint: ${profile['debt_mortgage_midpoint']:,.0f})
+    - Total debt: ${profile['total_debt_midpoint']:,.0f}
     - Risk tolerance: {profile['risk_tolerance']}
     - Experience: {experience}
     - Goal: {profile.get('goal', 'Not specified')}
@@ -620,7 +769,7 @@ Task(
     - first-investment.md, debt-freedom.md, side-hustle-launch.md, wealth-building.md
 
     Level assessment criteria:
-    - Beginner: health_score < {LEVEL_BEGINNER} OR investments = "None" OR experience = "none"/"basic"
+    - Beginner: health_score < {LEVEL_BEGINNER} OR investments = "None" OR experience = "beginner"
     - Intermediate: {LEVEL_BEGINNER} <= score < {LEVEL_INTERMEDIATE} AND investments > $0
     - Advanced: score >= {LEVEL_INTERMEDIATE} AND investments >= ${LEVEL_ADV_INVEST:,.0f}
 
@@ -940,6 +1089,7 @@ Task(
           "reward_potential": "expected annual return range",
           "suitable_for_user": true/false,
           "suitability_reason": "reason for suitability assessment",
+          "verdict": "RECOMMENDED / PROCEED WITH CAUTION / NOT SUITABLE",
           "max_allocation": "maximum recommended allocation (%)"
         }}
       ],
@@ -963,38 +1113,7 @@ print(f"Phase 2 complete - {len(strategies)} strategies evaluated")
 
 ---
 
-### Step 5: Strategy Selection
-
-```python
-# Display strategies with risk/reward summary and methodology source
-strategy_options = []
-for s in strategies:
-    risk_label = {"low": "Low Risk", "medium": "Medium Risk", "high": "High Risk"}.get(s.get("risk_level"), "Medium Risk")
-    horizon_label = {"short": "Short-term (1yr)", "mid": "Mid-term (3yr)", "long": "Long-term (10yr+)"}.get(s.get("time_horizon"), "Mid-term")
-    methodology = s.get("strategy_source", {}).get("methodology", "")
-    method_tag = f" [{methodology}]" if methodology else ""
-    strategy_options.append({
-        "label": s.get("title", f"Strategy {s.get('id', '?')}"),
-        "description": f"{risk_label} | {horizon_label} | {s.get('expected_return', 'N/A')}{method_tag}"
-    })
-
-selected = AskUserQuestion(questions=[{
-    "question": "Which strategy would you like to focus on first?",
-    "header": "Strategy Selection",
-    "options": strategy_options
-}])
-
-selected_title = selected.get("Strategy Selection")
-chosen_strategy = next(
-    (s for s in strategies if s.get("title") == selected_title),
-    strategies[0] if strategies else {"title": "Default Strategy", "description": "Index fund investing"}
-)
-print(f"Selected strategy: {chosen_strategy.get('title')}")
-```
-
----
-
-### Step 6: Phase 3 - Action Plan Generation (Learning + Action + Workflow)
+### Step 5: Phase 3 - Roadmap Generation (All Strategies)
 
 The action-plan-generator reads the roadmap template AND workflow files, producing a comprehensive 3-section roadmap.
 
@@ -1017,7 +1136,11 @@ selected_workflows = phase1['knowledge'].get('selected_workflows', ['first-inves
 workflow_paths = [f"{WF_DIR}/{wf}" if wf.endswith('.md') else f"{WF_DIR}/{wf}.md" for wf in selected_workflows]
 
 # Net worth calculation
-net_worth = phase1['profile'].get('savings_midpoint', 0) + phase1['profile'].get('investment_midpoint', 0) - phase1['profile'].get('debt_midpoint', 0)
+net_worth = (phase1['profile'].get('savings_midpoint', 0)
+             + phase1['profile'].get('investment_midpoint', 0)
+             + phase1['profile'].get('real_estate_equity', 0)
+             - phase1['profile'].get('debt_cc_midpoint', 0)
+             - phase1['profile'].get('debt_ps_midpoint', 0))
 
 country_resources = ""
 if country == "US":
@@ -1044,83 +1167,105 @@ Task(
     model="claude-opus-4-6",
     description="Integrated roadmap generation",
     prompt=f"""
-    Generate a comprehensive, professional wealth roadmap document. This is the final deliverable
-    the user receives — it must be polished, actionable, and visually well-structured.
+    Generate a comprehensive, CFP-quality wealth roadmap document (4-5 pages of dense, actionable content).
+    This is the final deliverable the user receives — it must read like a professional financial plan prepared
+    by a certified financial planner: data-dense, table-heavy, specific dollar amounts throughout, multi-scenario
+    projections, and a consolidated action plan with priorities and deadlines.
 
-    ## Document Requirements
+    ## Document Quality Standard
 
-    Fill ALL {{PLACEHOLDER}} values in the template. Every section must have real content — no empty
-    sections, no "TBD", no "N/A" unless genuinely not applicable. Be specific with dollar amounts,
-    fund tickers, dates, and percentages throughout.
+    Reference quality: a professional comprehensive financial plan with sections like Executive Summary with
+    snapshot table, Current Financial Position with holdings detail, multi-scenario wealth projections, tax strategy
+    with account optimization tables, risk assessment with severity ratings, and a consolidated prioritized action plan.
 
-    ## Key Sections to Generate
+    Fill ALL {{PLACEHOLDER}} values in the template with real, calculated content. Every section must have
+    substantive content — no empty sections, no "TBD", no "N/A" unless genuinely not applicable. Be specific
+    with dollar amounts, fund tickers, dates, percentages, and account types throughout.
 
-    **1. Executive Summary (3-4 sentences)**
-    - One-line financial health assessment
-    - Key strength to leverage
-    - Primary strategy recommendation with expected impact
-    - Timeline to goal achievement
+    ## Section-by-Section Instructions
 
-    **2. Financial Health Check**
-    - Fill the metrics table with actual values and benchmarks
-    - Use status indicators: EXCELLENT / GOOD / NEEDS WORK / CRITICAL
-    - Health score bar: use ASCII art like [████████░░] 82/100
+    **Section 1: Executive Summary**
+    - 3-4 sentences: health assessment, key strength, primary strategy + expected impact, timeline to goal
+    - Snapshot table: Current vs Projected values for age, net worth, investable portfolio, annual savings, sustainable income (4% SWR)
+    - Use the user's age ({profile.get('age', '--')}) and project forward to the target year
 
-    **3. Strategy Blueprint**
-    - Priority matrix table showing ALL strategies ranked by priority, risk, timeline, and annual dollar impact
-    - For each strategy, create a detailed section with:
-      - Specific fund tickers, account types, dollar amounts
-      - Pros/cons table
-      - Verdict line from risk evaluator
+    **Section 2: Current Financial Position**
+    - 2.1 Net Worth table: category-level breakdown (savings, investments, real estate equity if mortgage exists, each debt type as negative). We do NOT have individual holdings — show only the aggregate categories from the interview
+    - 2.2 Cash Flow Summary: monthly and annual for income, estimated taxes, expenses, surplus
+    - 2.3 Health Score with ASCII bar [████████░░] and full metrics table
+    - Status indicators: EXCELLENT / GOOD / NEEDS WORK / CRITICAL
+    - Debt rows: only show credit card / personal-student / mortgage rows that apply (skip "None" categories)
 
-    **4. Action Plan (most critical section)**
-    - Immediate actions as a TABLE with columns: #, Action, Account/Tool, Amount, Why
-    - 30-day checklist with [ ] checkboxes
-    - 90-day milestones with measurable targets
-    - 6-month review targets
-    - 1-year goals with dollar amounts
+    **Section 3: Wealth Projection — Three Scenarios**
+    - Project portfolio growth year-by-year for at least 5-10 years under 3 return assumptions
+    - Conservative (base - 2%), Base Case (realistic for risk tolerance), Optimistic (base + 2%)
+    - Include annual contributions from surplus
+    - Scenario comparison table: return, portfolio at target, annual 4% income, vs base case delta
+    - If user goal is FIRE/retirement, mark the year they hit their FIRE number
 
-    **5. Wealth Projection Table**
-    - Show portfolio growth at Year 1, 3, 5, 10, 15, 20
-    - Include annual contributions and cumulative tax savings columns
-    - State the return assumption clearly
+    **Section 4: Strategy Blueprint**
+    - Numbered priority matrix table with ALL strategies ranked
+    - For each strategy, create a detailed subsection with:
+      - Specific fund tickers (e.g., XEQT, VTI, AVUV), account types, dollar allocations
+      - Monthly commitment from surplus
+      - Methodology source and citations
+      - Country-specific accounts and tax implications
+      - Verdict line from risk evaluator: RECOMMENDED / PROCEED WITH CAUTION / NOT SUITABLE FOR THIS PROFILE
 
-    **6. Account Strategy**
-    - Contribution waterfall: show priority order as ASCII diagram
-      Example for Canada:
-      1. Employer RRSP match ──► FREE MONEY
-      2. TFSA ($7,000/yr) ──► Tax-free growth
-      3. RRSP (remaining room) ──► Tax deduction at marginal rate
-      4. Non-registered ──► Overflow
-    - Asset location map: which funds go in which accounts and why
+    **Section 5: Debt Strategy (separate per debt type)**
+    - ONLY include subsections for debt types the user actually has (skip "None" categories)
+    - If no debt at all, replace entire section with: "No outstanding debt. Focus surplus entirely on wealth building."
+    - **Credit Card Debt subsection** (if applicable):
+      - Monthly interest cost calculation at assumed APR (19-29%)
+      - Payoff strategy: avalanche vs snowball with specific timeline and monthly payment from surplus
+      - Balance transfer options if balance > $2K
+    - **Personal / Student Loan subsection** (if applicable):
+      - Estimated rate and monthly payment
+      - Refinancing analysis; US: income-driven repayment, PSLF; CA: interest tax credit, repayment assistance
+    - **Mortgage subsection** (if applicable):
+      - Rate environment and renewal/refinance timing
+      - Prepayment vs investing tradeoff (compare mortgage rate to expected equity return)
+      - US: refinance breakeven, PMI removal; CA: renewal shopping (120 days), fixed vs variable
+    - Each subsection: balance estimate, strategy, monthly allocation, payoff timeline
 
-    **7. Learning Path**
-    - 3 phases: Foundations (month 1), Strategy-Specific (month 2-3), Advanced (month 4+)
-    - Include specific book/video/resource recommendations with estimated time
+    **Section 6: Tax Strategy**
+    - 6.1 Account Optimization: table of specific actions with rationale and priority (HIGH/MEDIUM/LOW)
+    - 6.2 Contribution Priority: numbered table — account, annual limit, tax benefit, specific action
+    - 6.3 Asset Location Map: which funds in which accounts and why (withholding tax, growth vs income, etc.)
+    - Additional notes: tax-loss harvesting schedule, capital gains management, country-specific rules
 
-    **8. Risk Assessment**
-    - Overall rating out of 10
-    - Stress test scenario: what happens if market drops 40% AND job loss simultaneously
-    - Specific mitigations for each risk
+    **Section 7: Cash Flow & Savings Strategy**
+    - ASCII waterfall showing contribution priority order with dollar amounts
+    - Year-by-year savings plan table showing what to do each year and target balance accumulation
 
-    **9. Key Dates & Deadlines**
-    - Tax deadlines (RRSP deadline, tax filing, estimated payments)
-    - Account contribution deadlines
-    - Mortgage renewal date (if applicable)
-    - Review/rebalance schedule
+    **Section 8: Risk Assessment & Stress Testing**
+    - Risk table: each risk with description, severity (HIGH/MEDIUM/LOW), and specific mitigation
+    - Stress test: 40% market decline + job loss scenario with survivability analysis
+    - Sensitivity table: how portfolio and income change under different assumptions
 
-    **10. Workflow**
-    - Read the workflow files and integrate step-by-step execution instructions
-    - Include country-specific account opening steps
+    **Section 9: Consolidated Action Plan (CRITICAL section)**
+    - ALL recommended actions from the entire roadmap in ONE numbered table
+    - Columns: #, Action, Priority (CRITICAL/HIGH/MEDIUM), Responsible (Self/Advisor/Accountant/Broker), Deadline
+    - CRITICAL items = within 90 days; HIGH = within 6 months; MEDIUM = within 1 year
+    - This is the single most actionable section — must be comprehensive and specific
+
+    **Section 10: Market Context**
+    - Current market summary with specific data points
+    - Opportunities and risks relevant to the user's strategy
+
+    **Section 11: Learning Path**
+    - 3 phases with specific resources, estimated time, and why each topic matters
+    - Recommended reading list
+
+    **Section 12: Key Dates & Deadlines**
+    - Tax deadlines, contribution deadlines, mortgage renewal (if applicable), review schedule
 
     ## Input Data
 
-    Selected strategy:
-    {json.dumps(chosen_strategy, ensure_ascii=False)}
-
-    ALL strategies from strategist:
+    ALL strategies from strategist (cover ALL of them in the roadmap — do not focus on just one):
     {json.dumps(strategies, ensure_ascii=False)}
 
+    User age: {profile.get('age', '--')} (exact age)
     User level: {phase1['knowledge'].get('user_level', 'beginner')}
     Country: {country}
     Currency: {currency}
@@ -1147,7 +1292,12 @@ Task(
     - Net worth: ${net_worth:,.0f}
     - Savings: ${profile.get('savings_midpoint', 0):,.0f}
     - Investments: ${profile.get('investment_midpoint', 0):,.0f}
-    - Debt: ${profile.get('debt_midpoint', 0):,.0f}
+    - Credit card debt: {profile.get('debt_credit_card', 'None')} (midpoint: ${profile.get('debt_cc_midpoint', 0):,.0f})
+    - Personal/student loan debt: {profile.get('debt_personal_student', 'None')} (midpoint: ${profile.get('debt_ps_midpoint', 0):,.0f})
+    - Mortgage debt: {profile.get('debt_mortgage', 'None')} (midpoint: ${profile.get('debt_mortgage_midpoint', 0):,.0f})
+    - Total debt: ${profile.get('total_debt_midpoint', 0):,.0f}
+    - Home value: {profile.get('home_value', 'None')} (midpoint: ${profile.get('home_value_midpoint', 0):,.0f})
+    - Real estate equity: ${profile.get('real_estate_equity', 0):,.0f}
 
     Market conditions: {phase1['market'].get('market_summary', '')}
 
@@ -1177,7 +1327,7 @@ print(f"Phase 3 complete")
 
 ---
 
-### Step 7: Display Final Report, Record Session & Cleanup
+### Step 6: Display Final Report, Record Session & Cleanup
 
 ```python
 print("\n" + "="*60)
@@ -1205,25 +1355,9 @@ if isinstance(monthly_surplus, (int, float)):
 else:
     print(f"Monthly surplus: {monthly_surplus}")
 print()
-print(f"Selected strategy: {chosen_strategy.get('title')}")
-strategy_source = chosen_strategy.get('strategy_source', {})
-if strategy_source:
-    print(f"Methodology: {strategy_source.get('methodology', '')} - {strategy_source.get('key_principle', '')}")
-    citations = strategy_source.get('citations', [])
-    if citations:
-        print(f"Citations: {', '.join(citations)}")
-print(f"Expected return: {chosen_strategy.get('expected_return', 'N/A')}")
-print(f"Risk level: {chosen_strategy.get('risk_level', 'N/A')}")
-
-# Show country-specific details
-country_details = chosen_strategy.get('country_specific', {})
-if country_details:
-    accounts = country_details.get('accounts', [])
-    if accounts:
-        print(f"Recommended accounts: {', '.join(accounts)}")
-    tax_note = country_details.get('tax_implications', '')
-    if tax_note:
-        print(f"Tax implications: {tax_note}")
+print(f"Strategies generated: {len(strategies)}")
+for s in strategies:
+    print(f"  - {s.get('id')}: {s.get('title')} ({s.get('risk_level')} risk, {s.get('time_horizon')})")
 print()
 
 # Show learning curriculum summary
@@ -1258,7 +1392,7 @@ try:
     matched_strats = json.dumps(phase1["knowledge"].get("matched_strategies", []), ensure_ascii=False)
     sel_workflows = json.dumps(phase1["knowledge"].get("selected_workflows", []), ensure_ascii=False)
     user_lvl = phase1["knowledge"].get("user_level", "beginner")
-    strat_title = chosen_strategy.get("title", "")
+    strat_title = ", ".join(s.get("title", "") for s in strategies[:3])
 
     subprocess.run(["python3", "-c", f"""
 import sqlite3, json

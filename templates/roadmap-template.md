@@ -1,28 +1,49 @@
-# Your Wealth Roadmap
+# Comprehensive Wealth Roadmap
 
-> **Generated:** {DATE} | **Country:** {COUNTRY} | **Profile:** {USER_LEVEL} | **Risk:** {RISK_TOLERANCE}
+> **Prepared:** {DATE} | **Country:** {COUNTRY} | **Profile:** {USER_LEVEL} | **Risk Tolerance:** {RISK_TOLERANCE}
 
----
-
-> **Important:** This roadmap is for educational purposes only and does not constitute financial advice. Consult a licensed financial planner before making significant decisions. {DISCLAIMER_LINK}
+> **Important:** This roadmap is for educational and planning purposes only. It does not constitute investment advice, tax advice, or legal advice. All projections are based on assumptions that may not be realised. Consult qualified financial, tax, and legal professionals before making significant decisions. {DISCLAIMER_LINK}
 
 ---
 
-## Executive Summary
+## 1. Executive Summary
 
 {EXECUTIVE_SUMMARY}
 
-**Your FIRE/Wealth Trajectory:**
-
-```
-{WEALTH_PROJECTION_CHART}
-```
+| Metric | Current | Projected ({PROJECTION_YEAR}) |
+|--------|---------|-------------------------------|
+| Age | {CURRENT_AGE_OR_DASH} | {PROJECTED_AGE_OR_DASH} |
+| Total Net Worth (est.) | {NET_WORTH} | {PROJECTED_NET_WORTH} |
+| Liquid Investable Portfolio | {INVESTABLE_PORTFOLIO} | {PROJECTED_PORTFOLIO} |
+| Annual Savings Capacity | {ANNUAL_SAVINGS} | — |
+| Sustainable Annual Income (4% SWR) | — | {PROJECTED_INCOME} |
 
 ---
 
-## Financial Health Check
+## 2. Current Financial Position
 
-### Your Score: {HEALTH_SCORE}/100
+### 2.1 Net Worth Overview
+
+| Category | Value ({CURRENCY}) | Notes |
+|----------|-------------------|-------|
+| Savings (cash, HYSA/HISA, GICs/CDs) | {SAVINGS_VALUE} | {SAVINGS_NOTE} |
+| Investment Assets (registered + non-reg) | {INVESTMENT_VALUE} | {INVESTMENT_NOTE} |
+| Real Estate Equity (est.) | {RE_EQUITY_VALUE} | {RE_EQUITY_NOTE} |
+| Less: Credit Card Debt | {CC_DEBT_VALUE} | {CC_DEBT_NOTE} |
+| Less: Personal/Student Loans | {PS_DEBT_VALUE} | {PS_DEBT_NOTE} |
+| Less: Mortgage | {MORTGAGE_VALUE} | {MORTGAGE_NOTE} |
+| **ESTIMATED NET WORTH** | **{NET_WORTH}** | |
+
+### 2.2 Cash Flow Summary
+
+| Item | Monthly | Annual |
+|------|---------|--------|
+| Gross Income | {MONTHLY_INCOME} | {ANNUAL_INCOME} |
+| Taxes (est.) | {MONTHLY_TAX} | {ANNUAL_TAX} |
+| Living Expenses | {MONTHLY_EXPENSE} | {ANNUAL_EXPENSE} |
+| **Available Surplus** | **{MONTHLY_SURPLUS}** | **{ANNUAL_SURPLUS}** |
+
+### 2.3 Financial Health Score: {HEALTH_SCORE}/100
 
 ```
 {HEALTH_SCORE_BAR}
@@ -30,26 +51,42 @@
 
 | Metric | Your Value | Benchmark | Status |
 |--------|-----------|-----------|--------|
-| Emergency Fund | {EF_VALUE} | 3-6 months | {EF_STATUS} |
-| Savings Rate | {SAVINGS_RATE} | 20%+ | {SR_STATUS} |
+| Emergency Fund | {EF_VALUE} | 3-6 months expenses | {EF_STATUS} |
+| Savings Rate | {SAVINGS_RATE} | 20%+ of gross | {SR_STATUS} |
 | Debt-to-Income | {DTI} | <36% | {DTI_STATUS} |
-| Investment/Income | {INV_RATIO} | 1x+ by 30, 3x+ by 40 | {INV_STATUS} |
-| Net Worth (est.) | {NET_WORTH} | — | — |
+| Credit Card Debt | {CC_DEBT} | $0 | {CC_STATUS} |
+| Personal/Student Loans | {PS_DEBT} | Manageable | {PS_STATUS} |
+| Mortgage | {MORTGAGE_DEBT} | — | {MORTGAGE_STATUS} |
+| Investment-to-Income Ratio | {INV_RATIO} | 1x by 30, 3x by 40 | {INV_STATUS} |
 
-### What You're Doing Well
-{STRENGTHS}
+**Strengths:** {STRENGTHS}
 
-### Where to Improve
-{WEAKNESSES}
+**Areas for Improvement:** {WEAKNESSES}
 
 ---
 
-## Your Strategy Blueprint
+## 3. Wealth Projection — Three Scenarios
+
+The table below projects portfolio growth under three return assumptions with {ANNUAL_CONTRIBUTION}/year in contributions from the current investable base of {INVESTABLE_PORTFOLIO}.
+
+| Year | Age | Phase | Conservative ({CONSERVATIVE_RATE}) | Base Case ({BASE_RATE}) | Optimistic ({OPTIMISTIC_RATE}) |
+|------|-----|-------|-------------------------------------|------------------------|-------------------------------|
+{PROJECTION_TABLE_ROWS}
+
+| Scenario | Return | Portfolio at Target | Annual 4% Income | vs. Base Case |
+|----------|--------|--------------------|--------------------|---------------|
+{SCENARIO_COMPARISON_ROWS}
+
+*Projections are illustrative, not guaranteed. Actual returns will vary.*
+
+---
+
+## 4. Strategy Blueprint
 
 ### Priority Matrix
 
-| Strategy | Priority | Risk | Timeline | Annual Impact |
-|----------|----------|------|----------|---------------|
+| # | Strategy | Category | Priority | Risk | Timeline | Est. Annual Impact |
+|---|----------|----------|----------|------|----------|-------------------|
 {STRATEGY_MATRIX_ROWS}
 
 ---
@@ -58,59 +95,95 @@
 
 ---
 
-## Action Plan
+## 5. Debt Strategy
 
-### Immediate Actions (This Week)
-
-| # | Action | Account/Tool | Amount | Why |
-|---|--------|-------------|--------|-----|
-{IMMEDIATE_ACTIONS_TABLE}
-
-### 30-Day Checklist
-
-{THIRTY_DAY_CHECKLIST}
-
-### 90-Day Milestones
-
-{NINETY_DAY_MILESTONES}
-
-### 6-Month Review Targets
-
-{SIX_MONTH_TARGETS}
-
-### 1-Year Goals
-
-{ONE_YEAR_GOALS}
+{DEBT_STRATEGY_SECTIONS}
 
 ---
 
-## Wealth Projection
+## 6. Tax Strategy
 
-| Timeframe | Portfolio (est.) | Annual Contributions | Cumulative Tax Savings |
-|-----------|-----------------|---------------------|----------------------|
-{PROJECTION_TABLE_ROWS}
+### 6.1 Account Optimisation
 
-*Assumes {RETURN_ASSUMPTION}. Projections are illustrative, not guaranteed.*
+| Action | Rationale | Priority |
+|--------|-----------|----------|
+{TAX_OPTIMIZATION_TABLE}
 
----
+### 6.2 Tax-Advantaged Contribution Plan
 
-## Account Strategy
+| # | Account | Annual Limit | Tax Benefit | Action |
+|---|---------|-------------|-------------|--------|
+{CONTRIBUTION_PRIORITY_TABLE}
 
-### Contribution Priority Order
-
-```
-{ACCOUNT_WATERFALL}
-```
-
-### Asset Location Map
+### 6.3 Asset Location Map
 
 | Account | What to Hold | Why |
 |---------|-------------|-----|
 {ASSET_LOCATION_TABLE}
 
+{TAX_ADDITIONAL_NOTES}
+
 ---
 
-## Learning Path
+## 7. Cash Flow & Savings Strategy
+
+### Savings Priority Waterfall
+
+```
+{ACCOUNT_WATERFALL}
+```
+
+### Year-by-Year Savings Plan
+
+| Year | Action | Target Balance |
+|------|--------|---------------|
+{SAVINGS_PLAN_TABLE}
+
+---
+
+## 8. Risk Assessment & Stress Testing
+
+### Key Risks
+
+| Risk | Description | Severity | Mitigation |
+|------|-------------|----------|------------|
+{RISK_TABLE_ROWS}
+
+### Stress Test: Worst-Case Scenario
+
+{STRESS_TEST}
+
+### Portfolio Sensitivity
+
+| Scenario | Assumption | Portfolio Impact | Income Impact | vs. Base |
+|----------|-----------|-----------------|---------------|----------|
+{SENSITIVITY_TABLE_ROWS}
+
+---
+
+## 9. Consolidated Action Plan
+
+All recommended actions prioritised and scheduled. Items marked **CRITICAL** should be addressed within 90 days.
+
+| # | Action | Priority | Responsible | Deadline |
+|---|--------|----------|-------------|----------|
+{CONSOLIDATED_ACTION_TABLE}
+
+---
+
+## 10. Market Context ({MARKET_DATE})
+
+{MARKET_SUMMARY}
+
+### Opportunities
+{OPPORTUNITIES}
+
+### Risks to Monitor
+{RISKS_TO_MONITOR}
+
+---
+
+## 11. Learning Path
 
 ### Phase 1: Foundations ({LEARNING_PHASE1_TIME})
 {LEARNING_PHASE1}
@@ -126,37 +199,7 @@
 
 ---
 
-## Market Context
-
-{MARKET_SUMMARY}
-
-### Opportunities
-{OPPORTUNITIES}
-
-### Risks to Monitor
-{RISKS_TO_MONITOR}
-
----
-
-## Risk Assessment
-
-**Overall Rating:** {RISK_RATING}/10
-
-{RISK_ASSESSMENT}
-
-### Stress Test: What If Everything Goes Wrong?
-
-{STRESS_TEST}
-
----
-
-## Workflow: {WORKFLOW_TITLE}
-
-{WORKFLOW_CONTENT}
-
----
-
-## Key Dates & Deadlines
+## 12. Key Dates & Deadlines
 
 | Date | Action | Notes |
 |------|--------|-------|
@@ -166,10 +209,8 @@
 
 ## References & Sources
 
-### Methodologies Used
 {METHODOLOGY_SOURCES}
 
-### Knowledge Base
 {KB_SOURCES}
 
 ---
@@ -185,5 +226,7 @@
 {NEXT_STEPS}
 
 ---
+
+> *This document is for planning and educational purposes only. All projections are based on assumptions that may not be realised. Past performance is not indicative of future results. Consult qualified financial, tax, and legal professionals before acting on any recommendation.*
 
 *Roadmap generated by Wealth Guide v1.0 | Review recommended every 6 months*
