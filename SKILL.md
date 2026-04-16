@@ -1062,21 +1062,22 @@ for tmp_file in glob.glob(f"/tmp/wealth-guide-*-{TS}.json"):
 
 | Error | Response |
 |-------|----------|
-| DB init 실패 | "데이터베이스 초기화 실패. python3 설치 여부 확인 후 재시도하세요." |
-| agent-config.yaml 없음 | 하드코딩된 기본값으로 계속 진행 (경고 표시 없음) |
-| knowledge base 파일 없음 | knowledge-advisor가 WebSearch만으로 대체, 학습 커리큘럼은 기본값 |
-| 에이전트 결과 파일 없음 | 기본값 fallback 적용, 경고 메시지 표시 후 계속 진행 |
-| 전략 목록 비어있음 | 기본 전략(비상금 확보 + 파킹통장) 1개 자동 생성 |
-| json.loads 파싱 실패 | JSONDecodeError 캐치 → {"exists": False} 기본값 사용 |
-| 세션 기록 실패 | 무시하고 계속 진행 (비핵심 기능) |
+| DB init failure | "Database initialization failed. Check python3 installation and retry." |
+| agent-config.yaml missing | Continue with hardcoded defaults (no warning) |
+| Knowledge base file missing | knowledge-advisor falls back to WebSearch only, default learning curriculum |
+| Agent result file missing | Apply fallback defaults, show warning, continue |
+| Empty strategies list | Auto-generate 1 default strategy (emergency fund + HYSA/HISA) |
+| json.loads parse failure | Catch JSONDecodeError, use {"exists": False} default |
+| Session recording failure | Ignore and continue (non-critical) |
+| Free-text parse failure | Re-prompt user or use default ($75,000 income / $4,000 expenses) |
 
 ## Model Selection
 
 | Agent | Model | Reason |
 |-------|-------|--------|
-| financial-diagnostician | claude-sonnet-4-5-20250929 | 수치 분석 |
-| knowledge-advisor | claude-sonnet-4-5-20250929 | 지식 매칭 + 웹서치 |
-| market-context-analyzer | claude-sonnet-4-5-20250929 | 시장 분석 |
-| wealth-strategist | claude-opus-4-6 | 전문가 기반 전략 생성 |
-| risk-reward-evaluator | claude-sonnet-4-5-20250929 | 정량적 리스크 평가 |
-| action-plan-generator | claude-opus-4-6 | 3-section 통합 로드맵 |
+| financial-diagnostician | claude-sonnet-4-5-20250929 | Numerical analysis |
+| knowledge-advisor | claude-sonnet-4-5-20250929 | Knowledge matching + web search |
+| market-context-analyzer | claude-sonnet-4-5-20250929 | Market analysis |
+| wealth-strategist | claude-opus-4-6 | Strategy generation (complex reasoning) |
+| risk-reward-evaluator | claude-sonnet-4-5-20250929 | Quantitative risk assessment |
+| action-plan-generator | claude-opus-4-6 | Integrated roadmap generation |
