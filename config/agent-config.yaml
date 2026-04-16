@@ -1,0 +1,22 @@
+# Wealth Guide Agent Configuration
+
+timeouts:
+  wealth_strategist: 120
+  action_plan_generator: 120
+  financial_diagnostician: 60
+  market_context_analyzer: 60
+  risk_reward_evaluator: 60
+  knowledge_advisor: 120
+
+retry:
+  max_attempts: 2
+  fallback_on_fail: true
+
+interview:
+  cache_hours: 24
+  refresh_days: 30
+
+levels:
+  beginner_threshold: 50
+  intermediate_threshold: 75
+  min_investment_for_advanced: 50000
