@@ -196,59 +196,199 @@ if profile is None:
     ])
     country = "US" if country_response.get("country") == "United States" else "CA"
 
-    # Questions 2-3: Free-text income and expenses
-    income_expense = AskUserQuestion(questions=[
+    # Question 2: Annual income (two-step for precision within 4-option limit)
+    income_coarse = AskUserQuestion(questions=[
         {
-            "question": "What is your annual pre-tax household income? (e.g., 75000)",
-            "header": "annual_income"
-        },
+            "question": "What is your annual pre-tax household income?",
+            "header": "income_range",
+            "options": [
+                {"label": "Under $80,000", "description": "Entry-level to mid career"},
+                {"label": "$80,000 - $150,000", "description": "Mid to senior career"},
+                {"label": "$150,000 - $400,000", "description": "Senior, specialist, or executive"},
+                {"label": "Over $400,000", "description": "C-suite, partner, or business owner"}
+            ]
+        }
+    ])
+
+    income_coarse_label = income_coarse.get("income_range", "$80,000 - $150,000")
+    income_sub_options = {
+        "Under $80,000": [
+            {"label": "Under $40,000", "description": "Entry-level or part-time"},
+            {"label": "$40,000 - $60,000", "description": "Early career"},
+            {"label": "$60,000 - $80,000", "description": "Mid career"}
+        ],
+        "$80,000 - $150,000": [
+            {"label": "$80,000 - $100,000", "description": "Mid career"},
+            {"label": "$100,000 - $125,000", "description": "Senior individual contributor"},
+            {"label": "$125,000 - $150,000", "description": "Senior or lead"}
+        ],
+        "$150,000 - $400,000": [
+            {"label": "$150,000 - $200,000", "description": "Senior or specialist"},
+            {"label": "$200,000 - $250,000", "description": "Staff or principal level"},
+            {"label": "$250,000 - $400,000", "description": "Director or executive"}
+        ],
+        "Over $400,000": [
+            {"label": "$400,000 - $600,000", "description": "VP or senior executive"},
+            {"label": "$600,000 - $1,000,000", "description": "C-suite or partner"},
+            {"label": "Over $1,000,000", "description": "Top earner"}
+        ]
+    }
+
+    income_narrow = AskUserQuestion(questions=[
+        {
+            "question": f"Narrow your income range (you selected {income_coarse_label}):",
+            "header": "annual_income",
+            "options": income_sub_options.get(income_coarse_label, income_sub_options["$80,000 - $150,000"])
+        }
+    ])
+
+    income_midpoints = {
+        "Under $40,000": 30000, "$40,000 - $60,000": 50000, "$60,000 - $80,000": 70000,
+        "$80,000 - $100,000": 90000, "$100,000 - $125,000": 112500, "$125,000 - $150,000": 137500,
+        "$150,000 - $200,000": 175000, "$200,000 - $250,000": 225000, "$250,000 - $400,000": 325000,
+        "$400,000 - $600,000": 500000, "$600,000 - $1,000,000": 800000, "Over $1,000,000": 1500000
+    }
+    income_label = income_narrow.get("annual_income", "$80,000 - $100,000")
+    annual_income = income_midpoints.get(income_label, 90000)
+
+    # Question 3: Monthly expenses (free-text for precision)
+    expense_response = AskUserQuestion(questions=[
         {
             "question": "What are your total monthly expenses? (e.g., 4500)",
             "header": "monthly_expense"
         }
     ])
 
-    annual_income = parse_currency(income_expense.get("annual_income", "75000")) or 75000.0
-    monthly_expense = parse_currency(income_expense.get("monthly_expense", "4000")) or 4000.0
+    monthly_expense = parse_currency(expense_response.get("monthly_expense", "4000")) or 4000.0
 
-    # Questions 4-6: Savings, investments, debt (multiple choice)
-    assets_debt = AskUserQuestion(questions=[
+    # Questions 4-6: Savings, investments, debt (two-step narrowing for precision)
+    # Step A: Coarse range for all three
+    coarse_ranges = AskUserQuestion(questions=[
         {
-            "question": "How much do you have in savings/checking accounts?",
-            "header": "savings",
+            "question": "How much do you have in savings (cash, HYSA, GICs/CDs)?",
+            "header": "savings_range",
             "options": [
-                {"label": "Under $1,000", "description": ""},
-                {"label": "$1,000 - $5,000", "description": ""},
-                {"label": "$5,000 - $25,000", "description": ""},
-                {"label": "$25,000 - $100,000", "description": ""},
-                {"label": "$100,000+", "description": ""}
+                {"label": "Under $15,000", "description": "Building an emergency fund"},
+                {"label": "$15,000 - $100,000", "description": "Solid cash reserves"},
+                {"label": "$100,000 - $500,000", "description": "Large cash position"},
+                {"label": "Over $500,000", "description": "Substantial liquid wealth"}
             ]
         },
         {
-            "question": "Total investment assets (stocks, bonds, funds, crypto, etc.)?",
-            "header": "investment_assets",
+            "question": "Total investment assets (RRSP/401k, TFSA/Roth, stocks, bonds, funds, crypto)?",
+            "header": "invest_range",
             "options": [
-                {"label": "None", "description": "No investment experience"},
-                {"label": "Under $10,000", "description": ""},
-                {"label": "$10,000 - $50,000", "description": ""},
-                {"label": "$50,000 - $200,000", "description": ""},
-                {"label": "$200,000 - $500,000", "description": ""},
-                {"label": "$500,000+", "description": ""}
+                {"label": "Under $50,000", "description": "Getting started or building"},
+                {"label": "$50,000 - $250,000", "description": "Growing portfolio"},
+                {"label": "$250,000 - $1,000,000", "description": "Substantial portfolio"},
+                {"label": "Over $1,000,000", "description": "Millionaire investor"}
             ]
         },
         {
-            "question": "Total outstanding debt (mortgage, student loans, credit cards, etc.)?",
-            "header": "debt",
+            "question": "Total outstanding debt (mortgage, student loans, credit cards, car)?",
+            "header": "debt_range",
             "options": [
-                {"label": "None", "description": ""},
-                {"label": "Under $5,000", "description": ""},
-                {"label": "$5,000 - $25,000", "description": ""},
-                {"label": "$25,000 - $100,000", "description": ""},
-                {"label": "$100,000 - $300,000", "description": ""},
-                {"label": "$300,000+", "description": "Mortgage territory"}
+                {"label": "Under $25,000", "description": "No debt or minor loans"},
+                {"label": "$25,000 - $200,000", "description": "Student loans or small mortgage"},
+                {"label": "$200,000 - $600,000", "description": "Typical mortgage range"},
+                {"label": "Over $600,000", "description": "Large mortgage or multiple properties"}
             ]
         }
     ])
+
+    # Step B: Narrow sub-range based on coarse answer
+    savings_coarse = coarse_ranges.get("savings_range", "Under $15,000")
+    savings_sub_options = {
+        "Under $15,000": [
+            {"label": "Under $1,000", "description": "Just getting started"},
+            {"label": "$1,000 - $5,000", "description": "Building a buffer"},
+            {"label": "$5,000 - $15,000", "description": "Starter emergency fund"}
+        ],
+        "$15,000 - $100,000": [
+            {"label": "$15,000 - $30,000", "description": "3-6 month emergency fund"},
+            {"label": "$30,000 - $50,000", "description": "Full emergency fund + buffer"},
+            {"label": "$50,000 - $100,000", "description": "Strong cash position"}
+        ],
+        "$100,000 - $500,000": [
+            {"label": "$100,000 - $250,000", "description": "Large cash reserves"},
+            {"label": "$250,000 - $500,000", "description": "Very large cash position"}
+        ],
+        "Over $500,000": [
+            {"label": "$500,000 - $1,000,000", "description": "Major cash holdings"},
+            {"label": "Over $1,000,000", "description": "Ultra-high cash position"}
+        ]
+    }
+
+    invest_coarse = coarse_ranges.get("invest_range", "Under $50,000")
+    invest_sub_options = {
+        "Under $50,000": [
+            {"label": "None", "description": "Haven't started investing"},
+            {"label": "Under $10,000", "description": "Just getting started"},
+            {"label": "$10,000 - $50,000", "description": "Building portfolio"}
+        ],
+        "$50,000 - $250,000": [
+            {"label": "$50,000 - $100,000", "description": "Growing portfolio"},
+            {"label": "$100,000 - $175,000", "description": "Solid investment base"},
+            {"label": "$175,000 - $250,000", "description": "Strong portfolio"}
+        ],
+        "$250,000 - $1,000,000": [
+            {"label": "$250,000 - $500,000", "description": "Substantial portfolio"},
+            {"label": "$500,000 - $750,000", "description": "Large portfolio"},
+            {"label": "$750,000 - $1,000,000", "description": "Approaching 7 figures"}
+        ],
+        "Over $1,000,000": [
+            {"label": "$1,000,000 - $2,000,000", "description": "Millionaire investor"},
+            {"label": "Over $2,000,000", "description": "High-net-worth investor"}
+        ]
+    }
+
+    debt_coarse = coarse_ranges.get("debt_range", "Under $25,000")
+    debt_sub_options = {
+        "Under $25,000": [
+            {"label": "No debt", "description": "Completely debt-free"},
+            {"label": "Under $5,000", "description": "Minor debt"},
+            {"label": "$5,000 - $25,000", "description": "Car loan or student loan"}
+        ],
+        "$25,000 - $200,000": [
+            {"label": "$25,000 - $75,000", "description": "Student or personal loans"},
+            {"label": "$75,000 - $150,000", "description": "Large loans or small mortgage"},
+            {"label": "$150,000 - $200,000", "description": "Moderate mortgage"}
+        ],
+        "$200,000 - $600,000": [
+            {"label": "$200,000 - $350,000", "description": "Standard mortgage"},
+            {"label": "$350,000 - $500,000", "description": "Mid-range mortgage"},
+            {"label": "$500,000 - $600,000", "description": "Above-average mortgage"}
+        ],
+        "Over $600,000": [
+            {"label": "$600,000 - $800,000", "description": "Large mortgage"},
+            {"label": "$800,000 - $1,000,000", "description": "High-value property"},
+            {"label": "Over $1,000,000", "description": "Multiple properties or jumbo"}
+        ]
+    }
+
+    narrow_ranges = AskUserQuestion(questions=[
+        {
+            "question": f"Narrow your savings range (you selected {savings_coarse}):",
+            "header": "savings",
+            "options": savings_sub_options.get(savings_coarse, savings_sub_options["Under $15,000"])
+        },
+        {
+            "question": f"Narrow your investment range (you selected {invest_coarse}):",
+            "header": "investment_assets",
+            "options": invest_sub_options.get(invest_coarse, invest_sub_options["Under $50,000"])
+        },
+        {
+            "question": f"Narrow your debt range (you selected {debt_coarse}):",
+            "header": "debt",
+            "options": debt_sub_options.get(debt_coarse, debt_sub_options["Under $25,000"])
+        }
+    ])
+
+    assets_debt = {
+        "savings": narrow_ranges.get("savings", "Under $1,000"),
+        "investment_assets": narrow_ranges.get("investment_assets", "None"),
+        "debt": narrow_ranges.get("debt", "No debt")
+    }
 
     # Questions 7-9: Risk tolerance, experience, goal (multiple choice)
     preferences = AskUserQuestion(questions=[
@@ -285,18 +425,24 @@ if profile is None:
         }
     ])
 
-    # Midpoint mappings for numeric calculations
+    # Midpoint mappings for numeric calculations (covers all narrow sub-range labels)
     savings_midpoints = {
-        "Under $1,000": 500, "$1,000 - $5,000": 3000,
-        "$5,000 - $25,000": 15000, "$25,000 - $100,000": 62500, "$100,000+": 150000
+        "Under $1,000": 500, "$1,000 - $5,000": 3000, "$5,000 - $15,000": 10000,
+        "$15,000 - $30,000": 22500, "$30,000 - $50,000": 40000, "$50,000 - $100,000": 75000,
+        "$100,000 - $250,000": 175000, "$250,000 - $500,000": 375000,
+        "$500,000 - $1,000,000": 750000, "Over $1,000,000": 1500000
     }
     investment_midpoints = {
         "None": 0, "Under $10,000": 5000, "$10,000 - $50,000": 30000,
-        "$50,000 - $200,000": 125000, "$200,000 - $500,000": 350000, "$500,000+": 750000
+        "$50,000 - $100,000": 75000, "$100,000 - $175,000": 137500, "$175,000 - $250,000": 212500,
+        "$250,000 - $500,000": 375000, "$500,000 - $750,000": 625000,
+        "$750,000 - $1,000,000": 875000, "$1,000,000 - $2,000,000": 1500000, "Over $2,000,000": 3000000
     }
     debt_midpoints = {
-        "None": 0, "Under $5,000": 2500, "$5,000 - $25,000": 15000,
-        "$25,000 - $100,000": 62500, "$100,000 - $300,000": 200000, "$300,000+": 400000
+        "No debt": 0, "Under $5,000": 2500, "$5,000 - $25,000": 15000,
+        "$25,000 - $75,000": 50000, "$75,000 - $150,000": 112500, "$150,000 - $200,000": 175000,
+        "$200,000 - $350,000": 275000, "$350,000 - $500,000": 425000, "$500,000 - $600,000": 550000,
+        "$600,000 - $800,000": 700000, "$800,000 - $1,000,000": 900000, "Over $1,000,000": 1500000
     }
 
     risk_map = {"Low": "low", "Medium": "medium", "High": "high"}
