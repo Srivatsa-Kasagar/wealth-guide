@@ -153,6 +153,36 @@ Monthly rent
 - **Best held in tax-advantaged accounts** (401k/RRSP/TFSA) to shelter distributions
 - In taxable accounts, consider total portfolio allocation vs tax drag
 
+## Real Estate Crowdfunding
+
+### Platforms
+- **Fundrise:** Min $10, eREITs and eFunds, 5-12% average returns, ~1% annual fees, quarterly liquidity (with penalties)
+- **CrowdStreet:** Accredited investors, individual deal selection, higher minimums ($25K+)
+- **AcreTrader / FarmTogether:** Farmland investing, $10-$1,000 minimums, 8-10% target returns
+
+### Pros and Cons
+**Pros:** Lower minimums than direct ownership, diversification across properties, no property management, access to commercial real estate
+**Cons:** Low liquidity (multi-year lock-ups), fees can be complex, less transparent than public REITs, platform risk, limited track record vs public markets
+
+### When to Consider
+- Already maxed out tax-advantaged accounts and have a diversified index portfolio
+- Want real estate exposure beyond REITs without direct ownership hassles
+- Comfortable locking up capital for 3-7 years
+- Illiquid allocation should be <10-15% of total portfolio
+
+## Alternative Investments Overview
+
+### Portfolio Satellite Allocation (10-20%)
+Core portfolio (80-90%) should remain low-cost index funds. Satellite allocation can include:
+
+| Investment | Key Vehicles | Role in Portfolio |
+|-----------|-------------|-------------------|
+| **Gold** | GLDM (0.10% ER), IAU | Crisis hedge, inflation protection. 5-10% allocation. Zero expected real return long-term. |
+| **TIPS** | TIP, VTIP, SCHP | Inflation hedge. Best in tax-advantaged accounts (phantom income). |
+| **Commodities** | PDBC, DJP | Broad commodity exposure. Inflation hedge. |
+| **Managed Futures** | DBMF | Trend following strategy. Low correlation to stocks/bonds. |
+| **Series EE Bonds** | TreasuryDirect only | Guaranteed to double in 20 years (3.5% effective). Education planning. |
+
 ## Common Mistakes
 - Underestimating maintenance costs (budget 1-2% of property value per year)
 - Not accounting for vacancy (budget 5-10% of annual rent)

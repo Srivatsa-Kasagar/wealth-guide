@@ -42,9 +42,19 @@ Retirement strategies, government benefits, and FIRE methodology for US and Cana
 - If healthy and expect longevity: delay to 70
 - If health concerns or need income now: claim earlier
 
+**2025 Benefit Amounts:**
+- Maximum at FRA (age 67): ~$4,018/month
+- Maximum at age 70: ~$5,108/month
+- Maximum at age 62: ~$2,831/month
+- Average retirement benefit: ~$1,976/month
+- 2025 COLA: 2.5%
+
+**Earnings Test (2025):** Under FRA: $1 withheld per $2 earned above $23,400/year. Year of FRA: $1 per $3 above $62,160. At/after FRA: no limit.
+
 **Spousal benefits:** Up to 50% of higher earner's full benefit
 **Survivor benefits:** Up to 100% of deceased spouse's benefit
-**Taxation:** Up to 85% of benefits taxable if income exceeds thresholds ($25K single / $32K married)
+**Taxation:** Up to 85% of benefits taxable if income exceeds thresholds ($25K single / $32K married). These thresholds have NOT been indexed since 1984 — more retirees pay tax each year.
+**WEP/GPO:** Being reformed under the Social Security Fairness Act (signed January 2025)
 
 ### Required Minimum Distributions (RMDs)
 - **Start age:** 73 (SECURE 2.0 Act)
@@ -105,15 +115,21 @@ Retirement strategies, government benefits, and FIRE methodology for US and Cana
 | 65 | Standard | ~$1,364 |
 | 70 | +42% (0.7%/month x 60 months) | ~$1,937 |
 
+**2025 CPP Maximums:**
+- Maximum pensionable earnings (CPP1): $71,300 | CPP2 second ceiling: $81,200
+- Employee contribution rate: CPP1 5.95% + CPP2 4.00%
+- Maximum employee contribution: CPP1 $4,034.10 + CPP2 $396.00
+- Average monthly CPP: ~$808 (most don't receive maximum)
+
 **Break-even:** ~Age 74 for 60 vs 65, ~age 82 for 65 vs 70
 **CPP2 enhancement:** Additional contributions (2024+) provide higher benefits for those earning above first ceiling
 **Pension sharing:** Split CPP with spouse to reduce combined tax (both must be 60+)
 
 ### OAS (Old Age Security)
 - **Universal:** Available at 65 with 10+ years of Canadian residency (40 years for full amount)
-- **Maximum monthly (2025):** ~$727
-- **GIS (Guaranteed Income Supplement):** Additional benefit for low-income seniors
-- **OAS clawback:** Recovery tax starts at ~$90,997 income (2025), fully clawed back at ~$148K
+- **Maximum monthly (2025):** ~$727.67 (age 65-74), ~$800.44 (age 75+, 10% enhancement since 2022)
+- **GIS (Guaranteed Income Supplement):** Max ~$1,086.88/month (single), income threshold ~$21,624. Not taxable but income-tested.
+- **OAS clawback:** Recovery tax (15%) starts at ~$90,997 income (2025), fully clawed back at ~$148,065 (65-74) or ~$153,771 (75+)
 - **Deferral:** Can defer to age 70 for 36% increase (0.6%/month)
 - **Strategy:** If income will be high at 65, consider deferring. If income will be low, take at 65 and get GIS.
 
@@ -155,10 +171,50 @@ Retirement strategies, government benefits, and FIRE methodology for US and Cana
 - **Mitigation:** Keep 1-2 years of expenses in cash/bonds, reduce equity allocation at retirement, variable withdrawal strategy
 - **Bucket strategy:** Bucket 1 (1-2 years cash), Bucket 2 (3-7 years bonds), Bucket 3 (8+ years equities)
 
+### Bond Tent / Rising Equity Glidepath (Pfau & Kitces)
+- Traditional glidepaths reduce stocks as you age — research shows a **rising equity glidepath** can improve survival rates
+- **The tent shape:** Increase bond allocation 5-10 years before retirement → peak bonds at retirement (40-60%) → gradually shift back to stocks over first 10-15 years
+- **Timeline:** Start building tent 5 years pre-retirement. Annual equity increase in retirement: 1-2%/year. By year 15-20: back to 60-80% stocks.
+- **Why it works:** Sequence risk is highest in the 5 years before and 10 years after retirement. High bonds absorb early losses; then equities provide growth for longevity risk.
+- **Research:** Pfau/Kitces (2013) found a glidepath from 30% stocks at retirement to 70% stocks 30 years later had higher success rates than static 60/40
+- Combine with bucket strategy and 1-2 year cash buffer for spending in down markets
+
 ### Inflation Protection
 - **US:** TIPS (Treasury Inflation-Protected Securities), I-Bonds ($10K/year limit)
 - **Canada:** Real-return bonds (limited supply), inflation-indexed annuities
 - **Both:** Equities provide long-term inflation hedge (companies raise prices)
+
+### I-Bonds (US Only — Detailed)
+- **Two components:** Fixed rate (set at purchase, lasts 30 years) + inflation rate (resets every 6 months based on CPI-U)
+- **Purchase limit:** $10,000/year per SSN electronically via TreasuryDirect + $5,000 via tax refund (paper)
+- **Holding period:** Minimum 1 year; forfeit last 3 months interest if redeemed before 5 years
+- **Tax:** Federal income tax only (no state/local), can defer reporting until redemption
+- **Education exclusion:** Interest may be tax-free for qualified higher education expenses (income limits apply)
+- **Recent rates:** Nov 2022: 6.89% (peak) | May 2024: 4.28% | Nov 2024: ~3.11% (1.20% fixed)
+- **Key:** The fixed rate of 1.20% is historically attractive and locked for the bond's life
+
+### TIPS vs I-Bonds
+
+| Feature | I-Bonds | TIPS |
+|---------|---------|------|
+| Purchase limit | $10K/year (+$5K paper) | Unlimited |
+| Deflation protection | Yes (can't go below 0%) | Principal can decrease (but par at maturity) |
+| Liquidity | 1-year lockup | Tradeable anytime |
+| Tax | Federal only, deferrable | Federal only, phantom income taxed annually |
+| Best for | Emergency fund supplement, taxable | Portfolio hedge, tax-advantaged accounts |
+| Key ETFs | N/A (direct purchase only) | TIP (0.19%), VTIP (0.04%), SCHP (0.03%) |
+
+**Recommendation:** Hold TIPS in tax-advantaged accounts to avoid phantom income taxation. I-Bonds are best in taxable context.
+
+### FIRE Variants
+
+| Type | Annual Spending | Portfolio Needed (4%) | Description |
+|------|----------------|----------------------|-------------|
+| **Lean FIRE** | <$40K | <$1M | Frugal lifestyle, minimal expenses |
+| **Regular FIRE** | $40K-$80K | $1M-$2M | Comfortable middle-class lifestyle |
+| **Fat FIRE** | >$100K | >$2.5M | Luxurious, no compromise on spending |
+| **Coast FIRE** | N/A | Varies | Enough invested that compounding funds retirement; stop contributing, still work for current expenses |
+| **Barista FIRE** | Partial | Partial | Semi-retired, part-time work covers basic expenses + benefits |
 
 ### Part-Time Work / Barista FIRE
 - Semi-retirement with some earned income
@@ -166,9 +222,31 @@ Retirement strategies, government benefits, and FIRE methodology for US and Cana
 - In US: can provide health insurance (major benefit)
 - Psychologically easier transition than full stop
 
+### Geographic Arbitrage for FIRE
+- Earn income in high-cost-of-living (HCOL) area, spend in low-cost (LCOL) area
+- **Domestic (US):** SF/NYC salary ($150K+) while living in Boise/Raleigh/Tulsa. Save $20K-$50K/year on housing alone.
+- **State tax arbitrage:** Moving from CA (13.3%) or NY (10.9%) to FL/TX/NV/WA (0%) saves 10-13% on state income tax
+- **International retirement:** $40K-$50K/year USD provides comfortable lifestyle in Portugal, Mexico, Thailand, Colombia, Costa Rica
+- Can reduce FIRE number by 40-60% (need $625K instead of $1.25M for $25K vs $50K spending)
+- **Considerations:** State tax residency rules (CA has 18-month safe harbor), healthcare access (ACA marketplace vs local insurance), time zone alignment for remote work, social isolation risk
+- **Canada advantage:** Provincial health coverage at any age; no need to factor in healthcare costs as in US FIRE
+
+## Free FIRE / Retirement Calculators
+
+| Tool | Best For |
+|------|----------|
+| **FIRECalc** | Historical backtesting of withdrawal rates |
+| **cFIREsim** | Detailed FIRE modeling with variable spending, SS |
+| **ProjectionLab** | Modern UI, Roth conversion modeling |
+| **Empower (Personal Capital)** | Monte Carlo + account aggregation |
+| **Fidelity Planning Center** | Comprehensive, conservative estimates |
+| **Canada.ca Retirement Calculator** | Official CPP/OAS/GIS estimates |
+| **Wealthsimple Retirement Calculator** | Simple Canadian-focused tool |
+| **GetSmarterAboutMoney.ca** | Ontario Securities Commission tools |
+
 ## Citations
 - William Bengen: Originated the 4% rule (1994 study)
-- Wade Pfau: "Safety-First Retirement Planning" - retirement income research
+- Wade Pfau: "Safety-First Retirement Planning" - retirement income research, bond tent/rising equity glidepath
 - Michael Kitces: kitces.com - retirement planning, Roth conversion analysis
 - Trinity Study (Cooley, Hubbard, Walz): Empirical basis for safe withdrawal rates
 - Fred Vettese: "Retirement Income for Life" (Canadian retirement planning)

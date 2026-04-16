@@ -123,6 +123,7 @@ Side income strategies, platforms, and tax implications for US and Canadian earn
 - Applies in addition to regular income tax
 - Can deduct 50% of SE tax on Form 1040 (above-the-line deduction)
 - Social Security portion caps at $176,100 (2025)
+- Additional 0.9% Medicare tax on earnings above $200K single / $250K married
 
 ### Quarterly Estimated Taxes
 - Required if you expect to owe $1,000+ in tax for the year
@@ -131,6 +132,11 @@ Side income strategies, platforms, and tax implications for US and Canadian earn
 - Safe harbor: pay 100% of prior year tax (110% if AGI > $150K)
 - Pay via IRS Direct Pay or EFTPS
 
+### QBI Deduction (Section 199A)
+- **20% deduction** on qualified business income for pass-through entities (sole proprietors, LLCs, S-corps)
+- Phases out above $197,300 single / $394,600 married (2025) for specified service businesses
+- **Expires after 2025** if TCJA is not extended
+
 ### Common Deductions
 - Home office: $5/sq ft simplified method (max $1,500) or actual expenses (pro-rated by office %)
 - Equipment and software (Section 179 immediate deduction)
@@ -138,6 +144,7 @@ Side income strategies, platforms, and tax implications for US and Canadian earn
 - Internet and phone (business use percentage)
 - Professional development, courses, books
 - Health insurance premiums (if self-employed and no employer plan available)
+- Retirement contributions: SEP IRA (25% of net income, max $70,000), Solo 401(k) ($23,500 employee + 25% employer)
 
 ### Business Structure
 - **Sole proprietorship:** Default, no setup needed. Personal liability.
@@ -153,9 +160,10 @@ Side income strategies, platforms, and tax implications for US and Canadian earn
 
 ### CPP Self-Employed Contributions
 - Self-employed pay both employee and employer portions
-- Combined rate: ~11.9% of net self-employment income (2025)
+- Combined rate (CPP1): ~11.9% of net self-employment income (2025)
 - Applies on income between $3,500 and $71,300 (first ceiling)
-- CPP2: Additional contributions on earnings between first and second ceiling
+- CPP2: Additional 8% on earnings between $71,300 and $81,200 (second ceiling)
+- Maximum self-employed total (CPP1+CPP2): ~$8,860
 
 ### GST/HST
 - **Registration mandatory** when revenue exceeds $30,000 in 4 consecutive quarters
@@ -175,6 +183,13 @@ Side income strategies, platforms, and tax implications for US and Canadian earn
 - **Sole proprietorship:** Default, minimal registration. Report income on personal return.
 - **Incorporation:** Consider when net business income consistently > $50K-$80K. Small business tax rate ~11-12.5% (combined). Allows income deferral, income splitting, and liability protection.
 - Provincial business registration may be required (varies by province, $60-$100 typical)
+
+## AI-Enhanced Side Hustles (2024+)
+- **AI-assisted freelancing:** Use AI tools to 2-5x productivity in writing, design, coding, marketing. Higher effective $/hour.
+- **AI consulting:** Help small businesses implement AI tools and workflows ($75-$200/hour)
+- **Prompt engineering / AI training:** Data labeling, RLHF work for AI companies. Platforms: Outlier, Scale AI, Surge AI.
+- **AI-generated content:** Course creation, ebook writing, template design accelerated by AI tools
+- **Key principle:** AI is a productivity multiplier for existing skills, not a replacement for expertise. The highest-value AI side hustles combine domain expertise + AI tooling.
 
 ## Getting Started Framework
 

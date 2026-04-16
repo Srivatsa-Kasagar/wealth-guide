@@ -111,7 +111,7 @@ Strategies for growing primary income through career development, negotiation, a
 
 ### RSUs (Restricted Stock Units)
 
-**How they work:** Company grants X shares, they vest over time (typically 4 years with 1-year cliff).
+**How they work:** Company grants X shares, they vest over time (typically 4 years with 1-year cliff). Common vesting schedules: 25% annually (uniform), 5/15/40/40 (Amazon), monthly after 1-year cliff.
 
 **US Tax Treatment:**
 - Taxed as ordinary income on vest date (shares x price on vest = W-2 income)
@@ -197,6 +197,21 @@ Strategies for growing primary income through career development, negotiation, a
 - Invest at least 50% of every raise (avoid lifestyle inflation)
 - Your career is your biggest asset early on (investing in skills has highest ROI)
 - Network compounds like money does (invest in relationships)
+
+## AI & Career Growth (2024+)
+
+### AI Skills as Career Accelerators
+- **AI literacy** is becoming a baseline expectation across industries, similar to computer literacy in the 2000s
+- Highest-value positioning: domain expertise + AI tooling (not AI alone)
+- **High-ROI AI skills:** Prompt engineering, AI workflow automation, AI-assisted data analysis, AI product management
+- **Tools to learn:** Claude/ChatGPT for productivity, Copilot for coding, Midjourney/DALL-E for design, NotebookLM for research
+- **Career insurance:** Understanding AI capabilities helps you stay relevant as roles evolve
+
+### Remote Work & Compensation
+- Remote work enables geographic arbitrage (SF salary + LCOL living)
+- Some employers adjust pay by location (10-15% cuts for LCOL moves)
+- Remote-first companies often pay standardized rates regardless of location
+- **Negotiation tip:** If asked about location-based pay, emphasize output-based value, not cost of living
 
 ## Multiple Income Streams
 

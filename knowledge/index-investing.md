@@ -44,13 +44,24 @@ Investing a fixed dollar amount at regular intervals regardless of market condit
 | Moderate | 50-70% | 30-50% | 5-8% | -25 to -35% |
 | Aggressive | 80-100% | 0-20% | 7-10% | -40 to -55% |
 
-### Three-Fund Portfolio
+### Three-Fund Portfolio (Bogleheads)
 The simplest diversified portfolio using only 3 funds:
-1. Domestic total stock market
-2. International total stock market
-3. Total bond market
+1. **US Total Stock Market** — Vanguard: VTSAX/VTI | Fidelity: FSKAX/FZROX (0% ER) | Schwab: SWTSX
+2. **International Total Stock Market** — Vanguard: VTIAX/VXUS | Fidelity: FTIHX/FZILX (0% ER) | Schwab: SWISX
+3. **US Total Bond Market** — Vanguard: VBTLX/BND | Fidelity: FXNAX | Schwab: SCHZ
 
-Ratio depends on risk tolerance and age.
+**Allocation guidelines:** US stocks 60-80% of equity | International 20-40% (market cap ~40% international) | Bonds roughly equal to age (aggressive: age minus 10-20)
+
+**Bogleheads Core Principles:**
+1. Develop a workable plan — goals, time horizon, risk tolerance
+2. Start saving early — time in market > timing the market
+3. Never bear too much or too little risk
+4. Diversify across and within asset classes
+5. Use index funds when possible — low cost, tax efficient
+6. Keep costs low — expense ratios, transaction costs, taxes, advisor fees
+7. Minimize taxes — tax-loss harvesting, asset location, Roth conversions
+8. Invest with simplicity — complexity is not correlated with returns
+9. Stay the course — don't panic sell; rebalance periodically
 
 ## US-Specific Guidance
 
@@ -119,16 +130,93 @@ Or simply: 100% VGRO (all-in-one, 80/20)
 5. **Non-registered account** - no limits
 
 ### Canadian Couch Potato Portfolios
-Popularized by Dan Bortolotti. Model portfolios using low-cost ETFs:
-- **Conservative:** VBAL (60/40)
-- **Balanced:** VGRO (80/20)
-- **Aggressive:** VEQT (100% equity)
+Popularized by Dan Bortolotti (PWL Capital). Now recommends all-in-one ETFs over multi-ETF DIY:
+
+**All-in-One ETFs (Recommended):**
+
+| Risk Profile | Vanguard | iShares | BMO | MER |
+|-------------|----------|---------|-----|-----|
+| Conservative (40/60) | VCNS | XINC | - | ~0.24% |
+| Balanced (60/40) | VBAL | XBAL | ZBAL | ~0.20-0.24% |
+| Growth (80/20) | VGRO | XGRO | ZGRO | ~0.20-0.24% |
+| All-Equity (100/0) | VEQT | XEQT | ZEQT | ~0.20-0.24% |
+
+These auto-rebalance across Canadian, US, international equity, and bonds. The behavioral benefit of simplicity outweighs marginal optimization for most investors.
+
+**DIY Multi-ETF (legacy, for those who prefer control):**
+- Canadian equity: VCN or XIC
+- US equity: VUN or XUU (CAD-listed, unhedged)
+- International: XEF + XEC or VIU
+- Bonds: VAB or ZAG
 
 ### Foreign Withholding Tax Considerations
 - US-listed ETFs (VTI, VXUS) in RRSP: 15% US withholding tax exempt (tax treaty)
 - US-listed ETFs in TFSA: 15% US withholding tax APPLIES (no treaty exemption)
 - Canadian-listed ETFs (VEQT, XEQT): withholding tax embedded in MER, simpler
 - **Bottom line:** For simplicity, use Canadian-listed all-in-one ETFs. The tax drag difference is small for most investors.
+
+## Factor Investing / Smart Beta
+
+### The Five Major Factors (Academically Documented)
+
+| Factor | Description | Historical Premium | Key ETFs (US) |
+|--------|-------------|-------------------|---------------|
+| **Value** | Low price relative to fundamentals | ~3-5%/year | VTV, VLUE, RPV |
+| **Size (Small Cap)** | Smaller companies | ~2-3%/year | VBR, AVUV, SLYV |
+| **Momentum** | Recently rising stocks | ~4-6%/year | MTUM, QMOM |
+| **Quality** | High profitability, low debt | ~2-4%/year | QUAL, DGRW |
+| **Low Volatility** | Less volatile stocks | ~1-2% (risk-adjusted) | USMV, SPLV |
+
+**Multi-factor ETFs:** AVUS, AVDV, DFAC (Avantis/DFA — 0.15-0.25% ER)
+
+### Factor Investing Guidance
+- NOT for beginners — requires holding through long periods of underperformance (value underperformed growth 2010-2020)
+- **Small Cap Value (AVUV)** is the most well-documented factor tilt for long-term investors
+- "Tilting" = overweighting factors within a core index portfolio (e.g., 70% VTI + 15% AVUV + 15% AVDV)
+- Multi-factor funds diversify across factors and reduce single-factor drawdown risk
+- DFA (Dimensional Fund Advisors) pioneered this; Avantis (founded by ex-DFA team) offers similar exposure at lower cost in ETF form
+- **Canada:** AVUV/AVDV are US-listed but popular with Canadian investors. ZLB (BMO Low Volatility) is Canadian-listed.
+
+## Robo-Advisors vs Self-Directed
+
+### Comparison
+
+| Platform | Fee | Minimum | Tax-Loss Harvesting | Best Feature |
+|----------|-----|---------|---------------------|--------------|
+| **Betterment** | 0.25% | $0 | Yes | Goal-based planning, best UX |
+| **Wealthfront** | 0.25% | $500 | Yes | Direct indexing at $100K+ |
+| **Wealthsimple** (Canada) | 0.40-0.50% | $1 | Yes ($100K+) | Best Canadian option, TFSA/RRSP/FHSA |
+| **Vanguard Digital** | 0.20% | $3,000 | No | Lowest fee |
+| **Schwab Intelligent** | $0 | $5,000 | Yes (Premium) | No advisory fee (but cash drag) |
+| **Fidelity Go** | 0% (<$25K) | $0 | No | Free for small balances |
+
+### Decision Framework
+- **Choose robo if:** You want zero maintenance, automatic tax-loss harvesting, behavioral guardrails against panic selling
+- **Choose self-directed if:** You want lowest costs (0.03-0.07% total), full control, enjoy managing investments
+- **Cost difference:** Self-directed ~0.05% vs robo ~0.35% total. On $500K over 30 years: ~$80K-$150K in fees. BUT tax-loss harvesting can recover 0.20-0.80% annually in taxable accounts, potentially offsetting the fee.
+
+## Cryptocurrency in Portfolio
+
+### Mainstream Consensus (2025)
+- **BlackRock (IBIT):** Up to 2% allocation for diversified portfolios
+- **Fidelity (FBTC):** 1-5% for risk-tolerant investors
+- **Vanguard:** Does NOT offer crypto products; skeptical stance
+- **Most CFPs:** 0-5% for risk-tolerant clients only
+
+### Spot Bitcoin ETFs (Approved January 2024)
+| Ticker | Name | Expense Ratio |
+|--------|------|---------------|
+| IBIT | iShares Bitcoin Trust | 0.25% |
+| FBTC | Fidelity Wise Origin Bitcoin | 0.25% |
+| BITB | Bitwise Bitcoin | 0.20% |
+
+Spot Ethereum ETFs also approved in 2024 (ETHA, FETH). Canada approved Bitcoin ETFs in 2021 (BTCX, BTCC, EBIT) — available in TFSA/RRSP.
+
+### Framework
+- **Conservative (most people):** 0% crypto. Focus on total market index funds.
+- **Moderate:** 1-3% in Bitcoin only via spot ETF. Treat as speculative. Rebalance normally.
+- **Aggressive:** Up to 5% (BTC + ETH). Must stomach 50-80% drawdowns without selling.
+- **Rules:** Never invest what you can't lose entirely. Use regulated products (spot ETFs). Don't day-trade crypto. Add LAST — after emergency fund, debt payoff, retirement accounts, and core portfolio.
 
 ## Rebalancing
 
@@ -142,6 +230,56 @@ Popularized by Dan Bortolotti. Model portfolios using low-cost ETFs:
 2. Redirect new contributions to underweight assets (tax-free rebalancing)
 3. If needed, sell overweight assets in tax-advantaged accounts first (no tax consequences)
 4. In taxable accounts: consider tax implications before selling
+
+## Tracking Famous Investors (13F Filings)
+
+### What Are 13F Filings?
+- SEC requires institutional investment managers with $100M+ in qualifying securities to file quarterly reports (Form 13F)
+- Shows their equity holdings (stocks, ETFs, options) — a window into what top investors are buying and selling
+- Filed within 45 days after quarter end (so data has a lag)
+- **Limitation:** Only shows long equity positions. Does NOT show shorts, bonds, commodities, private investments, or international holdings.
+
+### Tracking Platforms
+
+| Platform | What It Offers |
+|----------|---------------|
+| **Dataroma** | Superinvestor portfolios (Buffett, Ackman, Einhorn, etc.), portfolio overlap, new buys/sells |
+| **WhaleWisdom** | 13F analysis, insider trading, institutional ownership, fund flow data |
+| **Whalewisdom / Finviz** | Top institutional holders for any stock, sector breakdown |
+| **SEC EDGAR** | Primary source for all 13F filings (free, official) |
+| **GuruFocus** | Guru portfolios, valuation tools, stock screeners based on guru strategies |
+| **Insider Monkey** | Hedge fund portfolio tracking, insider trading signals |
+| **iBillionaire** (discontinued but similar tools exist) | Simplified view of billionaire portfolios |
+
+### Notable Investors to Track
+
+| Investor | Fund | Style |
+|----------|------|-------|
+| **Warren Buffett** | Berkshire Hathaway | Value, quality, long-term hold |
+| **Bill Ackman** | Pershing Square | Concentrated activist |
+| **Seth Klarman** | Baupost Group | Deep value, contrarian |
+| **David Einhorn** | Greenlight Capital | Value + activist |
+| **Howard Marks** | Oaktree Capital | Distressed debt, value |
+| **Ray Dalio** | Bridgewater | All-weather, risk parity |
+| **Michael Burry** | Scion Asset Management | Contrarian, deep value |
+| **Terry Smith** | Fundsmith | Quality growth, long-term |
+| **Li Lu** | Himalaya Capital | Value, China/US |
+| **Mohnish Pabrai** | Pabrai Funds | Dhandho value investing |
+
+### How to Use This Data Wisely
+- **DO:** Use 13F data for idea generation — "What are smart investors interested in?"
+- **DO:** Look for convergence — when multiple superinvestors buy the same stock independently
+- **DO:** Study position sizing — large new positions signal high conviction
+- **DON'T:** Blindly copy trades — you don't know their cost basis, risk management, or why they hold
+- **DON'T:** Assume current holdings match filed data — 45-day lag means positions may have changed
+- **DON'T:** Ignore that most famous investors underperform the index over long periods — even Buffett recommends S&P 500 index funds for most people
+- **Key insight:** "The best thing you can learn from studying Buffett is not which stocks to buy — it's his patience, temperament, and long-term thinking"
+
+### Canadian Equivalent
+- Canada does not have a direct equivalent to 13F filings
+- **SEDI (System for Electronic Disclosure by Insiders):** Tracks insider trading by company executives/directors
+- **SEDAR+:** Canadian securities filings, including fund reports
+- Some Canadian fund managers publish quarterly portfolio updates voluntarily
 
 ## Common Mistakes
 - **Market timing:** Waiting for a dip to invest (miss gains while waiting)

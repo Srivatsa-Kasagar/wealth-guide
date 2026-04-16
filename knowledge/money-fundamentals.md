@@ -29,9 +29,40 @@ Budgeting, emergency funds, debt management, credit, insurance, and behavioral f
 - Digital versions: YNAB (You Need A Budget), Goodbudget
 - Effective for variable spending categories (dining, entertainment)
 
+### Conscious Spending Plan (Ramit Sethi)
+- Spend extravagantly on things you love, cut mercilessly on things you don't
+- **Fixed costs:** 50-60% (rent, utilities, subscriptions, minimum debt payments)
+- **Investments:** 10% minimum (401k, IRA, brokerage)
+- **Savings:** 5-10% (emergency fund, vacation, down payment, goals)
+- **Guilt-free spending:** 20-35% (whatever makes you happy — NO guilt)
+- Automate the first three, spend freely on the fourth
+- Anti-deprivation: rejects "latte factor" frugality. Focus on Big Wins (salary, housing, investing).
+
+### Anti-Budget (Paula Pant — "Afford Anything")
+- Only one rule: save/invest X% of income first, spend the rest however you want
+- No categories, no tracking, no spreadsheets
+- Steps: (1) set savings rate goal (e.g., 25%), (2) automate on payday, (3) spend rest freely
+- Progressive: increase savings rate by 1% every quarter or with every raise
+- Best for: people who hate budgeting but want to build wealth
+
+### Values-Based Budgeting (Vicki Robin — "Your Money or Your Life")
+- Define top 3-5 values (family, health, travel, creativity, security)
+- Track spending for 1 month → rate each expense: aligns with values (+), doesn't (-), or neutral
+- Eliminate/reduce (-) spending, increase (+) spending
+- Calculate "real hourly wage" (salary minus work costs / total hours including commute)
+- Evaluate purchases in life energy: "Is this worth 4 hours of my life?"
+
+### "Enough" Framework (Morgan Housel)
+- Define your personal "enough" — the lifestyle beyond which more spending doesn't increase happiness
+- Research: happiness increases with income up to ~$75K-$100K, then diminishing returns on daily well-being
+- Lifestyle inflation is the #1 wealth destroyer for high earners
+- With every raise, decide in advance what % goes to lifestyle vs savings
+
 ### Tools
 - YNAB ($99/year): zero-based, powerful but learning curve
-- Monarch Money ($99/year): automatic tracking, clean interface
+- Monarch Money ($99/year): automatic tracking, clean interface, AI-powered insights
+- Copilot Money: AI-categorized spending, natural language queries
+- Wealthica (Canada): free portfolio aggregator across all accounts
 - Spreadsheet: free, full control, Google Sheets budget templates
 - Bank apps: many now have built-in budgeting features
 
@@ -52,11 +83,13 @@ Budgeting, emergency funds, debt management, credit, insurance, and behavioral f
 - **12 months:** Very risk-averse, approaching retirement, volatile industry
 
 ### Where to Keep It
-- **US:** High-yield savings account (HYSA) - Ally, Marcus, Discover (~4-5% APY)
-- **Canada:** High-interest savings account (HISA) - EQ Bank, Tangerine, or GIC ladder (~4-5%)
-- Money market funds as alternative
+- **US:** High-yield savings account (HYSA) - Wealthfront, Marcus, Ally, Amex (~4-4.5% APY as of early 2025). Money market funds: Vanguard VMFXX, Fidelity SPAXX (~4.1-4.4%). National savings average ~0.45%.
+- **Canada:** High-interest savings account (HISA) - EQ Bank (~2.75-3.5%), Wealthsimple Cash (~3-3.5%), Neo Financial (~3-4%). GIC ladder for slightly higher rates.
+- CD/GIC laddering: split cash across 3/6/12/18/24-month terms to balance rate and liquidity
+- **I-Bonds (US):** Up to $10K/year, inflation-protected, state tax exempt. Good complement to emergency fund.
 - NOT in stocks, crypto, or anything volatile
 - Must be accessible within 1-3 business days
+- Note: HYSA/HISA rates track central bank rates — when the Fed/BoC cuts, savings rates drop
 
 ### How to Build It
 1. Open a separate savings account (out of sight, out of mind)
@@ -93,8 +126,12 @@ Budgeting, emergency funds, debt management, credit, insurance, and behavioral f
 - Only consolidate if rate is lower AND you stop adding new debt
 
 ### US-Specific
-- **Student loan forgiveness:** PSLF (10 years public service), IBR/SAVE (income-driven, forgiveness after 20-25 years)
+- **PSLF (Public Service Loan Forgiveness):** 120 qualifying payments (10 years) while working for government/501(c)(3). Statutory — most reliable path.
+- **SAVE Plan:** 5% discretionary income (undergrad). **Status: blocked by court litigation as of 2024.** Borrowers in forbearance should consider IBR/PAYE.
+- **IBR:** 10-15% of discretionary income, forgiveness after 20-25 years
+- **Teacher Loan Forgiveness:** Up to $17,500 (math/science/special ed) or $5,000 (others), 5 years at Title I school
 - **Student loan interest deduction:** Up to $2,500/year
+- **Student loan matching (SECURE 2.0):** Employers can match 401(k) based on student loan payments
 - **Bankruptcy:** Chapter 7 (liquidation) or Chapter 13 (repayment plan)
 
 ### Canada-Specific
@@ -164,11 +201,21 @@ Budgeting, emergency funds, debt management, credit, insurance, and behavioral f
 - **Lifestyle inflation (hedonic adaptation):** Spending increases with income. Combat by automating savings increases with raises.
 - **Present bias:** Overvaluing immediate rewards vs future benefits. Solution: make saving feel rewarding now.
 
+### Additional Biases
+- **Recency bias:** Overweighting recent events (e.g., assuming bull markets continue forever, or bear markets never end)
+- **Sunk cost fallacy:** Holding losing investments because you've "already put so much in"
+- **Confirmation bias:** Seeking information that confirms your existing beliefs about a stock or strategy
+- **FOMO (Fear of Missing Out):** Buying into speculative assets at peaks because everyone else is
+- **Overconfidence:** Believing you can consistently beat the market through stock picking or timing
+- **Mental accounting:** Treating money differently based on source (e.g., "bonus money" spent more freely than salary)
+
 ### Money Mindset
 - Your savings rate matters more than investment returns (especially early on)
 - Wealth = what you don't spend (accumulation, not income)
 - Compare yourself to your past self, not to others
 - Financial literacy compounds like money does - small improvements add up
+- The purpose of money is to give you options and control over your time (Morgan Housel)
+- "Building wealth has little to do with your income or investment returns, and lots to do with your savings rate" — The Psychology of Money
 
 ## Citations
 - Elizabeth Warren: "All Your Worth" (50/30/20 rule)
