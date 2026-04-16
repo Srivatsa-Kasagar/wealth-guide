@@ -184,6 +184,33 @@ Side income strategies, platforms, and tax implications for US and Canadian earn
 - **Incorporation:** Consider when net business income consistently > $50K-$80K. Small business tax rate ~11-12.5% (combined). Allows income deferral, income splitting, and liability protection.
 - Provincial business registration may be required (varies by province, $60-$100 typical)
 
+## India Side Hustle Tax & Practical Notes
+
+### Tax Treatment
+- Income from freelancing/consulting: "Profits and Gains of Business or Profession"
+- Presumptive taxation (44ADA): Declare 50% of gross as profit if receipts <₹75L (digital), no need to maintain books
+- Normal taxation: Maintain books, claim actual expenses, file ITR-3
+- GST: Register if annual turnover >₹20L (₹10L special category states)
+- GST rate: 18% for most professional services
+- TDS: Clients deduct 10% on payments >₹30K (adjust in ITR filing)
+
+### Popular Side Hustles in India
+- Freelancing (Upwork, Fiverr, Toptal — earn in USD, huge arbitrage)
+- Content creation (YouTube, Instagram — ad revenue + brand deals)
+- Online tutoring (Vedantu, Unacademy, private)
+- Dropshipping / e-commerce (Amazon India, Meesho)
+- Stock market / F&O trading (caution: 90%+ retail traders lose money in F&O)
+- Rental income from property
+- Digital products (courses on Graphy, Teachable, Instamojo)
+
+### Key Considerations
+- Forex earnings: Report under FEMA, no limit on inward remittance for services
+- PayPal/Wise: Common for international clients, report all forex inflow
+- Advance tax: Mandatory quarterly payments if annual tax >₹10K
+- Separate bank account recommended for business income
+- PAN mandatory for all business transactions
+- Keep invoices and receipts for 6-8 years
+
 ## AI-Enhanced Side Hustles (2024+)
 - **AI-assisted freelancing:** Use AI tools to 2-5x productivity in writing, design, coding, marketing. Higher effective $/hour.
 - **AI consulting:** Help small businesses implement AI tools and workflows ($75-$200/hour)

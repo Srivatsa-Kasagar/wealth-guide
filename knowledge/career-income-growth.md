@@ -171,6 +171,44 @@ Strategies for growing primary income through career development, negotiation, a
 - **Options exercise timing:** Balance tax impact vs risk of holding concentrated position
 - **ESPP:** Almost always worth participating (guaranteed discount)
 
+## India Tax Treatment
+
+### Salaried Income (Form 16)
+- Basic salary + DA + HRA + special allowances
+- HRA exemption: Least of actual HRA, rent paid - 10% basic, 50% basic (metro) / 40% (non-metro)
+- LTA (Leave Travel Allowance): Actual travel expenses, 2 trips in 4-year block
+- Standard deduction: ₹75,000 (new regime) or ₹50,000 (old regime)
+- Professional tax: ₹2,500/year max (state-level)
+- TDS deducted monthly by employer based on projected annual tax
+
+### Compensation Structure Optimization (Old Regime)
+- Negotiate higher HRA % (bigger exemption if renting)
+- Meal coupons / food allowance: Up to ₹50/meal tax-free
+- NPS employer contribution: 14% of basic tax-free (new regime)
+- Reimbursements: Books, internet, phone — structured as tax-free
+- Car lease through company: Can save vs ownership
+
+### Stock Options / ESOPs
+- Perquisite tax at exercise: (FMV on exercise date - exercise price) taxed as salary income
+- Capital gains on sale: (Sale price - FMV at exercise) taxed as STCG/LTCG
+- Listed company shares: STCG 20% (<1yr), LTCG 12.5% above ₹1.25L (>1yr)
+- Startup (unlisted) shares: LTCG 12.5% (>2yr holding)
+- ESOP tax deferral for eligible startups: Tax deferred until sale/5 years/exit
+
+### Freelance / Consulting Income
+- File ITR-3 or ITR-4 (presumptive)
+- Presumptive taxation (Section 44ADA): 50% of gross receipts deemed profit (if receipts <₹75L with digital payments)
+- GST registration required if turnover >₹20L (₹10L in special category states)
+- TDS: 10% deducted by clients on payments >₹30,000
+- Advance tax: Pay quarterly if tax liability >₹10,000/year
+- Can deduct business expenses (laptop, internet, travel, coworking) under normal taxation
+
+### Salary Negotiation in India
+- CTC (Cost to Company) vs take-home: CTC includes EPF employer share, gratuity, insurance — actual take-home is 65-75% of CTC
+- Focus on in-hand salary, not CTC
+- Annual increments: 8-15% average (higher via job switches, 25-50% common in tech)
+- Variable pay: 10-20% of CTC common, negotiate for higher fixed
+
 ## Professional Certifications with High ROI
 
 | Certification | Cost | Time | Expected Salary Impact |

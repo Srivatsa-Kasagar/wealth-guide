@@ -155,6 +155,139 @@ These auto-rebalance across Canadian, US, international equity, and bonds. The b
 - Canadian-listed ETFs (VEQT, XEQT): withholding tax embedded in MER, simpler
 - **Bottom line:** For simplicity, use Canadian-listed all-in-one ETFs. The tax drag difference is small for most investors.
 
+## India-Specific Guidance
+
+### Key Indices
+
+| Index | Components | Description |
+|-------|-----------|-------------|
+| **Nifty 50** | Top 50 NSE-listed companies | India's benchmark index (equivalent to S&P 500) |
+| **Sensex** | Top 30 BSE-listed companies | Older index, more concentrated |
+| **Nifty Next 50** | Companies 51-100 | Higher growth potential, more volatile |
+| **Nifty Midcap 150** | Mid-sized companies | Higher risk/return profile |
+| **Nifty Smallcap 250** | Smaller companies | Highest risk/return profile |
+| **Nifty 500** | Top 500 companies | Broad market (like VTI equivalent) |
+
+### Recommended Index Funds (Direct Plans)
+
+**Large Cap (Nifty 50):**
+
+| Fund | TER |
+|------|-----|
+| UTI Nifty 50 Index Fund — Direct | ~0.18% |
+| HDFC Nifty 50 Index Fund — Direct | ~0.20% |
+| Nippon India Nifty 50 Index Fund — Direct | ~0.12% |
+
+**Broad Market (Nifty Next 50 / Nifty 500):**
+
+| Fund | TER |
+|------|-----|
+| Motilal Oswal Nifty Next 50 Index Fund | ~0.30% |
+| Motilal Oswal Nifty 500 Index Fund | ~0.25% |
+
+**International Diversification:**
+
+| Fund | TER |
+|------|-----|
+| Motilal Oswal S&P 500 Index Fund | ~0.49% |
+| Motilal Oswal Nasdaq 100 FoF | ~0.40% |
+
+- Note: RBI's LRS limit is ₹2,50,000/year for overseas investments. SEBI periodically caps international fund inflows.
+
+**Debt Index Funds:**
+- Nippon India Nivesh Lakshya Fund (long-term gilt)
+- BHARAT Bond ETF/FoF: Government PSU bonds, target maturity
+
+### Direct vs Regular Plans
+- **Direct plan:** Buy from AMC or platforms like MFU/CAMS/KFintech/Groww/Kuvera — NO commission, lower TER
+- **Regular plan:** Buy through distributor/advisor — includes trail commission (0.5-1% higher TER)
+- **Always choose Direct** for index funds — the whole point is low cost
+- TER difference of 0.5-1% compounds to 15-25% less wealth over 20 years
+
+### SIP (Systematic Investment Plan)
+- Auto-invest fixed amount monthly into mutual funds
+- India's version of dollar-cost averaging
+- Minimum: ₹100-₹500/month for most funds
+- SIP date: Any date works, no evidence one date is better
+- Step-up SIP: Increase SIP by 10-15% annually (matches salary growth)
+- SIP returns tracked via XIRR (not simple CAGR)
+
+### Platforms (for Direct Mutual Funds)
+
+| Platform | Notes |
+|----------|-------|
+| **Kuvera** | Free, no commission, clean UI, goal-based planning |
+| **Groww** | Free direct MF + stocks, popular app |
+| **Zerodha Coin** | Direct MF via demat (₹0 for MF), also has Varsity education |
+| **MFUtility (MFU)** | Industry platform, all AMCs in one place |
+| **CAMS/KFintech** | Registrar platforms, direct purchase possible |
+| **AMC websites** | Direct from fund house (HDFC, SBI, UTI, etc.) |
+
+### Demat Account vs MF Account
+- **Demat not required** for mutual funds (can hold in folio/statement form)
+- **Demat required** for ETFs and stocks
+- Most investors should use direct MF (not ETFs) — better liquidity, no bid-ask spread, SIP-friendly
+- Indian ETFs have lower liquidity and wider spreads than US equivalents
+
+### Asset Allocation for Indian Investors
+
+**Aggressive (under 35, high risk tolerance):**
+- 70% Nifty 50 / Nifty 500
+- 15% International (S&P 500 / Nasdaq 100)
+- 15% Debt (PPF + short-duration fund)
+
+**Balanced (35-50, medium risk):**
+- 50% Nifty 50 / Nifty 500
+- 10% International
+- 10% Gold (SGB or gold fund)
+- 30% Debt (PPF + target maturity + short-duration)
+
+**Conservative (50+, low risk):**
+- 30% Nifty 50
+- 5% International
+- 10% Gold (SGB)
+- 55% Debt (PPF + SCSS + FD ladder + short-duration fund)
+
+### Gold as an Asset Class
+- Cultural significance in India, but treat as portfolio diversifier (5-15%)
+- **Sovereign Gold Bonds (SGB):** Best option — 2.5% annual interest + gold price appreciation, ZERO capital gains if held to maturity (8 years), can exit after 5th year
+- **Gold ETFs:** Track gold price, held in demat, capital gains apply
+- **Gold mutual funds (FoF):** No demat needed, SIP possible
+- **Physical gold:** Avoid for investment (making charges, storage, purity risk)
+
+### Tax Considerations for Investors
+
+| Instrument | Tax Treatment |
+|-----------|---------------|
+| **Equity MF LTCG** | 12.5% above ₹1.25L (held >1 year) |
+| **Equity MF STCG** | 20% (held <1 year) |
+| **Debt MF (post Apr 2023)** | Taxed at slab rate regardless of holding period |
+| **PPF** | Completely tax-free (EEE) |
+| **SGBs held to maturity** | Zero capital gains tax |
+
+- **Tax-loss harvesting:** Sell equity at loss to offset gains, but no superficial loss rule in India (unlike Canada) — can rebuy immediately
+
+### Common Mistakes (India)
+- Chasing NFOs (New Fund Offers) — no discount, just marketing
+- Buying regular plans when direct is available
+- Over-diversifying across 10+ funds with same holdings
+- Ignoring international diversification (home bias)
+- Timing SIPs (stopping in crashes, increasing in rallies)
+- Using ULIP for investment (high charges, poor returns vs MF)
+
+### Indian Equivalent (13F / Insider Filings)
+- India does not have a direct equivalent to 13F filings
+- **SEBI insider trading disclosures:** Company promoters and key management must disclose trades
+- **BSE/NSE bulk/block deal data:** Large institutional trades are reported daily
+- **AMFI monthly data:** Shows aggregate mutual fund flows by category and individual fund AUM
+
+### Resources
+- **Zerodha Varsity** (varsity.zerodha.com): Free, comprehensive investing education
+- **freefincal.com**: Indian personal finance + FIRE, calculator tools
+- **Value Research** (valueresearchonline.com): Fund comparison, ratings
+- **Morningstar India**: Fund analysis
+- **AMFI** (amfiindia.com): Official NAV data, investor education
+
 ## Factor Investing / Smart Beta
 
 ### The Five Major Factors (Academically Documented)

@@ -1,6 +1,6 @@
 # Tax Optimization
 
-Tax-advantaged strategies for US and Canadian investors.
+Tax-advantaged strategies for US, Canadian, and Indian investors.
 
 ## CRITICAL: 2026 TCJA Expiration
 
@@ -235,6 +235,127 @@ This is the single most impactful US financial planning event for 2025-2026.
 - **Passiv:** Free portfolio rebalancing tool (integrates with Questrade)
 - **Wealthica:** Free portfolio aggregator across all Canadian accounts
 
+## India Tax Optimization
+
+### Old vs New Tax Regime
+
+**New Regime (default from FY 2023-24)**
+- ₹0-₹4L: Nil (with ₹75K standard deduction for salaried)
+- ₹4-₹8L: 5%
+- ₹8-₹12L: 10%
+- ₹12-₹16L: 15%
+- ₹16-₹20L: 20%
+- ₹20-₹24L: 25%
+- Above ₹24L: 30%
+- Rebate under 87A: No tax up to ₹12L taxable income (effective ₹12.75L with standard deduction)
+- Limited deductions: NPS 80CCD(2) employer contribution, 80CCD(1B) ₹50K
+- Standard deduction: ₹75,000
+
+**Old Regime**
+- ₹0-₹2.5L: Nil
+- ₹2.5-₹5L: 5%
+- ₹5-₹10L: 20%
+- Above ₹10L: 30%
+- Full deductions available: 80C, 80D, 80E, HRA, LTA, etc.
+- Standard deduction: ₹50,000
+
+**When Old Regime wins:** High HRA (metro renters), maxed 80C + 80D + home loan interest, total deductions > ~₹3.75L
+
+**When New Regime wins:** Low deductions, no HRA, employer doesn't offer NPS, income under ₹12.75L
+
+- 4% Health & Education Cess on total tax
+- Surcharge: 10% (₹50L-₹1Cr), 15% (₹1-₹2Cr), 25% (₹2-₹5Cr), 37% (above ₹5Cr) — capped at 25% for new regime
+
+### Section 80C Deductions (₹1.5L limit, Old Regime)
+- **EPF**: Employee contribution (12% of basic) — auto-deducted, eats into 80C limit
+- **PPF**: ₹500-₹1.5L/year, 15-year lock-in, current rate ~7.1%, EEE (exempt-exempt-exempt)
+- **ELSS**: Equity mutual funds, 3-year lock-in (shortest among 80C), market-linked returns
+- **Life Insurance**: Premium payments (max 10% of sum assured for policies after 2012)
+- **NSC**: 5-year lock-in, fixed rate ~7.7%, interest taxable but reinvested counts as fresh 80C
+- **5-Year Tax Saver FD**: Bank FD with 5-year lock-in, interest fully taxable
+- **SCSS**: Senior Citizens Savings Scheme, ₹30L limit, 8.2% rate
+- **Sukanya Samriddhi**: For girl child, EEE, ~8.2% rate, ₹250-₹1.5L/year
+- **Tuition fees**: Up to 2 children
+- **Home loan principal repayment**: Under 80C
+
+**Priority order for 80C:** EPF (auto) → PPF (if want guaranteed) → ELSS (if want growth + shortest lock-in) → others
+
+### Section 80D — Health Insurance
+- Self/spouse/children: ₹25,000 (₹50,000 if senior citizen)
+- Parents: ₹25,000 (₹50,000 if senior citizen)
+- Maximum: ₹1,00,000 (if all seniors)
+- Preventive health check-up: ₹5,000 (within above limits)
+
+### Section 80E — Education Loan Interest
+- No upper limit on deduction
+- Available for 8 years from start of repayment
+- Loan must be from recognized financial institution
+
+### Section 24(b) — Home Loan Interest
+- Self-occupied: ₹2L per year
+- Let-out property: No limit (but rental income is taxable)
+- Under construction: Interest deductible in 5 equal installments after completion
+
+### NPS Tax Benefits
+- 80CCD(1): Employee contribution up to 10% of salary (within 80C ₹1.5L limit)
+- 80CCD(1B): Additional ₹50,000 (available in BOTH old and new regime)
+- 80CCD(2): Employer contribution up to 14% of basic (new regime) or 10% (old) — over and above 80C
+- At maturity: 60% lump sum tax-free, 40% must buy annuity (annuity income taxable)
+
+### Capital Gains (Post July 2024 Budget)
+
+**Equity (listed shares, equity MFs)**
+- STCG (held < 1 year): 20%
+- LTCG (held ≥ 1 year): 12.5% above ₹1.25L exemption
+- Indexation benefit REMOVED from July 2024
+
+**Debt mutual funds (purchased after April 2023)**
+- Taxed as per income tax slab (no LTCG benefit)
+- No indexation
+
+**Real estate**
+- LTCG (held > 2 years): 12.5% without indexation (post July 2024)
+- STCG: As per slab
+- Section 54: Reinvest in residential property within 2 years to save LTCG
+- Section 54EC: Invest up to ₹50L in specified bonds (NHAI/REC) within 6 months
+
+**Gold/SGBs**
+- Physical gold LTCG (>2 years): 12.5%
+- Sovereign Gold Bonds (SGB) held to maturity: ZERO capital gains tax
+- SGB interest: 2.5% p.a., taxable as per slab
+
+### Dividend Taxation
+- Dividends taxable in hands of investor at slab rate (since FY 2020-21)
+- TDS: 10% if dividend exceeds ₹5,000/year from a company
+- No DDT (Dividend Distribution Tax) anymore
+
+### HRA Exemption (Old Regime, Salaried)
+- Least of: (a) Actual HRA received, (b) Rent paid - 10% of basic, (c) 50% of basic (metro) or 40% (non-metro)
+- Metro cities: Delhi, Mumbai, Kolkata, Chennai
+- If no HRA component: Section 80GG deduction up to ₹5,000/month
+
+### TDS Key Thresholds
+- Salary: As per slab (Form 16)
+- FD interest: 10% above ₹40,000/year (₹50,000 for seniors)
+- Rent: 10% if rent > ₹50,000/month (by individual/HUF)
+- Professional/freelance: 10% above ₹30,000/year
+- Property sale: 1% of sale consideration above ₹50L
+
+### Tax-Saving Priority Order (Salaried Employee, Old Regime)
+1. **Max employer NPS match** (80CCD(2) — above 80C limit)
+2. **EPF** (auto-deducted, best guaranteed return in 80C)
+3. **PPF or ELSS** to fill remaining 80C (PPF for safety, ELSS for growth)
+4. **Health insurance** (80D) — get ₹25K for self + ₹25-50K for parents
+5. **NPS extra ₹50K** (80CCD(1B) — available in new regime too)
+6. **Home loan interest** (Section 24(b)) — ₹2L if applicable
+7. **Education loan interest** (80E) — no limit
+
+### Tax-Saving Priority Order (New Regime)
+1. **Standard deduction ₹75K** (automatic)
+2. **Employer NPS** (80CCD(2) — up to 14% of basic)
+3. **Employee NPS** (80CCD(1B) — ₹50K additional)
+4. That's mostly it — new regime strips most deductions
+
 ## Estate and Gift Planning
 
 ### US
@@ -249,6 +370,12 @@ This is the single most impactful US financial planning event for 2025-2026.
 - **Beneficiary designations:** RRSP/RRIF/TFSA can name beneficiary or successor holder (avoids probate)
 - **Probate fees:** Vary by province (highest in Ontario and BC)
 - **Principal residence exemption:** Applies on death for qualifying home
+
+### India
+- **No inheritance tax or estate duty** (abolished 1985)
+- **Gift tax:** Gifts above ₹50,000 from non-relatives taxable as income
+- Will/nomination important for smooth asset transfer
+- Hindu Succession Act governs ancestral property (coparcenary rights)
 
 ## Citations
 - William Bernstein: "The Four Pillars of Investing" (tax-efficient investing)

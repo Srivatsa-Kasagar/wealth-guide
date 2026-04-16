@@ -90,6 +90,12 @@ Budgeting, emergency funds, debt management, credit, insurance, and behavioral f
 - NOT in stocks, crypto, or anything volatile
 - Must be accessible within 1-3 business days
 - Note: HYSA/HISA rates track central bank rates — when the Fed/BoC cuts, savings rates drop
+- **India:** Target 6-12 months of expenses (higher than US/Canada due to no unemployment insurance)
+  - Savings account (4-6% interest, instant access) — primary buffer (1-2 months)
+  - Liquid mutual funds (6-7% returns, T+1 redemption) — bulk of emergency fund
+  - Short-term FDs (7-7.5%, break with small penalty) — backup
+  - **NOT in:** PPF (locked), ELSS (3yr lock-in), stocks, real estate
+  - Why higher buffer: No government unemployment benefits, longer job search cycles, medical emergencies can be expensive without adequate insurance
 
 ### How to Build It
 1. Open a separate savings account (out of sight, out of mind)
@@ -140,6 +146,17 @@ Budgeting, emergency funds, debt management, credit, insurance, and behavioral f
 - **Student loan interest:** Federal student loan interest is tax-deductible
 - **Bankruptcy:** Discharged after 9-21 months (first time), affects credit 6-7 years
 
+### India-Specific
+- **Personal loans:** 10-24% APR depending on credit score, unsecured
+- **Education loans:** 8-12% APR, Section 80E deduction on interest (no limit, 8 years)
+- **Home loan prepayment:** No penalty on floating rate (RBI mandate), huge interest savings
+- **Gold loans:** 7-10% APR, quick disbursement, common in India
+- **Credit card debt:** 36-42% APR (highest in the world) — pay this off FIRST always
+- **Debt restructuring:** One-time settlement possible but hurts CIBIL score
+- **No formal bankruptcy for individuals:** IBC (Insolvency & Bankruptcy Code) mainly for corporates, personal insolvency provisions limited
+- **Loan against FD/PPF/insurance:** Low-interest options before taking personal loans
+- Priority: CC debt (36%+) → personal loans (15%+) → education loans (tax deductible) → home loan (tax benefits, lowest rate)
+
 ## Credit Score Mechanics
 
 ### US: FICO Score (300-850)
@@ -160,6 +177,18 @@ Budgeting, emergency funds, debt management, credit, insurance, and behavioral f
 - Two bureaus: TransUnion and Equifax
 - **Free reports:** Borrowell (Equifax), Credit Karma (TransUnion)
 - Request free report directly from each bureau annually
+
+### India: CIBIL Score (300-900)
+- **CIBIL (TransUnion):** Most widely used, score 300-900
+  - 750+: Excellent (best rates)
+  - 700-749: Good
+  - 650-699: Fair (higher rates, may be declined)
+  - Below 650: Poor
+- **Other bureaus:** Experian India, Equifax India, CRIF High Mark
+- **Free credit report:** One free report per year from each bureau (cibil.com, etc.)
+- **Key factors:** Payment history (35%), credit utilization (30%), credit age (15%), credit mix (10%), inquiries (10%)
+- **Credit card utilization:** Keep under 30% of limit
+- **Tip:** CIBIL score matters most for home loans — start building 2+ years before applying
 
 ### Quick Improvements
 1. Set up auto-pay for all bills (payment history)
@@ -185,6 +214,32 @@ Budgeting, emergency funds, debt management, credit, insurance, and behavioral f
 - **Critical illness:** Lump sum if diagnosed with covered condition. More common in Canada than US.
 - **Home/Tenant:** Tenant insurance ~$20-40/month. Homeowners varies by province and property.
 - **Auto:** Required in all provinces. Rates vary dramatically by province (highest in Ontario/BC).
+
+### India Insurance
+
+**Term Life Insurance** (most important):
+- Pure term plans: ₹500-700/year per ₹1L cover for 30-year-old non-smoker
+- Cover: 10-15x annual income
+- Top providers: ICICI Pru iProtect, HDFC Click2Protect, Max Life Smart Secure Plus
+- Riders: Critical illness, accidental death (add if affordable)
+- Buy early (rates locked at entry age)
+
+**Health Insurance:**
+- No employer mandate, but employer group cover often insufficient
+- Individual/family floater: ₹10-25L sum insured recommended
+- Top-up/super top-up: Cheap way to increase cover (₹50L-₹1Cr)
+- Key features to look for: No room rent cap, no co-pay, wide hospital network, restoration benefit
+- Section 80D deduction: ₹25K self + ₹25-50K parents
+- Government schemes: PMJAY (Ayushman Bharat) for BPL families — ₹5L/family
+
+**Avoid These:**
+- ULIPs (high charges, poor returns vs MF + term plan combo)
+- Endowment plans (3-5% returns, 15-20 year lock-in)
+- Money-back policies (low returns with illusion of regular income)
+- Any plan that "combines insurance and investment" — keep them separate
+
+**Motor Insurance:** Third-party mandatory, comprehensive recommended for new vehicles
+**Personal Accident:** ₹100-200/year for ₹10L cover via PMSBY (government scheme)
 
 ## Behavioral Finance
 

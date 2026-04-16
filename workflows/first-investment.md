@@ -86,6 +86,52 @@ Step-by-step guide for someone making their first investment.
 4. FHSA if saving for first home ($8,000/year)
 5. Non-registered account (no limits)
 
+## India Path
+
+### Step 1: Set Up Accounts
+- Open a bank savings account if you don't have one (SBI, HDFC, ICICI, Kotak)
+- Complete KYC on a direct mutual fund platform:
+  - **Kuvera** (recommended for beginners — free, clean UI, goal tracking)
+  - **Groww** (simple app, also has stocks)
+  - **Zerodha Coin** (if you also want to trade stocks)
+  - **MFUtility (MFU)** (industry platform, all AMCs)
+- PAN card required for all investments
+- Link bank account via UPI/net banking for auto-debit
+
+### Step 2: Build Emergency Fund First
+- Target: 3-6 months expenses in liquid funds or savings account
+- Open a liquid mutual fund (Parag Parikh Liquid Fund, HDFC Liquid, SBI Liquid)
+- Or keep in savings account initially (4-6% interest)
+
+### Step 3: Start Tax-Saving Investments (if Old Regime)
+- Your EPF already uses part of Section 80C limit
+- Open PPF account (State Bank or post office) — ₹500 minimum
+- Start ELSS SIP for remaining 80C room — shortest lock-in (3 years), market-linked
+- Recommended ELSS: Mirae Asset ELSS, Quant ELSS, Parag Parikh ELSS
+
+### Step 4: Start Core Equity SIP
+- Begin with Nifty 50 index fund: UTI Nifty 50 Index (Direct) or HDFC Nifty 50 (Direct)
+- Start with amount you can commit monthly (even ₹500)
+- Set up auto-debit SIP on 1st or 7th of month
+- Add Nifty Next 50 when comfortable (10-20% of equity allocation)
+
+### Step 5: Build the Full Portfolio
+Priority order for deploying savings:
+1. **Emergency fund** (liquid fund / savings account) — 3-6 months
+2. **EPF** (auto from salary) — tax-free, ~8.25% return
+3. **PPF** (₹1.5L/year max) — guaranteed, tax-free
+4. **ELSS / NPS** (80C / 80CCD(1B)) — tax savings + growth
+5. **Health insurance** (80D) — ₹25K self + parents
+6. **Nifty 50 index SIP** — core equity exposure
+7. **International fund** (S&P 500 index) — 10-15% of portfolio
+8. **Debt fund / FD** — based on risk tolerance and time horizon
+
+### Step 6: Automate Everything
+- SIP auto-debit from salary account (day after salary credit)
+- Step-up SIP: Increase by 10% each year
+- Annual rebalancing: Check allocation in January, rebalance if off by >5%
+- Review fund performance annually (don't switch frequently)
+
 ## Common First-Timer Mistakes to Avoid
 - Waiting for the "right time" to invest (time in market > timing the market)
 - Checking portfolio daily (set and forget, check quarterly at most)

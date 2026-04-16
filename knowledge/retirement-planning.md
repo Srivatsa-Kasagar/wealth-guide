@@ -1,6 +1,6 @@
 # Retirement Planning
 
-Retirement strategies, government benefits, and FIRE methodology for US and Canada.
+Retirement strategies, government benefits, and FIRE methodology for US, Canada, and India.
 
 ## Retirement Number Calculation
 
@@ -163,6 +163,210 @@ Retirement strategies, government benefits, and FIRE methodology for US and Cana
 3. RRSP meltdown: withdraw in low-income years before 71 to minimize tax
 4. CPP at 60-65 depending on portfolio size and income needs
 5. OAS at 65 (unless high income triggers clawback, then defer)
+
+## India Retirement Planning
+
+### No Universal Pension System
+- India has NO equivalent to US Social Security or Canada CPP/OAS
+- **Government employees:** Old Pension Scheme (OPS) being phased out, replaced by NPS
+- **Private sector:** Entirely self-funded retirement (EPF + personal savings)
+- This makes personal retirement planning MORE critical in India than in US/Canada
+- No government safety net means inadequate planning = working indefinitely
+
+### Employee Provident Fund (EPF)
+
+**Eligibility:** Mandatory for organizations with 20+ employees, applicable to salary up to ₹15,000/month (basic + DA)
+
+**Contribution Structure:**
+
+| Component | Employee | Employer | Notes |
+|-----------|----------|----------|-------|
+| EPF | 12% of basic + DA | 3.67% of basic + DA | Accumulates in individual EPF account |
+| EPS (Employee Pension Scheme) | — | 8.33% of basic + DA | Pension after 10 years of service, max ₹15,000 basic cap |
+| EDLI (Insurance) | — | 0.50% | Life insurance benefit |
+
+**Interest rate:** ~8.25% (FY 2023-24), tax-free up to ₹2.5L contribution/year
+
+**Tax treatment:**
+- Employee contribution: Deductible under Section 80C (up to ₹1.5L combined limit)
+- Interest: Tax-free if annual contribution ≤₹2.5L; interest on excess is taxable
+- Withdrawal after 5 years of continuous service: Tax-free
+- Withdrawal before 5 years: Taxable as income
+
+**Withdrawal rules:**
+- Full withdrawal: At age 58 (retirement) or 2 months after leaving employment
+- Partial withdrawal: Housing (7 years), medical (any time), education (7 years), marriage (7 years)
+- Advance against balance: Permitted for specific purposes with conditions
+
+**VPF (Voluntary Provident Fund):** Can contribute above the mandatory 12%, same interest rate, same tax rules as EPF. Good option for conservative investors wanting guaranteed ~8%+ returns.
+
+### Public Provident Fund (PPF)
+
+**Investment limits:** ₹500 minimum to ₹1.5L maximum per year
+
+**Lock-in:** 15 years (extendable in 5-year blocks indefinitely)
+
+**Interest rate:** ~7.1% (government-set, revised quarterly)
+
+**Tax treatment: EEE (Exempt-Exempt-Exempt)**
+- Contribution: Deductible under Section 80C
+- Interest earned: Tax-free
+- Maturity amount: Tax-free
+- One of the only TRUE EEE instruments in India
+
+**Liquidity:**
+- Partial withdrawal: From year 7 onwards (up to 50% of balance at end of 4th preceding year)
+- Loan against PPF: Available in years 3-6 (at 1% above PPF interest rate)
+- Premature closure: After 5 years for medical emergencies, higher education (with penalty)
+
+**Best for:** Conservative long-term savings, guaranteed returns, tax-free compounding. Ideal for debt allocation in retirement portfolio.
+
+### National Pension System (NPS)
+
+**Two tiers:**
+- **Tier I:** Retirement account, restricted withdrawal, mandatory annuity at maturity
+- **Tier II:** Flexible savings, no tax benefit (except government employees under 80C), no withdrawal restrictions
+
+**Asset classes:**
+
+| Class | Description | Allocation Limit |
+|-------|-------------|-----------------|
+| E (Equity) | Large-cap stocks | Max 75% (auto-reduces after age 50) |
+| C (Corporate Bonds) | Corporate debt | No cap |
+| G (Government Securities) | Government bonds | No cap |
+| A (Alternative) | REITs, InvITs, CMBS | Max 5% |
+
+**Investment choices:**
+- **Auto choice (Lifecycle funds):** LC75 (aggressive), LC50 (moderate), LC25 (conservative) — automatically reduces equity with age
+- **Active choice:** You pick allocation (max 75% equity up to age 50, reduces by 2.5%/year after)
+
+**Expense ratio:** ~0.01% fund management + ₹50-100/year account maintenance — the cheapest managed fund option in India
+
+**Maturity (at age 60):**
+- 60% lump sum withdrawal (tax-free)
+- 40% mandatory annuity purchase (annuity income is taxable as regular income)
+- Can defer lump sum withdrawal until age 75
+
+**Premature exit (after 5 years but before 60):**
+- 20% lump sum
+- 80% must be used to purchase annuity
+
+**Tax benefits (stacks across regimes):**
+
+| Section | Benefit | Limit | Regime |
+|---------|---------|-------|--------|
+| 80CCD(1) | Employee contribution | Within 80C ₹1.5L limit | Old regime |
+| 80CCD(1B) | Additional self-contribution | Extra ₹50,000 | Both old and new regime |
+| 80CCD(2) | Employer contribution | 14% of salary (govt) / 10% (others) | Both old and new regime |
+
+### Senior Citizens Savings Scheme (SCSS)
+
+**Eligibility:** Age 60+ (or 55+ if retired from government/defense/PSU under VRS)
+
+**Maximum deposit:** ₹30L (individual), ₹30L (joint with spouse)
+
+**Tenure:** 5 years, extendable once by 3 years
+
+**Interest rate:** ~8.2% (quarterly payout, government-set, among the highest guaranteed rates)
+
+**Tax treatment:**
+- Investment: Deductible under Section 80C (up to ₹1.5L)
+- Interest: Fully taxable as income
+- TDS: Deducted if interest exceeds ₹50,000/year (₹50K threshold for senior citizens under 194A)
+
+**Best for:** Parking retirement lump sums (EPF/PPF maturity) for guaranteed quarterly income
+
+### Pradhan Mantri Vaya Vandana Yojana (PMVVY)
+
+- Pension scheme for age 60+, managed by LIC
+- Guaranteed pension for 10 years
+- Check current availability (scheme extensions happen periodically, last extended to March 2023)
+- Similar to SCSS but with monthly/quarterly/annual pension payout options
+- Maximum investment: ₹15L per senior citizen
+
+### FIRE in India Context
+
+**Advantages:**
+- Lower cost of living (₹30-50L/year covers comfortable urban lifestyle vs $50-80K in US)
+- Cheaper healthcare (routine procedures 60-80% cheaper than US)
+- No heating costs in most regions, lower utility expenses
+- Strong family support systems as informal safety net
+- Domestic help affordable (cook, cleaning, driver — ₹5-15K/month each)
+
+**Challenges:**
+- No social safety net (no Social Security, no Medicare, no unemployment insurance)
+- High healthcare inflation (~15%/year, far exceeding general CPI)
+- Rupee depreciation risk (~3-4%/year vs USD historically, impacts international purchasing power)
+- Poor annuity rates (~5-6%) make guaranteed income difficult
+- Infrastructure and quality-of-life gaps in many areas
+
+**FIRE number:** 30x-35x annual expenses (higher multiplier than the standard 25x because no pension system exists as a floor)
+
+**Safe withdrawal rate:** 3-3.5% recommended for India (higher inflation + no Social Security floor + longer potential retirement if retiring early)
+
+**Healthcare buffer:** Budget ₹15-25L corpus separately for medical emergencies (no Medicare equivalent; even with insurance, out-of-pocket costs for critical illness can be devastating)
+
+**Inflation adjustment:** India's long-term CPI ~5-6% vs US ~2-3%, which erodes purchasing power roughly twice as fast. A ₹1L/month expense today becomes ₹3.2L/month in 20 years at 6% inflation.
+
+### Retirement Corpus Calculation
+
+**Rule of thumb:** Need 20-25x annual expenses at retirement (conservative: 30x for early retirees)
+
+**Inflation assumption:** Use 6% for planning (vs 2-3% in US/Canada)
+
+**Return assumptions:**
+
+| Asset Class | Nominal Return | Real Return (after 6% inflation) |
+|-------------|---------------|----------------------------------|
+| Equity (diversified MF) | ~12% | ~6% |
+| Debt (bonds/FD) | ~7% | ~1% |
+| Balanced (60/40) | ~9% | ~3% |
+| PPF | ~7.1% | ~1.1% |
+| EPF | ~8.25% | ~2.25% |
+
+**Annuity market:** India's annuity rates are poor (~5-6%), significantly worse than comparable fixed-income returns. Avoid over-allocating to NPS annuity component.
+
+**Systematic Withdrawal Plan (SWP):** Better alternative to annuity — set up monthly withdrawals from mutual funds. Tax-efficient (only gains portion taxed), flexible, and typically delivers better returns than annuity products.
+
+### Retirement Income Ladder (India-Specific)
+
+1. **EPF/PPF maturity** — Lump sum at 58-60, deploy into SCSS + debt funds + FD ladder
+2. **NPS** — 60% lump sum (tax-free) + annuity income from mandatory 40% allocation
+3. **SCSS** — Park lump sums for guaranteed 8%+ quarterly income (up to ₹30L)
+4. **SWP from mutual funds** — Systematic monthly withdrawal from balanced/debt funds
+5. **FD ladder** — Stagger fixed deposits across 1-5 year maturities for regular liquidity
+6. **Rental income** — Common retirement income source in India (2-3% yield on property value)
+7. **Senior citizen FD rates** — Extra 0.25-0.50% from most banks (0.75-1% from some small finance banks)
+
+### Key Ages
+
+| Age | Milestone |
+|-----|-----------|
+| 58 | EPF withdrawal eligible, early retirement common in India |
+| 60 | NPS maturity, SCSS eligible, senior citizen income tax benefits (higher basic exemption ₹3L in old regime), senior citizen health insurance (80D: ₹50K vs ₹25K) |
+| 75 | Super senior citizen benefits: ₹5L basic exemption (old regime), no ITR filing required if only pension + interest income (Section 194P — bank deducts tax) |
+
+### Indian FIRE Bridge Strategy
+1. Build emergency fund (12-18 months expenses — no unemployment insurance exists)
+2. Maximize EPF/VPF contributions for guaranteed 8%+ tax-free returns
+3. Max out PPF (₹1.5L/year) for EEE tax-free compounding
+4. NPS for additional ₹50K tax benefit under 80CCD(1B)
+5. Build equity mutual fund corpus (index funds + flexi-cap) for long-term growth
+6. At 58-60: Deploy EPF/PPF maturity into SCSS + SWP + FD ladder for regular income
+7. Maintain 2-3 years expenses in liquid funds/FDs to handle sequence-of-returns risk
+8. Health insurance: Maintain comprehensive cover (₹25-50L sum insured) + separate medical corpus
+
+### Calculators & Resources
+
+| Tool | Best For |
+|------|----------|
+| **ET Money Retirement Calculator** | Quick retirement corpus estimation |
+| **Zerodha Varsity** | Free comprehensive financial education (modules on MF, stocks, options) |
+| **freefincal.com** | Indian FIRE community, Monte Carlo simulators, robo-advisory templates |
+| **Value Research** | Mutual fund analysis, ratings, and portfolio tracking |
+| **EPFO Portal (epfindia.gov.in)** | EPF balance check, transfer, and claims |
+| **CII Cost Inflation Index** | Capital gains indexation for tax computation |
+| **NPS Trust (npstrust.org.in)** | NPS scheme performance, NAVs, fund comparison |
 
 ## General Retirement Principles
 

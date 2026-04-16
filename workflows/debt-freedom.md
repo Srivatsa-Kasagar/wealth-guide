@@ -79,6 +79,17 @@ Calculate your debt payoff budget:
 - **Bankruptcy**: last resort, discharged after 9-21 months for first-time (affects credit 6-7 years)
 - **Orderly Payment of Debts (Alberta)**: court-ordered 5% interest on all debts
 
+### India-Specific Options
+- **Credit card**: Transfer to personal loan (lower rate), negotiate with bank for settlement (impacts CIBIL)
+- **Personal loan prepayment**: No prepayment penalty after 12 months typically, check loan agreement
+- **Home loan prepayment**: Zero penalty on floating rate (RBI mandate) — prepay aggressively if rate >8%
+- **Education loan**: Section 80E interest deduction (no cap), for 8 years from start of repayment — keep this loan last due to tax benefit
+- **Gold loan**: Cheapest secured loan option (7-10%), use for short-term needs instead of personal loan
+- **Loan against FD/PPF/insurance**: 1-2% above FD rate — use before taking personal loan
+- **Debt restructuring**: One-time settlement (OTS) possible but drops CIBIL score 75-100 points for 7 years
+- **IBC/NCLT**: Insolvency route exists but mainly for corporates, personal insolvency framework still developing
+- **Debt priority in India**: Credit cards (36%+) → personal loans (14-24%) → car loan (8-12%) → education loan (keep for 80E) → home loan (keep for 24(b) + 80C benefits, lowest rate)
+
 ## Step 6: Track Progress
 
 ### Monthly Check-in

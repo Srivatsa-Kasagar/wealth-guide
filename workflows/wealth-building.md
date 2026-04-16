@@ -84,6 +84,8 @@ Max contributions in this order:
 - US: maximize Roth contributions (tax-free growth compounds)
 - Canada: optimize RRSP vs TFSA based on current vs expected retirement tax bracket
 - Canada: use eligible Canadian dividends in non-registered accounts (dividend tax credit)
+- India: Equity mutual fund dividends taxed at slab rate, but LTCG on equity held >1 year taxed at only 12.5% above ₹1.25L — prefer growth option over dividend option for tax efficiency
+- India: Maximize Section 80C (PPF/ELSS), NPS 80CCD(1B) extra ₹50K, health insurance 80D before investing in taxable accounts. SGBs offer 2.5% interest + zero LTCG if held to maturity — best gold vehicle.
 - Both: avoid frequent trading (capital gains taxes)
 
 ### Automate Everything

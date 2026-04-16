@@ -2,7 +2,7 @@
 
 A Claude Code skill that builds you a personalized, CFP-quality financial roadmap. You answer 10 questions about your money. Six AI agents analyze your situation in parallel. You get a 600+ line wealth plan with real numbers, specific fund tickers, tax strategies, and a prioritized action checklist.
 
-Works for the US and Canada. No signup. No API keys. Just install and say "wealth guide."
+Works for the US, Canada, and India. No signup. No API keys. Just install and say "wealth guide."
 
 ![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)
 
@@ -30,12 +30,12 @@ A 12-section financial plan that reads like you paid a CFP $2,000 for it:
 Here's what the executive summary actually looks like:
 
 ```
-| Metric                          | Current (Age 50)  | Projected (Age 55, 2031) |
-|---------------------------------|-------------------|--------------------------|
-| Total Net Worth (est.)          | $1,346,500 CAD    | $2,461,000 CAD           |
-| Liquid Investable Portfolio     | $950,000 CAD      | $2,014,000 CAD           |
-| Annual Savings Capacity         | $147,000 CAD      | --                       |
-| Sustainable Annual Income (4%)  | $38,000 CAD       | $80,560 CAD              |
+| Metric                          | Current (Age 35)  | Projected (Age 45, 2036)  |
+|---------------------------------|-------------------|---------------------------|
+| Total Net Worth (est.)          | ₹1,24,75,000      | ₹1,13,34,000 - ₹1,30,30,000 |
+| Liquid Investable Portfolio     | ₹70,00,000        | ₹89,48,000 (base case)    |
+| Annual Savings Capacity         | ₹41,62,500        | --                        |
+| Sustainable Annual Income (4%)  | --                | ₹35,79,250                |
 ```
 
 Not "consider diversifying your portfolio." Real numbers. Real tickers. Real deadlines.
@@ -51,7 +51,7 @@ You ──> 10 interview screens ──> 6 AI agents (parallel) ──> 12-secti
 
 ### The Interview
 
-10 screens, all at the beginning. No interruptions mid-pipeline.
+10 screens, all at the beginning. No interruptions mid-pipeline. Country-aware -- Indian users see ₹ ranges in lakhs and crores, US/Canada users see dollar ranges.
 
 1. Country + age + financial goal
 2. Income bracket + monthly expenses
@@ -75,8 +75,8 @@ Six specialized agents, running in two phases:
 | Agent | Model | Job |
 |-------|-------|-----|
 | Financial Diagnostician | Sonnet | Health score, savings rate, DTI, emergency fund analysis |
-| Knowledge Advisor | Sonnet | Reads 7 knowledge base files, matches strategies, builds curriculum, searches news |
-| Market Context Analyzer | Sonnet | Live web search for rates, indices, real estate, inflation data |
+| Knowledge Advisor | Sonnet | Reads the entire knowledge base (~2,500 lines of curated financial strategy), matches methodologies to your profile, builds a learning curriculum, and searches the web for current financial news |
+| Market Context Analyzer | Sonnet | Live web search for current rates, indices, real estate trends, inflation, gold prices |
 
 **Phase 2 (sequential):**
 
@@ -123,48 +123,25 @@ If the interview starts, you're good.
 
 ---
 
-## Project Structure
+## The Knowledge Base
 
-```
-wealth-guide/
-├── SKILL.md                          # The skill definition (interview + pipeline logic)
-├── config/
-│   ├── agent-config.yaml             # Timeouts, retry settings, level thresholds
-│   └── init_db.py                    # SQLite schema (profiles + session history)
-├── knowledge/                        # 7 curated knowledge base files
-│   ├── index-investing.md            # Passive investing, ETFs, asset allocation
-│   ├── real-estate-investing.md      # Primary residence, rentals, REITs
-│   ├── retirement-planning.md        # FIRE, 4% rule, CPP/OAS, bucket strategies
-│   ├── tax-optimization.md           # RRSP, TFSA, 401(k), tax-loss harvesting
-│   ├── money-fundamentals.md         # Budgeting, emergency funds, debt payoff
-│   ├── career-income-growth.md       # Salary negotiation, career strategy
-│   └── side-hustles.md               # Freelancing, digital products, rental income
-├── templates/
-│   └── roadmap-template.md           # 12-section template with placeholders
-├── workflows/                        # Step-by-step action workflows
-│   ├── wealth-building.md
-│   ├── debt-freedom.md
-│   ├── first-investment.md
-│   └── side-hustle-launch.md
-├── roadmaps/                         # Generated roadmaps (gitignored)
-└── data/                             # SQLite database (gitignored)
-```
+This is what makes the roadmap actually useful. Nearly 2,500 lines of hand-curated financial strategy across 7 files, covering everything from beginner budgeting to advanced tax optimization -- with country-specific sections for the US, Canada, and India.
 
-### Knowledge Base
+Every file contains real numbers: current contribution limits, tax brackets, specific fund tickers with expense ratios, APR ranges, methodology citations, and step-by-step decision frameworks. The knowledge advisor reads all of it before matching strategies to your profile.
 
-The knowledge base is the backbone. Seven markdown files covering personal finance from fundamentals to advanced strategies, with country-specific sections for both the US and Canada. The knowledge advisor agent reads all seven before matching strategies to your profile.
+| File | What's Inside |
+|------|--------------|
+| `tax-optimization.md` | US: 401(k)/IRA/Roth/HSA limits, LTCG brackets, QBI. Canada: RRSP/TFSA/FHSA, dividend tax credit, meltdown strategies. India: Old vs New regime decision framework, 80C/80D/80E/24(b)/80CCD layering, STCG/LTCG post-2024 rules, HRA exemption, TDS thresholds |
+| `retirement-planning.md` | US: Social Security optimization, Roth conversion ladders, Rule of 55. Canada: CPP/OAS deferral, RRIF, GIS. India: EPF/PPF/NPS mechanics, FIRE at 30-35x (not 25x -- India has no safety net), SWP vs annuity, retirement income ladder |
+| `index-investing.md` | US: VTI/VOO/BND, target-date funds. Canada: VEQT/XEQT, Couch Potato, withholding tax. India: Nifty 50/Next 50/500, SIP mechanics, direct vs regular plans, platform comparison, Sovereign Gold Bonds, asset allocation by age |
+| `real-estate-investing.md` | US: FHA/VA loans, 1031 exchanges, PMI. Canada: FHSA, HBP, Smith Manoeuvre. India: RERA, stamp duty by state, home loan deductions, REITs (Embassy/Mindspace), rent vs buy math, NRI rules |
+| `money-fundamentals.md` | Emergency fund sizing (3-6 months US/CA, 6-12 months India), debt avalanche/snowball, credit scores (FICO/Equifax/CIBIL), insurance essentials (term life, health, what to avoid like ULIPs) |
+| `career-income-growth.md` | Salary negotiation, stock option taxation (ISOs, RSUs, ESOPs across all 3 countries), freelance tax treatment, CTC vs take-home (India) |
+| `side-hustles.md` | Freelancing, digital products, rental income -- with country-specific tax treatment (Schedule C, T2125, Section 44ADA/GST) |
 
-These aren't scraped articles. Each file is hand-curated with specific numbers: contribution limits, tax brackets, fund tickers, APR ranges, and methodology citations. They're updated for the current tax year.
+Plus 4 step-by-step workflow guides (wealth building, debt freedom, first investment, side hustle launch) with country-specific paths.
 
-| File | Covers | Key Topics |
-|------|--------|------------|
-| `index-investing.md` | Passive investing | Couch Potato, asset allocation, MER comparison, rebalancing |
-| `retirement-planning.md` | FIRE + traditional retirement | 4% rule, bucket strategy, CPP/OAS, sequence-of-returns risk |
-| `tax-optimization.md` | Tax-advantaged accounts | RRSP/TFSA/401(k)/IRA, meltdown strategies, asset location |
-| `money-fundamentals.md` | Foundations | Emergency fund sizing, debt avalanche/snowball, 50/30/20 |
-| `real-estate-investing.md` | Property + REITs | Rent vs buy, mortgage types, cap rate, 1031/PRE |
-| `career-income-growth.md` | Income optimization | Negotiation scripts, career laddering, credential ROI |
-| `side-hustles.md` | Additional income | Freelancing, digital products, rental income, tax implications |
+The agents don't hallucinate financial advice. They read the knowledge base, find what matches your profile, and build the roadmap on that foundation.
 
 ---
 
@@ -216,7 +193,15 @@ Your data never leaves your machine. No API calls with your financial info. The 
 - Tax strategy: RRSP meltdown, dividend tax credit, superficial loss rule, OAS clawback
 - Market data: TSX Composite, Bank of Canada rate, GIC rates, CREA HPI
 
-The knowledge base, agent prompts, and roadmap content all adapt based on your country selection. A Canadian user gets RRSP meltdown strategies and CPP deferral analysis. A US user gets Roth conversion ladders and HSA triple-tax-advantage breakdowns.
+### India
+- Tax-advantaged accounts: EPF, PPF, NPS, ELSS, SCSS, Sukanya Samriddhi
+- Tax regime: Old vs New regime optimization, Section 80C/80D/80E/24(b) deductions
+- Debt context: Home loan deductions, gold loans, CIBIL scores, RBI floating-rate prepayment rules
+- Capital gains: Equity STCG 20%, LTCG 12.5% above ₹1.25L, Sovereign Gold Bonds (zero LTCG at maturity)
+- Investment: Nifty 50/Sensex index funds, SIP culture, direct vs regular mutual fund plans
+- Market data: Nifty 50, Sensex, RBI repo rate, FD rates, NHB RESIDEX
+
+The entire pipeline adapts based on your country. A Canadian user gets RRSP meltdown strategies and CPP deferral analysis. A US user gets Roth conversion ladders and HSA triple-tax-advantage breakdowns. An Indian user gets old vs new tax regime analysis, Section 80C optimization, and SIP-based wealth building with specific fund tickers.
 
 ---
 
@@ -225,9 +210,10 @@ The knowledge base, agent prompts, and roadmap content all adapt based on your c
 ### Adding a Country
 
 1. Add country-specific context blocks in `SKILL.md` (search for `if country == "US"` to find all the spots)
-2. Add a knowledge base file or country-specific sections to existing files
+2. Add country-specific sections to the knowledge base files
 3. Add the country option to Screen 1 of the interview
-4. Update the roadmap template's resource links
+4. Add country-specific interview ranges (currency, income brackets, debt ranges)
+5. Update the roadmap template's resource links
 
 ### Modifying Strategies
 
@@ -243,24 +229,12 @@ Edit `templates/roadmap-template.md`. Every `{PLACEHOLDER}` is filled by the act
 
 ---
 
-## Limitations
-
-Let's be direct about what this isn't.
-
-- **Not financial advice.** This is an educational tool. The roadmap says so at the top and bottom. It generates plans based on general financial principles and your self-reported data. It doesn't know your full tax situation, estate complexity, insurance needs, or whether your marriage is about to implode and take half your assets with it.
-- **Midpoint math.** When you pick "$200,000 - $250,000" income, the system uses $225,000. Your actual income matters. The projections are directionally right, not CPA-precise.
-- **No real-time portfolio data.** The system doesn't connect to your brokerage. It works with what you tell it.
-- **Market data has a shelf life.** The market context agent searches the web at run time, but interest rates and index levels change daily. The roadmap reflects conditions at generation time.
-- **Two countries.** US and Canada only. The knowledge base and tax logic don't cover other jurisdictions.
-
----
-
 ## Privacy
 
 Everything runs locally.
 
 - Your financial data is stored in a local SQLite file on your machine
-- Agent prompts contain aggregated midpoints, not raw answers
+- Agent prompts contain aggregated midpoint values, not raw answers
 - No data is sent to external services beyond the Claude API (which processes the agent prompts)
 - The database file is created with `0600` permissions (owner read/write only)
 - Roadmaps are saved locally as markdown files
@@ -282,3 +256,4 @@ This tool is for educational and planning purposes only. It does not constitute 
 Before making significant financial decisions, consult qualified professionals:
 - **US:** Find a CFP at [letsmakeaplan.org](https://www.letsmakeaplan.org/)
 - **Canada:** Find a CFP at [fpcanada.ca](https://fpcanada.ca/)
+- **India:** Find a SEBI-registered investment advisor at [sebi.gov.in](https://www.sebi.gov.in/)

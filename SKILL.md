@@ -7,7 +7,7 @@ model: claude-sonnet-4-5-20250929
 
 # Wealth Guide Skill
 
-Personalized US/Canada wealth coaching via 7-agent multi-agent pipeline with curated strategy-focused knowledge base.
+Personalized US/Canada/India wealth coaching via 7-agent multi-agent pipeline with curated strategy-focused knowledge base.
 
 ## Trigger Phrases
 
@@ -194,7 +194,8 @@ if profile is None:
             "multiSelect": False,
             "options": [
                 {"label": "United States", "description": "US tax system, 401(k), IRA, etc."},
-                {"label": "Canada", "description": "Canadian tax system, RRSP, TFSA, etc."}
+                {"label": "Canada", "description": "Canadian tax system, RRSP, TFSA, etc."},
+                {"label": "India", "description": "Indian tax system, PPF, EPF, NPS, etc."}
             ]
         },
         {
@@ -221,7 +222,8 @@ if profile is None:
         }
     ])
 
-    country = "US" if about_you.get("country") == "United States" else "CA"
+    country_map = {"United States": "US", "Canada": "CA", "India": "IN"}
+    country = country_map.get(about_you.get("country"), "US")
     age_raw = about_you.get("age", "35")
     # Parse age — handle bracket labels, exact numbers, or free-text
     age_bracket_map = {"Under 30": 27, "30-39": 35, "40-49": 45, "50+": 55}
@@ -236,166 +238,292 @@ if profile is None:
             user_age = int(nums[0]) if nums else 35
     user_age = max(18, min(user_age, 80))  # Clamp to reasonable range
 
-    # ── Screen 2: Income & Expenses ──
+    # ── Screen 2: Income & Expenses (country-specific ranges) ──
+    if country == "IN":
+        income_options = [
+            {"label": "Under ₹10L", "description": "Entry-level to mid career"},
+            {"label": "₹10L - ₹25L", "description": "Mid to senior career"},
+            {"label": "₹25L - ₹75L", "description": "Senior, specialist, or executive"},
+            {"label": "Over ₹75L", "description": "C-suite, partner, or business owner"}
+        ]
+        expense_options = [
+            {"label": "Under ₹25,000", "description": "Frugal or small city"},
+            {"label": "₹25,000 - ₹50,000", "description": "Moderate spending"},
+            {"label": "₹50,000 - ₹1,00,000", "description": "Comfortable metro lifestyle"},
+            {"label": "Over ₹1,00,000", "description": "Premium lifestyle or large family"}
+        ]
+        default_income_coarse = "₹10L - ₹25L"
+        default_expense = "₹25,000 - ₹50,000"
+    else:
+        income_options = [
+            {"label": "Under $80,000", "description": "Entry-level to mid career"},
+            {"label": "$80,000 - $150,000", "description": "Mid to senior career"},
+            {"label": "$150,000 - $400,000", "description": "Senior, specialist, or executive"},
+            {"label": "Over $400,000", "description": "C-suite, partner, or business owner"}
+        ]
+        expense_options = [
+            {"label": "Under $3,000", "description": "Frugal or low cost of living"},
+            {"label": "$3,000 - $5,000", "description": "Moderate spending"},
+            {"label": "$5,000 - $8,000", "description": "Comfortable lifestyle"},
+            {"label": "Over $8,000", "description": "High cost of living or family"}
+        ]
+        default_income_coarse = "$80,000 - $150,000"
+        default_expense = "$3,000 - $5,000"
+
     income_expenses = AskUserQuestion(questions=[
         {
             "question": "What is your annual pre-tax household income?",
             "header": "income_range",
             "multiSelect": False,
-            "options": [
-                {"label": "Under $80,000", "description": "Entry-level to mid career"},
-                {"label": "$80,000 - $150,000", "description": "Mid to senior career"},
-                {"label": "$150,000 - $400,000", "description": "Senior, specialist, or executive"},
-                {"label": "Over $400,000", "description": "C-suite, partner, or business owner"}
-            ]
+            "options": income_options
         },
         {
             "question": "What are your total monthly living expenses?",
             "header": "monthly_expense",
             "multiSelect": False,
-            "options": [
-                {"label": "Under $3,000", "description": "Frugal or low cost of living"},
-                {"label": "$3,000 - $5,000", "description": "Moderate spending"},
-                {"label": "$5,000 - $8,000", "description": "Comfortable lifestyle"},
-                {"label": "Over $8,000", "description": "High cost of living or family"}
-            ]
+            "options": expense_options
         }
     ])
 
-    income_coarse_label = income_expenses.get("income_range", "$80,000 - $150,000")
-    expense_label = income_expenses.get("monthly_expense", "$3,000 - $5,000")
+    income_coarse_label = income_expenses.get("income_range", default_income_coarse)
+    expense_label = income_expenses.get("monthly_expense", default_expense)
     expense_midpoints = {
         "Under $3,000": 2000, "$3,000 - $5,000": 4000,
-        "$5,000 - $8,000": 6500, "Over $8,000": 10000
+        "$5,000 - $8,000": 6500, "Over $8,000": 10000,
+        # India (INR)
+        "Under ₹25,000": 20000, "₹25,000 - ₹50,000": 37500,
+        "₹50,000 - ₹1,00,000": 75000, "Over ₹1,00,000": 150000
     }
-    monthly_expense = expense_midpoints.get(expense_label, 4000)
+    monthly_expense = expense_midpoints.get(expense_label, 4000 if country != "IN" else 37500)
 
-    # ── Screen 3: Narrow income range ──
-    income_sub_options = {
-        "Under $80,000": [
-            {"label": "Under $40,000", "description": "Entry-level or part-time"},
-            {"label": "$40,000 - $60,000", "description": "Early career"},
-            {"label": "$60,000 - $80,000", "description": "Mid career"}
-        ],
-        "$80,000 - $150,000": [
-            {"label": "$80,000 - $100,000", "description": "Mid career"},
-            {"label": "$100,000 - $125,000", "description": "Senior individual contributor"},
-            {"label": "$125,000 - $150,000", "description": "Senior or lead"}
-        ],
-        "$150,000 - $400,000": [
-            {"label": "$150,000 - $200,000", "description": "Senior or specialist"},
-            {"label": "$200,000 - $250,000", "description": "Staff or principal level"},
-            {"label": "$250,000 - $400,000", "description": "Director or executive"}
-        ],
-        "Over $400,000": [
-            {"label": "$400,000 - $600,000", "description": "VP or senior executive"},
-            {"label": "$600,000 - $1,000,000", "description": "C-suite or partner"},
-            {"label": "Over $1,000,000", "description": "Top earner"}
-        ]
-    }
+    # ── Screen 3: Narrow income range (country-specific) ──
+    if country == "IN":
+        income_sub_options = {
+            "Under ₹10L": [
+                {"label": "Under ₹4L", "description": "Entry-level or part-time"},
+                {"label": "₹4L - ₹7L", "description": "Early career"},
+                {"label": "₹7L - ₹10L", "description": "Mid career"}
+            ],
+            "₹10L - ₹25L": [
+                {"label": "₹10L - ₹15L", "description": "Mid career"},
+                {"label": "₹15L - ₹20L", "description": "Senior individual contributor"},
+                {"label": "₹20L - ₹25L", "description": "Senior or lead"}
+            ],
+            "₹25L - ₹75L": [
+                {"label": "₹25L - ₹40L", "description": "Senior or specialist"},
+                {"label": "₹40L - ₹60L", "description": "Staff or principal level"},
+                {"label": "₹60L - ₹75L", "description": "Director or executive"}
+            ],
+            "Over ₹75L": [
+                {"label": "₹75L - ₹1Cr", "description": "VP or senior executive"},
+                {"label": "₹1Cr - ₹2Cr", "description": "C-suite or partner"},
+                {"label": "Over ₹2Cr", "description": "Top earner"}
+            ]
+        }
+        default_sub = income_sub_options["₹10L - ₹25L"]
+    else:
+        income_sub_options = {
+            "Under $80,000": [
+                {"label": "Under $40,000", "description": "Entry-level or part-time"},
+                {"label": "$40,000 - $60,000", "description": "Early career"},
+                {"label": "$60,000 - $80,000", "description": "Mid career"}
+            ],
+            "$80,000 - $150,000": [
+                {"label": "$80,000 - $100,000", "description": "Mid career"},
+                {"label": "$100,000 - $125,000", "description": "Senior individual contributor"},
+                {"label": "$125,000 - $150,000", "description": "Senior or lead"}
+            ],
+            "$150,000 - $400,000": [
+                {"label": "$150,000 - $200,000", "description": "Senior or specialist"},
+                {"label": "$200,000 - $250,000", "description": "Staff or principal level"},
+                {"label": "$250,000 - $400,000", "description": "Director or executive"}
+            ],
+            "Over $400,000": [
+                {"label": "$400,000 - $600,000", "description": "VP or senior executive"},
+                {"label": "$600,000 - $1,000,000", "description": "C-suite or partner"},
+                {"label": "Over $1,000,000", "description": "Top earner"}
+            ]
+        }
+        default_sub = income_sub_options["$80,000 - $150,000"]
 
     income_narrow = AskUserQuestion(questions=[
         {
             "question": f"Can you narrow it down? (you selected {income_coarse_label})",
             "header": "annual_income",
             "multiSelect": False,
-            "options": income_sub_options.get(income_coarse_label, income_sub_options["$80,000 - $150,000"])
+            "options": income_sub_options.get(income_coarse_label, default_sub)
         }
     ])
 
     income_midpoints = {
+        # US/Canada (USD/CAD)
         "Under $40,000": 30000, "$40,000 - $60,000": 50000, "$60,000 - $80,000": 70000,
         "$80,000 - $100,000": 90000, "$100,000 - $125,000": 112500, "$125,000 - $150,000": 137500,
         "$150,000 - $200,000": 175000, "$200,000 - $250,000": 225000, "$250,000 - $400,000": 325000,
-        "$400,000 - $600,000": 500000, "$600,000 - $1,000,000": 800000, "Over $1,000,000": 1500000
+        "$400,000 - $600,000": 500000, "$600,000 - $1,000,000": 800000, "Over $1,000,000": 1500000,
+        # India (INR — L = lakh = 100,000)
+        "Under ₹4L": 300000, "₹4L - ₹7L": 550000, "₹7L - ₹10L": 850000,
+        "₹10L - ₹15L": 1250000, "₹15L - ₹20L": 1750000, "₹20L - ₹25L": 2250000,
+        "₹25L - ₹40L": 3250000, "₹40L - ₹60L": 5000000, "₹60L - ₹75L": 6750000,
+        "₹75L - ₹1Cr": 8750000, "₹1Cr - ₹2Cr": 15000000, "Over ₹2Cr": 30000000
     }
-    income_label = income_narrow.get("annual_income", "$80,000 - $100,000")
-    annual_income = income_midpoints.get(income_label, 90000)
+    income_label = income_narrow.get("annual_income", "$80,000 - $100,000" if country != "IN" else "₹10L - ₹15L")
+    annual_income = income_midpoints.get(income_label, 90000 if country != "IN" else 1250000)
 
-    # ── Screen 4: Savings & Investments (coarse) ──
+    # ── Screen 4: Savings & Investments (coarse, country-specific) ──
+    if country == "IN":
+        savings_options = [
+            {"label": "Under ₹1L", "description": "Building an emergency fund"},
+            {"label": "₹1L - ₹10L", "description": "Solid cash reserves"},
+            {"label": "₹10L - ₹50L", "description": "Large cash position"},
+            {"label": "Over ₹50L", "description": "Substantial liquid wealth"}
+        ]
+        invest_options = [
+            {"label": "Under ₹5L", "description": "Getting started or building"},
+            {"label": "₹5L - ₹25L", "description": "Growing portfolio"},
+            {"label": "₹25L - ₹1Cr", "description": "Substantial portfolio"},
+            {"label": "Over ₹1Cr", "description": "Crore-plus portfolio"}
+        ]
+        default_savings_coarse = "Under ₹1L"
+        default_invest_coarse = "Under ₹5L"
+    else:
+        savings_options = [
+            {"label": "Under $15,000", "description": "Building an emergency fund"},
+            {"label": "$15,000 - $100,000", "description": "Solid cash reserves"},
+            {"label": "$100,000 - $500,000", "description": "Large cash position"},
+            {"label": "Over $500,000", "description": "Substantial liquid wealth"}
+        ]
+        invest_options = [
+            {"label": "Under $50,000", "description": "Getting started or building"},
+            {"label": "$50,000 - $250,000", "description": "Growing portfolio"},
+            {"label": "$250,000 - $1,000,000", "description": "Substantial portfolio"},
+            {"label": "Over $1,000,000", "description": "Seven-figure portfolio"}
+        ]
+        default_savings_coarse = "Under $15,000"
+        default_invest_coarse = "Under $50,000"
+
     assets_coarse = AskUserQuestion(questions=[
         {
-            "question": "How much do you have in savings (cash, HYSA, GICs/CDs)?",
+            "question": "How much do you have in savings (cash, savings accounts, FDs/GICs/CDs)?",
             "header": "savings_range",
             "multiSelect": False,
-            "options": [
-                {"label": "Under $15,000", "description": "Building an emergency fund"},
-                {"label": "$15,000 - $100,000", "description": "Solid cash reserves"},
-                {"label": "$100,000 - $500,000", "description": "Large cash position"},
-                {"label": "Over $500,000", "description": "Substantial liquid wealth"}
-            ]
+            "options": savings_options
         },
         {
             "question": "Total investment assets (retirement accounts, stocks, bonds, funds)?",
             "header": "invest_range",
             "multiSelect": False,
-            "options": [
-                {"label": "Under $50,000", "description": "Getting started or building"},
-                {"label": "$50,000 - $250,000", "description": "Growing portfolio"},
-                {"label": "$250,000 - $1,000,000", "description": "Substantial portfolio"},
-                {"label": "Over $1,000,000", "description": "Seven-figure portfolio"}
-            ]
+            "options": invest_options
         }
     ])
 
-    # ── Screen 5: Narrow savings & investments ──
-    savings_coarse = assets_coarse.get("savings_range", "Under $15,000")
-    savings_sub_options = {
-        "Under $15,000": [
-            {"label": "Under $1,000", "description": "Just getting started"},
-            {"label": "$1,000 - $5,000", "description": "Building a buffer"},
-            {"label": "$5,000 - $15,000", "description": "Starter emergency fund"}
-        ],
-        "$15,000 - $100,000": [
-            {"label": "$15,000 - $30,000", "description": "3-6 month emergency fund"},
-            {"label": "$30,000 - $50,000", "description": "Full emergency fund + buffer"},
-            {"label": "$50,000 - $100,000", "description": "Strong cash position"}
-        ],
-        "$100,000 - $500,000": [
-            {"label": "$100,000 - $250,000", "description": "Large cash reserves"},
-            {"label": "$250,000 - $500,000", "description": "Very large cash position"}
-        ],
-        "Over $500,000": [
-            {"label": "$500,000 - $1,000,000", "description": "Major cash holdings"},
-            {"label": "Over $1,000,000", "description": "Ultra-high cash position"}
-        ]
-    }
+    # ── Screen 5: Narrow savings & investments (country-specific) ──
+    savings_coarse = assets_coarse.get("savings_range", default_savings_coarse)
+    if country == "IN":
+        savings_sub_options = {
+            "Under ₹1L": [
+                {"label": "Under ₹10,000", "description": "Just getting started"},
+                {"label": "₹10,000 - ₹50,000", "description": "Building a buffer"},
+                {"label": "₹50,000 - ₹1L", "description": "Starter emergency fund"}
+            ],
+            "₹1L - ₹10L": [
+                {"label": "₹1L - ₹3L", "description": "3-6 month emergency fund"},
+                {"label": "₹3L - ₹5L", "description": "Full emergency fund + buffer"},
+                {"label": "₹5L - ₹10L", "description": "Strong cash position"}
+            ],
+            "₹10L - ₹50L": [
+                {"label": "₹10L - ₹25L", "description": "Large cash reserves"},
+                {"label": "₹25L - ₹50L", "description": "Very large cash position"}
+            ],
+            "Over ₹50L": [
+                {"label": "₹50L - ₹1Cr", "description": "Major cash holdings"},
+                {"label": "Over ₹1Cr", "description": "Ultra-high cash position"}
+            ]
+        }
+        default_savings_sub = savings_sub_options["Under ₹1L"]
+    else:
+        savings_sub_options = {
+            "Under $15,000": [
+                {"label": "Under $1,000", "description": "Just getting started"},
+                {"label": "$1,000 - $5,000", "description": "Building a buffer"},
+                {"label": "$5,000 - $15,000", "description": "Starter emergency fund"}
+            ],
+            "$15,000 - $100,000": [
+                {"label": "$15,000 - $30,000", "description": "3-6 month emergency fund"},
+                {"label": "$30,000 - $50,000", "description": "Full emergency fund + buffer"},
+                {"label": "$50,000 - $100,000", "description": "Strong cash position"}
+            ],
+            "$100,000 - $500,000": [
+                {"label": "$100,000 - $250,000", "description": "Large cash reserves"},
+                {"label": "$250,000 - $500,000", "description": "Very large cash position"}
+            ],
+            "Over $500,000": [
+                {"label": "$500,000 - $1,000,000", "description": "Major cash holdings"},
+                {"label": "Over $1,000,000", "description": "Ultra-high cash position"}
+            ]
+        }
+        default_savings_sub = savings_sub_options["Under $15,000"]
 
-    invest_coarse = assets_coarse.get("invest_range", "Under $50,000")
-    invest_sub_options = {
-        "Under $50,000": [
-            {"label": "None", "description": "Haven't started investing"},
-            {"label": "Under $10,000", "description": "Just getting started"},
-            {"label": "$10,000 - $50,000", "description": "Building portfolio"}
-        ],
-        "$50,000 - $250,000": [
-            {"label": "$50,000 - $100,000", "description": "Growing portfolio"},
-            {"label": "$100,000 - $175,000", "description": "Solid investment base"},
-            {"label": "$175,000 - $250,000", "description": "Strong portfolio"}
-        ],
-        "$250,000 - $1,000,000": [
-            {"label": "$250,000 - $500,000", "description": "Substantial portfolio"},
-            {"label": "$500,000 - $750,000", "description": "Large portfolio"},
-            {"label": "$750,000 - $1,000,000", "description": "Approaching 7 figures"}
-        ],
-        "Over $1,000,000": [
-            {"label": "$1,000,000 - $2,000,000", "description": "Millionaire investor"},
-            {"label": "Over $2,000,000", "description": "High-net-worth investor"}
-        ]
-    }
+    invest_coarse = assets_coarse.get("invest_range", default_invest_coarse)
+    if country == "IN":
+        invest_sub_options = {
+            "Under ₹5L": [
+                {"label": "None", "description": "Haven't started investing"},
+                {"label": "Under ₹1L", "description": "Just getting started"},
+                {"label": "₹1L - ₹5L", "description": "Building portfolio"}
+            ],
+            "₹5L - ₹25L": [
+                {"label": "₹5L - ₹10L", "description": "Growing portfolio"},
+                {"label": "₹10L - ₹15L", "description": "Solid investment base"},
+                {"label": "₹15L - ₹25L", "description": "Strong portfolio"}
+            ],
+            "₹25L - ₹1Cr": [
+                {"label": "₹25L - ₹50L", "description": "Substantial portfolio"},
+                {"label": "₹50L - ₹75L", "description": "Large portfolio"},
+                {"label": "₹75L - ₹1Cr", "description": "Approaching crore club"}
+            ],
+            "Over ₹1Cr": [
+                {"label": "₹1Cr - ₹2Cr", "description": "Crorepati investor"},
+                {"label": "Over ₹2Cr", "description": "High-net-worth investor"}
+            ]
+        }
+        default_invest_sub = invest_sub_options["Under ₹5L"]
+    else:
+        invest_sub_options = {
+            "Under $50,000": [
+                {"label": "None", "description": "Haven't started investing"},
+                {"label": "Under $10,000", "description": "Just getting started"},
+                {"label": "$10,000 - $50,000", "description": "Building portfolio"}
+            ],
+            "$50,000 - $250,000": [
+                {"label": "$50,000 - $100,000", "description": "Growing portfolio"},
+                {"label": "$100,000 - $175,000", "description": "Solid investment base"},
+                {"label": "$175,000 - $250,000", "description": "Strong portfolio"}
+            ],
+            "$250,000 - $1,000,000": [
+                {"label": "$250,000 - $500,000", "description": "Substantial portfolio"},
+                {"label": "$500,000 - $750,000", "description": "Large portfolio"},
+                {"label": "$750,000 - $1,000,000", "description": "Approaching 7 figures"}
+            ],
+            "Over $1,000,000": [
+                {"label": "$1,000,000 - $2,000,000", "description": "Millionaire investor"},
+                {"label": "Over $2,000,000", "description": "High-net-worth investor"}
+            ]
+        }
+        default_invest_sub = invest_sub_options["Under $50,000"]
 
     narrow_si = AskUserQuestion(questions=[
         {
             "question": f"Narrow your savings ({savings_coarse}):",
             "header": "savings",
             "multiSelect": False,
-            "options": savings_sub_options.get(savings_coarse, savings_sub_options["Under $15,000"])
+            "options": savings_sub_options.get(savings_coarse, default_savings_sub)
         },
         {
             "question": f"Narrow your investments ({invest_coarse}):",
             "header": "investment_assets",
             "multiSelect": False,
-            "options": invest_sub_options.get(invest_coarse, invest_sub_options["Under $50,000"])
+            "options": invest_sub_options.get(invest_coarse, default_invest_sub)
         }
     ])
 
@@ -417,60 +545,96 @@ if profile is None:
     home_value_label = "None"
 
     if has_debt == "Yes":
-        # ── Screen 7: Debt types (multiSelect) ──
+        # ── Screen 7: Debt types (multiSelect, country-specific APR descriptions) ──
+        if country == "IN":
+            cc_desc = "Revolving balances (typically 36-42% APR)"
+            loan_desc = "Personal, car, education, or gold loans"
+            mortgage_desc = "Home loan"
+        else:
+            cc_desc = "Revolving balances (typically 19-29% APR)"
+            loan_desc = "Personal, car, student loans, or lines of credit"
+            mortgage_desc = "Home mortgage or HELOC"
+
         debt_types = AskUserQuestion(questions=[{
             "question": "Which types of debt do you have? (select all that apply)",
             "header": "debt_types",
             "multiSelect": True,
             "options": [
-                {"label": "Credit card", "description": "Revolving balances (typically 19-29% APR)"},
-                {"label": "Loans", "description": "Personal, car, student loans, or lines of credit"},
-                {"label": "Mortgage", "description": "Home mortgage or HELOC"}
+                {"label": "Credit card", "description": cc_desc},
+                {"label": "Loans", "description": loan_desc},
+                {"label": "Mortgage", "description": mortgage_desc}
             ]
         }])
 
         debt_types_selected = debt_types.get("debt_types", "")
 
-        # ── Screen 8: Debt amounts (combine applicable types into one screen, max 4 questions) ──
+        # ── Screen 8: Debt amounts (country-specific ranges) ──
         debt_questions = []
 
         if "Credit card" in debt_types_selected:
-            debt_questions.append({
-                "question": "Total credit card balance?",
-                "header": "debt_cc",
-                "multiSelect": False,
-                "options": [
+            if country == "IN":
+                cc_options = [
+                    {"label": "Under ₹50,000", "description": "Minor — payable in 1-2 months"},
+                    {"label": "₹50,000 - ₹2L", "description": "Moderate — reduce aggressively"},
+                    {"label": "₹2L - ₹5L", "description": "Significant — high interest adding up"},
+                    {"label": "Over ₹5L", "description": "Urgent — priority to eliminate"}
+                ]
+            else:
+                cc_options = [
                     {"label": "Under $2,000", "description": "Minor — payable in 1-2 months"},
                     {"label": "$2,000 - $5,000", "description": "Moderate — consider balance transfer"},
                     {"label": "$5,000 - $15,000", "description": "Significant — high interest adding up"},
                     {"label": "Over $15,000", "description": "Urgent — priority to eliminate"}
                 ]
+            debt_questions.append({
+                "question": "Total credit card balance?",
+                "header": "debt_cc",
+                "multiSelect": False,
+                "options": cc_options
             })
 
         if "Loans" in debt_types_selected:
-            debt_questions.append({
-                "question": "Total personal / car / student loans?",
-                "header": "debt_ps",
-                "multiSelect": False,
-                "options": [
+            if country == "IN":
+                loan_options = [
+                    {"label": "Under ₹2L", "description": "Small balance"},
+                    {"label": "₹2L - ₹10L", "description": "Typical personal or car loan"},
+                    {"label": "₹10L - ₹30L", "description": "Significant — education or large personal loan"},
+                    {"label": "Over ₹30L", "description": "Large combined loan debt"}
+                ]
+            else:
+                loan_options = [
                     {"label": "Under $10,000", "description": "Small balance"},
                     {"label": "$10,000 - $30,000", "description": "Typical car loan or partial student debt"},
                     {"label": "$30,000 - $75,000", "description": "Significant loan balance"},
                     {"label": "Over $75,000", "description": "Large combined loan debt"}
                 ]
+            debt_questions.append({
+                "question": "Total personal / car / education loans?",
+                "header": "debt_ps",
+                "multiSelect": False,
+                "options": loan_options
             })
 
         if "Mortgage" in debt_types_selected:
-            debt_questions.append({
-                "question": "Outstanding mortgage balance?",
-                "header": "debt_mortgage",
-                "multiSelect": False,
-                "options": [
+            if country == "IN":
+                mortgage_options = [
+                    {"label": "Under ₹25L", "description": "Small or nearly paid off"},
+                    {"label": "₹25L - ₹50L", "description": "Standard home loan"},
+                    {"label": "₹50L - ₹1Cr", "description": "Mid to large home loan"},
+                    {"label": "Over ₹1Cr", "description": "Large home loan"}
+                ]
+            else:
+                mortgage_options = [
                     {"label": "Under $200,000", "description": "Small or nearly paid off"},
                     {"label": "$200,000 - $400,000", "description": "Standard mortgage"},
                     {"label": "$400,000 - $700,000", "description": "Mid to large mortgage"},
                     {"label": "Over $700,000", "description": "Large mortgage"}
                 ]
+            debt_questions.append({
+                "question": "Outstanding mortgage / home loan balance?",
+                "header": "debt_mortgage",
+                "multiSelect": False,
+                "options": mortgage_options
             })
 
         if debt_questions:
@@ -479,20 +643,32 @@ if profile is None:
             debt_ps_label = debt_amounts.get("debt_ps", "None")
             debt_mortgage_label = debt_amounts.get("debt_mortgage", "None")
 
-        # ── Screen 9: Home value (only if mortgage) ──
+        # ── Screen 9: Home value (only if mortgage, country-specific) ──
         if "Mortgage" in debt_types_selected:
-            home_value_response = AskUserQuestion(questions=[{
-                "question": "Estimated current value of your home?",
-                "header": "home_value",
-                "multiSelect": False,
-                "options": [
+            if country == "IN":
+                home_options = [
+                    {"label": "Under ₹50L", "description": "Affordable housing or tier-2 city"},
+                    {"label": "₹50L - ₹1Cr", "description": "Standard home in metro"},
+                    {"label": "₹1Cr - ₹2Cr", "description": "Premium or prime location"},
+                    {"label": "Over ₹2Cr", "description": "Luxury or prime metro property"}
+                ]
+                default_home = "Under ₹50L"
+            else:
+                home_options = [
                     {"label": "Under $400,000", "description": "Starter home or smaller market"},
                     {"label": "$400,000 - $700,000", "description": "Average home in most markets"},
                     {"label": "$700,000 - $1,200,000", "description": "Above-average or metro area"},
                     {"label": "Over $1,200,000", "description": "High-value or premium market"}
                 ]
+                default_home = "Under $400,000"
+
+            home_value_response = AskUserQuestion(questions=[{
+                "question": "Estimated current value of your home?",
+                "header": "home_value",
+                "multiSelect": False,
+                "options": home_options
             }])
-            home_value_label = home_value_response.get("home_value", "Under $400,000")
+            home_value_label = home_value_response.get("home_value", default_home)
 
     home_value_label = home_value_label if debt_mortgage_label != "None" else "None"
 
@@ -511,7 +687,7 @@ if profile is None:
             "header": "risk_tolerance",
             "multiSelect": False,
             "options": [
-                {"label": "Conservative", "description": "Protect what I have — savings accounts, bonds, GICs"},
+                {"label": "Conservative", "description": "Protect what I have — savings accounts, bonds, fixed deposits"},
                 {"label": "Balanced", "description": "Steady growth — index funds, some stocks"},
                 {"label": "Aggressive", "description": "Maximize growth — stocks, crypto, higher volatility OK"}
             ]
@@ -588,35 +764,64 @@ This block MUST run after profile is set — whether from a fresh interview, DB 
 # Recompute all midpoints and derived fields here.
 
 country = profile.get('country', 'US')
-currency = "USD" if country == "US" else "CAD"
+currency_map = {"US": "USD", "CA": "CAD", "IN": "INR"}
+currency = currency_map.get(country, "USD")
 
 savings_midpoints = {
+    # US/Canada (USD/CAD)
     "Under $1,000": 500, "$1,000 - $5,000": 3000, "$5,000 - $15,000": 10000,
     "$15,000 - $30,000": 22500, "$30,000 - $50,000": 40000, "$50,000 - $100,000": 75000,
     "$100,000 - $250,000": 175000, "$250,000 - $500,000": 375000,
-    "$500,000 - $1,000,000": 750000, "Over $1,000,000": 1500000
+    "$500,000 - $1,000,000": 750000, "Over $1,000,000": 1500000,
+    # India (INR)
+    "Under ₹10,000": 5000, "₹10,000 - ₹50,000": 30000, "₹50,000 - ₹1L": 75000,
+    "₹1L - ₹3L": 200000, "₹3L - ₹5L": 400000, "₹5L - ₹10L": 750000,
+    "₹10L - ₹25L": 1750000, "₹25L - ₹50L": 3750000,
+    "₹50L - ₹1Cr": 7500000, "Over ₹1Cr": 15000000
 }
 investment_midpoints = {
+    # US/Canada
     "None": 0, "Under $10,000": 5000, "$10,000 - $50,000": 30000,
     "$50,000 - $100,000": 75000, "$100,000 - $175,000": 137500, "$175,000 - $250,000": 212500,
     "$250,000 - $500,000": 375000, "$500,000 - $750,000": 625000,
-    "$750,000 - $1,000,000": 875000, "$1,000,000 - $2,000,000": 1500000, "Over $2,000,000": 3000000
+    "$750,000 - $1,000,000": 875000, "$1,000,000 - $2,000,000": 1500000, "Over $2,000,000": 3000000,
+    # India (INR)
+    "Under ₹1L": 50000, "₹1L - ₹5L": 300000,
+    "₹5L - ₹10L": 750000, "₹10L - ₹15L": 1250000, "₹15L - ₹25L": 2000000,
+    "₹25L - ₹50L": 3750000, "₹50L - ₹75L": 6250000,
+    "₹75L - ₹1Cr": 8750000, "₹1Cr - ₹2Cr": 15000000, "Over ₹2Cr": 30000000
 }
 debt_cc_midpoints = {
+    # US/Canada
     "None": 0, "Under $2,000": 1000, "$2,000 - $5,000": 3500,
-    "$5,000 - $15,000": 10000, "Over $15,000": 25000
+    "$5,000 - $15,000": 10000, "Over $15,000": 25000,
+    # India (INR)
+    "Under ₹50,000": 25000, "₹50,000 - ₹2L": 125000,
+    "₹2L - ₹5L": 350000, "Over ₹5L": 750000
 }
 debt_ps_midpoints = {
+    # US/Canada
     "None": 0, "Under $10,000": 5000, "$10,000 - $30,000": 20000,
-    "$30,000 - $75,000": 52500, "Over $75,000": 125000
+    "$30,000 - $75,000": 52500, "Over $75,000": 125000,
+    # India (INR)
+    "Under ₹2L": 100000, "₹2L - ₹10L": 600000,
+    "₹10L - ₹30L": 2000000, "Over ₹30L": 5000000
 }
 debt_mortgage_midpoints = {
+    # US/Canada
     "None": 0, "Under $200,000": 100000, "$200,000 - $400,000": 300000,
-    "$400,000 - $700,000": 550000, "Over $700,000": 900000
+    "$400,000 - $700,000": 550000, "Over $700,000": 900000,
+    # India (INR)
+    "Under ₹25L": 1250000, "₹25L - ₹50L": 3750000,
+    "₹50L - ₹1Cr": 7500000, "Over ₹1Cr": 15000000
 }
 home_value_midpoints = {
+    # US/Canada
     "None": 0, "Under $400,000": 300000, "$400,000 - $700,000": 550000,
-    "$700,000 - $1,200,000": 950000, "Over $1,200,000": 1500000
+    "$700,000 - $1,200,000": 950000, "Over $1,200,000": 1500000,
+    # India (INR)
+    "Under ₹50L": 3000000, "₹50L - ₹1Cr": 7500000,
+    "₹1Cr - ₹2Cr": 15000000, "Over ₹2Cr": 30000000
 }
 
 # Compute midpoints (safe to re-run — idempotent)
@@ -646,12 +851,21 @@ if country == "US":
     elif annual_income < 200000: est_tax_rate = 0.28
     elif annual_income < 400000: est_tax_rate = 0.30
     else: est_tax_rate = 0.33
-else:  # Canada
+elif country == "CA":  # Canada
     if annual_income < 55000: est_tax_rate = 0.20
     elif annual_income < 110000: est_tax_rate = 0.28
     elif annual_income < 155000: est_tax_rate = 0.32
     elif annual_income < 220000: est_tax_rate = 0.36
     else: est_tax_rate = 0.39
+else:  # India (new regime effective rates including 4% cess)
+    # Thresholds in INR — user income is already in INR from interview
+    if annual_income < 700000: est_tax_rate = 0.0       # Under ₹7L — rebate u/s 87A makes tax nil
+    elif annual_income < 1000000: est_tax_rate = 0.08    # ₹7-10L effective ~8%
+    elif annual_income < 1500000: est_tax_rate = 0.12    # ₹10-15L effective ~12%
+    elif annual_income < 2000000: est_tax_rate = 0.16    # ₹15-20L effective ~16%
+    elif annual_income < 3000000: est_tax_rate = 0.20    # ₹20-30L effective ~20%
+    elif annual_income < 5000000: est_tax_rate = 0.25    # ₹30-50L effective ~25%
+    else: est_tax_rate = 0.30                            # ₹50L+ effective ~30% (with surcharge + cess)
 
 monthly_tax = monthly_income * est_tax_rate
 monthly_net_income = monthly_income - monthly_tax
@@ -684,7 +898,7 @@ print("Phase 1: Diagnosis + Knowledge Matching (3 agents in parallel)...")
 
 experience = profile.get("experience", "none")
 country = profile.get("country", "US")
-currency = "USD" if country == "US" else "CAD"
+currency = {"US": "USD", "CA": "CAD", "IN": "INR"}.get(country, "USD")
 monthly_income = profile['annual_income'] / 12
 
 country_context_diagnostician = ""
@@ -696,13 +910,23 @@ if country == "US":
     - Emergency fund: 3-6 months expenses in HYSA
     - Savings rate benchmark: 20%+ (50/30/20 rule)
     """
-else:
+elif country == "CA":
     country_context_diagnostician = """
     Country-specific rules (Canada):
     - Debt ratios: GDS <= 32%, TDS <= 40%
     - High-interest debt: >20% APR (credit cards)
     - Emergency fund: 3-6 months expenses in HISA or GIC
     - Savings rate benchmark: 20%+
+    """
+else:  # India
+    country_context_diagnostician = """
+    Country-specific rules (India):
+    - Debt-to-income threshold: EMI-to-income ratio <= 40% is healthy, >50% is concerning
+    - High-interest debt: >20% APR (credit cards at 36-42% APR are highest priority)
+    - Emergency fund: 6-12 months expenses (higher due to no unemployment insurance) in savings account + liquid mutual funds
+    - Savings rate benchmark: 30%+ (no social safety net, must self-fund retirement)
+    - Gold loans (7-10%) are cheaper than personal loans (12-24%) — factor into debt strategy
+    - All amounts in INR (Indian Rupees)
     """
 
 # CRITICAL: All 3 Task calls must be in a single response for parallel execution
@@ -736,7 +960,7 @@ Task(
     - Credit card debt: highest priority (19-29% APR). Calculate monthly interest cost. Recommend avalanche or snowball.
     - Personal/student loans: medium priority (4-10% APR). Consider refinancing, income-driven repayment (US), or consolidation.
     - Mortgage: lowest priority (productive leverage). Focus on rate, renewal timing, prepayment vs investing tradeoff.
-    - Calculate debt-to-income (DTI) as: estimated total monthly debt PAYMENTS / monthly gross income. Estimate mortgage payment using standard amortization (25yr CA, 30yr US) at current rates. CC minimum ~3% of balance. Loan payments estimated from balance and typical terms. The benchmark is <36% (monthly payments, NOT total balance). Flag high-interest debt separately.
+    - Calculate debt-to-income (DTI) as: estimated total monthly debt PAYMENTS / monthly gross income. Estimate mortgage/home loan payment using standard amortization (25yr CA, 30yr US, 20yr IN) at current rates. CC minimum ~3% of balance (India: ~5% due to higher APR). Loan payments estimated from balance and typical terms. The benchmark is <36% (monthly payments, NOT total balance) for US/CA, <40% EMI-to-income for India. Flag high-interest debt separately.
 
     {country_context_diagnostician}
 
@@ -769,13 +993,24 @@ if country == "US":
     Tax-loss harvesting: wash sale rule (30 days)
     Employer match: 401(k) match
     """
-else:
+elif country == "CA":
     country_context_knowledge = """
     Country: Canada
     Tax-advantaged accounts: RRSP, TFSA, RESP, FHSA
     Common index funds: VEQT, XEQT, VCN, ZAG, VBAL
     Tax-loss harvesting: superficial loss rule (30 days)
     Employer match: RRSP group match / DPSP
+    """
+else:  # India
+    country_context_knowledge = """
+    Country: India
+    Tax-advantaged accounts: EPF, PPF, NPS (80CCD), ELSS (80C), SCSS, Sukanya Samriddhi
+    Common index funds: UTI Nifty 50 (Direct), HDFC Nifty 50 (Direct), Motilal Oswal Nifty Next 50, Motilal Oswal S&P 500
+    Tax deductions: Section 80C (₹1.5L), 80D (₹25-50K health), 80CCD(1B) (₹50K NPS), 80E (education loan interest), 24(b) (₹2L home loan interest)
+    Tax-loss harvesting: No superficial loss rule in India — can rebuy immediately
+    Employer match: EPF employer contribution (12% of basic)
+    Tax regime choice: Old regime (full deductions) vs New regime (lower rates, limited deductions)
+    Gold: Sovereign Gold Bonds (SGB) — 2.5% interest + zero LTCG if held to maturity
     """
 
 Task(
@@ -866,13 +1101,23 @@ if country == "US":
     Real estate: Case-Shiller Home Price Index
     Savings benchmark: HYSA rates
     """
-else:
+elif country == "CA":
     country_context_market = """
     Country: Canada
     Domestic market: TSX Composite
     Interest rate: Bank of Canada / overnight rate
     Real estate: CREA Home Price Index (HPI)
     Savings benchmark: HISA / GIC rates
+    """
+else:  # India
+    country_context_market = """
+    Country: India
+    Domestic market: Nifty 50 (NSE), Sensex (BSE)
+    Interest rate: Reserve Bank of India (RBI) repo rate
+    Real estate: NHB RESIDEX (National Housing Bank index)
+    Savings benchmark: Savings account rates (4-6%), FD rates (6.5-7.5%), liquid fund returns
+    Gold: MCX gold price, Sovereign Gold Bond (SGB) yield
+    Currency: INR (Indian Rupee) — note USD/INR exchange rate context
     """
 
 Task(
@@ -969,7 +1214,7 @@ if country == "US":
     Side hustle: Schedule C, 15.3% self-employment tax, quarterly estimated taxes
     College savings: 529 plans (state tax deduction)
     """
-else:
+elif country == "CA":
     country_context_strategist = """
     Country: Canada (CAD)
     Retirement accounts: RRSP ($31,560 limit), TFSA ($7,000 limit), FHSA ($8,000/yr, $40,000 lifetime)
@@ -977,6 +1222,21 @@ else:
     Tax optimization: basic personal amount, 50% capital gains inclusion, dividend tax credit, RRSP/TFSA decision framework
     Side hustle: T2125, CPP self-employed contributions, GST/HST registration at $30K
     Education savings: RESP (20% CESG match up to $500/yr)
+    """
+else:  # India
+    country_context_strategist = """
+    Country: India (INR)
+    Retirement accounts: EPF (12% + 12% employer, ~8.25% rate), PPF (₹1.5L/yr limit, 7.1% rate, 15yr lock-in), NPS (extra ₹50K deduction under 80CCD(1B))
+    Tax-saving investments (Section 80C, ₹1.5L limit): EPF, PPF, ELSS (3yr lock-in), NSC, 5yr FD, life insurance premium, SCSS, Sukanya Samriddhi
+    Health insurance deduction (80D): ₹25K self + ₹25-50K parents
+    Home loan: Interest deduction ₹2L (Section 24b), principal in 80C
+    Capital gains: Equity STCG 20% (<1yr), LTCG 12.5% above ₹1.25L (>1yr). Debt MF taxed at slab rate.
+    Gold: Sovereign Gold Bonds (SGB) — best vehicle: 2.5% interest + ZERO LTCG at maturity (8yr)
+    First home: Home loan with 80C (principal) + 24b (interest) deductions, stamp duty varies by state
+    Tax regime: Old (full deductions) vs New (lower rates, limited deductions) — optimize based on total deductions
+    Side hustle: Presumptive taxation 44ADA (50% of receipts if <₹75L digital), GST registration at ₹20L turnover
+    Education: Education loan interest fully deductible (Section 80E, no cap, 8 years)
+    No universal pension — retirement is entirely self-funded for private sector
     """
 
 Task(
@@ -1076,7 +1336,7 @@ strategist = read_agent_output(f"/tmp/wealth-guide-strategist-{TS}.json",
          "monthly_commitment": "$500/month",
          "description": "Dollar-cost average into a diversified index fund portfolio through tax-advantaged accounts.",
          "strategy_source": {"methodology": "Passive Index Investing", "key_principle": "Buy the whole market at low cost and hold long-term", "citations": ["John Bogle", "Burton Malkiel"]},
-         "country_specific": {"accounts": ["401(k)", "Roth IRA"] if country == "US" else ["RRSP", "TFSA"], "tax_implications": "Tax-deferred or tax-free growth", "regulatory_notes": "Annual contribution limits apply"},
+         "country_specific": {"accounts": {"US": ["401(k)", "Roth IRA"], "CA": ["RRSP", "TFSA"], "IN": ["PPF", "ELSS", "NPS"]}.get(country, ["401(k)", "Roth IRA"]), "tax_implications": "Tax-deferred or tax-free growth", "regulatory_notes": "Annual contribution limits apply"},
          "learning_prerequisites": ["Understanding compound interest", "Index fund basics"],
          "pros": ["Expert-validated methodology", "Tax advantages", "Fully automatable"], "cons": ["Requires long time horizon"],
          "first_step": "Open a brokerage account and set up automatic contributions", "sources": []}
@@ -1086,7 +1346,7 @@ strategies = strategist.get("strategies", [])
 
 # Guard against empty strategies list
 if not strategies:
-    default_accounts = ["HYSA", "401(k)"] if country == "US" else ["HISA", "TFSA"]
+    default_accounts = {"US": ["HYSA", "401(k)"], "CA": ["HISA", "TFSA"], "IN": ["Savings Account", "Liquid Fund"]}.get(country, ["HYSA", "401(k)"])
     strategies = [
         {"id": "S1", "title": "Emergency Fund + High-Yield Savings (Foundation)", "category": "cost-saving", "risk_level": "low",
          "time_horizon": "short", "expected_return": "annual 4-5%", "initial_capital": 0,
@@ -1197,7 +1457,7 @@ if country == "US":
     - Retirement calculator: ssa.gov/benefits/calculators
     - Free credit report: annualcreditreport.com
     """
-else:
+elif country == "CA":
     country_resources = """
     Key resources for Canadian users:
     - Financial planner: fpcanada.ca
@@ -1205,6 +1465,18 @@ else:
     - Investor education: getsmarteraboutmoney.ca
     - Retirement calculator: canada.ca/cpp-calculator
     - Credit report: equifax.ca / transunion.ca
+    """
+else:  # India
+    country_resources = """
+    Key resources for Indian users:
+    - SEBI-registered investment advisor: sebi.gov.in/sebiweb/other/OtherAction.do?doRecognisedFpi=yes&intmId=13
+    - Tax authority: incometax.gov.in
+    - Investor education: investor.sebi.gov.in
+    - Mutual fund info: amfiindia.com
+    - Credit report: cibil.com (free annual report)
+    - Financial education: zerodha.com/varsity
+    - Retirement/FIRE tools: freefincal.com
+    - EPF portal: epfindia.gov.in
     """
 
 Task(
@@ -1233,6 +1505,7 @@ Task(
     - 3-4 sentences: health assessment, key strength, primary strategy + expected impact, timeline to goal
     - Snapshot table: Current vs Projected values for age, net worth, investable portfolio, annual savings, sustainable income (4% SWR)
     - Use the user's age ({profile.get('age', '--')}) and project forward to the target year
+    - CRITICAL: Projected net worth MUST be higher than current net worth (wealth grows over time with positive savings and investment returns). Derive projected values from Section 3 projections — do NOT compute them independently. The projected net worth = projected portfolio value + real estate equity (if any) - remaining debt. Double-check that projected > current before writing the table.
 
     **Section 2: Current Financial Position**
     - 2.1 Net Worth table: category-level breakdown (savings, investments, real estate equity if mortgage exists, each debt type as negative). We do NOT have individual holdings — show only the aggregate categories from the interview
@@ -1266,11 +1539,11 @@ Task(
       - Balance transfer options if balance > $2K
     - **Personal / Student Loan subsection** (if applicable):
       - Estimated rate and monthly payment
-      - Refinancing analysis; US: income-driven repayment, PSLF; CA: interest tax credit, repayment assistance
+      - Refinancing analysis; US: income-driven repayment, PSLF; CA: interest tax credit, repayment assistance; IN: Section 80E interest deduction (education loans), prepayment rules
     - **Mortgage subsection** (if applicable):
       - Rate environment and renewal/refinance timing
       - Prepayment vs investing tradeoff (compare mortgage rate to expected equity return)
-      - US: refinance breakeven, PMI removal; CA: renewal shopping (120 days), fixed vs variable
+      - US: refinance breakeven, PMI removal; CA: renewal shopping (120 days), fixed vs variable; IN: no prepayment penalty on floating (RBI mandate), Section 24(b) + 80C deductions, balance transfer between banks
     - Each subsection: balance estimate, strategy, monthly allocation, payoff timeline
 
     **Section 6: Tax Strategy**
@@ -1385,7 +1658,8 @@ print("\n" + "="*60)
 print("Wealth Roadmap Complete!")
 print("="*60)
 
-disclaimer_url = "https://www.letsmakeaplan.org/" if country == "US" else "https://fpcanada.ca/"
+disclaimer_urls = {"US": "https://www.letsmakeaplan.org/", "CA": "https://fpcanada.ca/", "IN": "https://www.sebi.gov.in/"}
+disclaimer_url = disclaimer_urls.get(country, "https://www.letsmakeaplan.org/")
 print(f"""
 DISCLAIMER
 This analysis is AI-generated reference information.
@@ -1396,8 +1670,9 @@ Find a CFP: {disclaimer_url}
 """)
 
 user_level = phase1['knowledge'].get('user_level', 'N/A')
-currency = "USD" if country == "US" else "CAD"
-print(f"Country: {'United States' if country == 'US' else 'Canada'}")
+currency = currency_map.get(country, "USD")
+country_names = {"US": "United States", "CA": "Canada", "IN": "India"}
+print(f"Country: {country_names.get(country, country)}")
 print(f"User level: {user_level}")
 print(f"Financial health score: {phase1['diagnostician'].get('health_score', 'N/A')}")
 monthly_surplus = phase1['diagnostician'].get('monthly_surplus', 'N/A')
@@ -1435,8 +1710,10 @@ print("1. Open the roadmap file above and review the learning plan")
 print("2. Start the Week 1 checklist")
 if country == "US":
     print("3. Find a CFP: https://www.letsmakeaplan.org/")
-else:
+elif country == "CA":
     print("3. Find a CFP: https://fpcanada.ca/")
+else:
+    print("3. Find a SEBI-registered advisor: https://www.sebi.gov.in/")
 
 # Record session history to DB (use temp file to avoid SQL injection from single quotes in strategy titles)
 try:

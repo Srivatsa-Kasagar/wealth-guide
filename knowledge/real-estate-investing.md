@@ -1,6 +1,6 @@
 # Real Estate Investing
 
-Primary residence, rental properties, and REITs for US and Canadian investors.
+Primary residence, rental properties, and REITs for US, Canadian, and Indian investors.
 
 ## Primary Residence
 
@@ -59,6 +59,93 @@ Primary residence, rental properties, and REITs for US and Canadian investors.
 - **No mortgage interest deduction** (unlike US)
 - **Principal residence exemption:** No capital gains tax on primary home sale (must designate)
 - **Smith Manoeuvre (advanced, controversial):** Borrow against home equity to invest, making mortgage interest tax-deductible. This is a leveraged strategy with significant risk — amplifies both gains AND losses. Requires readvanceable mortgage, meticulous CRA documentation, and professional advice. NOT suitable for most homeowners. Only consider if: (1) already maxed RRSP/TFSA, (2) stable income with high risk tolerance, (3) long time horizon, (4) working with an accountant experienced in this strategy. Many financial advisors do not recommend it.
+
+## India Real Estate
+
+### Home Buying in India
+
+#### Costs Beyond Purchase Price
+- **Stamp duty:** 5-8% (varies by state — Maharashtra 6%, Karnataka 5%, Delhi 6%)
+- **Registration charges:** 1-2%
+- **GST:** 5% on under-construction (1% affordable housing <₹45L), 0% on ready-to-move
+- **Legal fees, brokerage:** 1-2%
+- **Total transaction cost:** ~8-12% of property value
+
+#### Home Loan Structure
+- **LTV:** Up to 90% for loans up to ₹30L, 80% for ₹30-₹75L, 75% above ₹75L
+- **Tenure:** Up to 30 years (most opt for 15-20)
+- **Rates:** Floating ~8.5-9.5% (linked to repo rate), Fixed rare and higher
+- **EMI rule:** Keep under 40% of net monthly income
+- **Prepayment:** No penalty on floating rate loans (RBI mandate)
+- **Processing fee:** 0.5-1% of loan amount
+
+#### RERA (Real Estate Regulation Act)
+- Mandatory registration of projects with state RERA
+- Builder must deposit 70% of buyer funds in escrow
+- Carpet area disclosure mandatory (not super built-up)
+- Penalties for delays in possession
+- Always verify RERA registration before buying
+
+#### Tax Benefits on Home Loan (Old Regime)
+- **Principal:** Section 80C up to ₹1.5L (within overall 80C limit)
+- **Interest (self-occupied):** Section 24(b) up to ₹2L/year
+- **Interest (let-out):** No limit, but loss from house property set-off capped at ₹2L
+- **First-time buyer:** Section 80EEA additional ₹1.5L interest (check current availability)
+- **Pre-construction interest:** Deductible in 5 equal installments after possession
+
+#### Rent vs Buy in India
+- **Rental yields in Indian metros:** 2-3% (very low vs 5-7% globally)
+- **Price-to-rent ratio:** 30-50x in metros (signals overvaluation for investment)
+- Often cheaper to rent and invest the difference in equity
+- **Buy makes sense:** If staying 10+ years, emotional/family reasons, or if HRA benefit is not available
+- **Don't buy as primary "investment":** Indian real estate appreciation has underperformed equity over last decade in most cities
+
+### Real Estate as Investment in India
+
+#### Rental Property
+- Rental income taxable at slab rate (30% deduction for repairs/maintenance)
+- Municipal taxes deductible
+- **TDS:** Tenant must deduct 10% TDS if annual rent exceeds ₹2.4L (for individuals paying to residents)
+- Vacancy risk and tenant protection laws vary by state (some very tenant-friendly)
+
+#### Capital Gains on Property
+- **LTCG (held >2 years):** 12.5% without indexation (post July 2024 budget)
+- **STCG (held ≤2 years):** At slab rate
+- **Section 54:** Reinvest LTCG in 1 residential property within 2 years (purchase) or 3 years (construction) to exempt gains
+- **Section 54EC:** Invest up to ₹50L in NHAI/REC bonds within 6 months (5-year lock-in)
+- **Section 54F:** Sale of any capital asset (non-house), invest in residential house
+
+#### REITs in India
+- **Listed on exchanges:** Embassy REIT, Mindspace REIT, Brookfield India REIT, Nexus Select Trust
+- **Minimum investment:** 1 unit (~₹300-400)
+- **Dividend yield:** 5-7% (higher than direct property rental yield)
+- 90% of net distributable cash flow paid to unitholders
+- **Tax:** Dividends taxable at slab, capital gains like equity (listed)
+- Better liquidity, diversification, and professional management vs direct property
+- Good alternative for real estate exposure without large capital
+
+#### Fractional Ownership Platforms
+- Strata, hBits, PropertyShare — invest in commercial property from ₹10-25L
+- Not SEBI-regulated as REITs (higher risk)
+- Illiquid, lock-in periods
+- Approach with caution — prefer listed REITs for most investors
+
+### NRI Real Estate
+- Can buy residential and commercial property (not agricultural land)
+- Home loan available from Indian banks (higher rates, ~8.5-10%)
+- **TDS:** 20% + surcharge on LTCG for NRI seller (buyer must deduct)
+- **Repatriation rules:** Up to 2 properties, subject to FEMA compliance
+- Power of Attorney common for NRI transactions
+- Can claim home loan tax benefits if filing Indian tax returns
+
+### Common Real Estate Mistakes in India
+- Buying under-construction without RERA check
+- Over-leveraging (EMI >50% of income)
+- Treating primary residence as an investment
+- Ignoring maintenance charges and society fees (₹3-15K/month in metros)
+- Not accounting for stamp duty + registration in budget
+- Buying in tier-3 cities for "appreciation" without rental demand
+- Black money component (avoid — increasing scrutiny, harder to get loans)
 
 ## Rental Property Investing
 

@@ -99,6 +99,16 @@ Answer these questions:
 6. CPP self-employed: ~11.9% on net income (both portions)
 7. Register for GST/HST when revenue hits $30,000
 
+### India Tax Obligations
+1. Track all income and expenses
+2. Set aside 20-30% of net profit for taxes
+3. GST registration required if turnover exceeds ₹20L (₹10L in NE/hill states)
+4. Presumptive taxation under 44ADA: Declare 50% of receipts as profit, no books required if <₹75L (digital receipts)
+5. TDS: Clients deduct 10% on payments >₹30K — claim credit in ITR
+6. Advance tax: Pay quarterly (Jun 15, Sep 15, Dec 15, Mar 15) if annual tax >₹10K
+7. Open separate bank account for business receipts
+8. UPI payments from clients count as digital receipts for 44ADA threshold
+
 ## Step 6: Scale (Month 3+)
 
 ### Growth Milestones
