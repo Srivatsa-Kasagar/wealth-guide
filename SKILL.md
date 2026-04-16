@@ -494,12 +494,7 @@ if profile is None:
             }])
             home_value_label = home_value_response.get("home_value", "Under $400,000")
 
-    home_value_midpoints = {
-        "None": 0, "Under $400,000": 300000, "$400,000 - $700,000": 550000,
-        "$700,000 - $1,200,000": 950000, "Over $1,200,000": 1500000
-    }
     home_value_label = home_value_label if debt_mortgage_label != "None" else "None"
-    home_value_mid = home_value_midpoints.get(home_value_label, 0)
 
     assets_debt = {
         "savings": narrow_si.get("savings", "Under $1,000"),
@@ -533,70 +528,25 @@ if profile is None:
         }
     ])
 
-    # Midpoint mappings for numeric calculations (covers all narrow sub-range labels)
-    savings_midpoints = {
-        "Under $1,000": 500, "$1,000 - $5,000": 3000, "$5,000 - $15,000": 10000,
-        "$15,000 - $30,000": 22500, "$30,000 - $50,000": 40000, "$50,000 - $100,000": 75000,
-        "$100,000 - $250,000": 175000, "$250,000 - $500,000": 375000,
-        "$500,000 - $1,000,000": 750000, "Over $1,000,000": 1500000
-    }
-    investment_midpoints = {
-        "None": 0, "Under $10,000": 5000, "$10,000 - $50,000": 30000,
-        "$50,000 - $100,000": 75000, "$100,000 - $175,000": 137500, "$175,000 - $250,000": 212500,
-        "$250,000 - $500,000": 375000, "$500,000 - $750,000": 625000,
-        "$750,000 - $1,000,000": 875000, "$1,000,000 - $2,000,000": 1500000, "Over $2,000,000": 3000000
-    }
-    debt_cc_midpoints = {
-        "None": 0, "Under $2,000": 1000, "$2,000 - $5,000": 3500,
-        "$5,000 - $15,000": 10000, "Over $15,000": 25000
-    }
-    debt_ps_midpoints = {
-        "None": 0, "Under $10,000": 5000, "$10,000 - $30,000": 20000,
-        "$30,000 - $75,000": 52500, "Over $75,000": 125000
-    }
-    debt_mortgage_midpoints = {
-        "None": 0, "Under $200,000": 100000, "$200,000 - $400,000": 300000,
-        "$400,000 - $700,000": 550000, "Over $700,000": 900000
-    }
-
     risk_map = {"Conservative": "low", "Balanced": "medium", "Aggressive": "high"}
     experience_map = {"Beginner": "beginner", "Intermediate": "intermediate", "Advanced": "advanced"}
-
-    savings_label = assets_debt.get("savings", "Under $1,000")
-    investments_label = assets_debt.get("investment_assets", "None")
-    cc_label = assets_debt.get("debt_credit_card", "None")
-    ps_label = assets_debt.get("debt_personal_student", "None")
-    mortgage_label = assets_debt.get("debt_mortgage", "None")
-
-    debt_cc_mid = debt_cc_midpoints.get(cc_label, 0)
-    debt_ps_mid = debt_ps_midpoints.get(ps_label, 0)
-    debt_mortgage_mid = debt_mortgage_midpoints.get(mortgage_label, 0)
-    total_debt_midpoint = debt_cc_mid + debt_ps_mid + debt_mortgage_mid
 
     profile = {
         "country": country,
         "age": user_age,
-        "age_label": str(user_age),
         "annual_income": annual_income,
         "monthly_expense": monthly_expense,
-        "savings": savings_label,
-        "savings_midpoint": savings_midpoints.get(savings_label, 3000),
-        "investment_assets": investments_label,
-        "investment_midpoint": investment_midpoints.get(investments_label, 0),
-        "debt_credit_card": cc_label,
-        "debt_cc_midpoint": debt_cc_mid,
-        "debt_personal_student": ps_label,
-        "debt_ps_midpoint": debt_ps_mid,
-        "debt_mortgage": mortgage_label,
-        "debt_mortgage_midpoint": debt_mortgage_mid,
-        "total_debt_midpoint": total_debt_midpoint,
+        "savings": assets_debt.get("savings", "Under $1,000"),
+        "investment_assets": assets_debt.get("investment_assets", "None"),
+        "debt_credit_card": assets_debt.get("debt_credit_card", "None"),
+        "debt_personal_student": assets_debt.get("debt_personal_student", "None"),
+        "debt_mortgage": assets_debt.get("debt_mortgage", "None"),
         "home_value": home_value_label,
-        "home_value_midpoint": home_value_mid,
-        "real_estate_equity": max(0, home_value_mid - debt_mortgage_mid),
         "risk_tolerance": risk_map.get(preferences.get("risk_tolerance", "Balanced"), "medium"),
         "experience": experience_map.get(preferences.get("experience", "Beginner"), "beginner"),
-        "goal": preferences.get("goal", "Build wealth long-term")
+        "goal": about_you.get("goal", "Build wealth long-term")
     }
+    # Midpoints, tax estimates, and derived fields are computed in the shared block below
 
     # Save to DB
     import tempfile
@@ -625,11 +575,102 @@ os.remove('{profile_tmp}')
 print("saved")
 """], check=True)
 
-    monthly_income = profile['annual_income'] / 12
-    monthly_surplus = monthly_income - profile['monthly_expense']
-    currency = "USD" if country == "US" else "CAD"
     print(f"Financial profile saved")
-    print(f"Monthly surplus: approx. ${monthly_surplus:,.0f} {currency}")
+```
+
+#### Derive All Calculated Fields (runs for ALL paths: fresh, reuse, and refresh)
+
+This block MUST run after profile is set — whether from a fresh interview, DB reuse, or partial refresh. It computes midpoints, tax estimates, surplus, and net worth fields that every downstream agent requires.
+
+```python
+# ── Derived field calculation (runs for all paths) ──
+# If profile came from DB reuse/refresh, it only has raw fields.
+# Recompute all midpoints and derived fields here.
+
+country = profile.get('country', 'US')
+currency = "USD" if country == "US" else "CAD"
+
+savings_midpoints = {
+    "Under $1,000": 500, "$1,000 - $5,000": 3000, "$5,000 - $15,000": 10000,
+    "$15,000 - $30,000": 22500, "$30,000 - $50,000": 40000, "$50,000 - $100,000": 75000,
+    "$100,000 - $250,000": 175000, "$250,000 - $500,000": 375000,
+    "$500,000 - $1,000,000": 750000, "Over $1,000,000": 1500000
+}
+investment_midpoints = {
+    "None": 0, "Under $10,000": 5000, "$10,000 - $50,000": 30000,
+    "$50,000 - $100,000": 75000, "$100,000 - $175,000": 137500, "$175,000 - $250,000": 212500,
+    "$250,000 - $500,000": 375000, "$500,000 - $750,000": 625000,
+    "$750,000 - $1,000,000": 875000, "$1,000,000 - $2,000,000": 1500000, "Over $2,000,000": 3000000
+}
+debt_cc_midpoints = {
+    "None": 0, "Under $2,000": 1000, "$2,000 - $5,000": 3500,
+    "$5,000 - $15,000": 10000, "Over $15,000": 25000
+}
+debt_ps_midpoints = {
+    "None": 0, "Under $10,000": 5000, "$10,000 - $30,000": 20000,
+    "$30,000 - $75,000": 52500, "Over $75,000": 125000
+}
+debt_mortgage_midpoints = {
+    "None": 0, "Under $200,000": 100000, "$200,000 - $400,000": 300000,
+    "$400,000 - $700,000": 550000, "Over $700,000": 900000
+}
+home_value_midpoints = {
+    "None": 0, "Under $400,000": 300000, "$400,000 - $700,000": 550000,
+    "$700,000 - $1,200,000": 950000, "Over $1,200,000": 1500000
+}
+
+# Compute midpoints (safe to re-run — idempotent)
+profile['savings_midpoint'] = savings_midpoints.get(profile.get('savings', 'Under $1,000'), 3000)
+profile['investment_midpoint'] = investment_midpoints.get(profile.get('investment_assets', 'None'), 0)
+profile['debt_cc_midpoint'] = debt_cc_midpoints.get(profile.get('debt_credit_card', 'None'), 0)
+profile['debt_ps_midpoint'] = debt_ps_midpoints.get(profile.get('debt_personal_student', 'None'), 0)
+profile['debt_mortgage_midpoint'] = debt_mortgage_midpoints.get(profile.get('debt_mortgage', 'None'), 0)
+profile['total_debt_midpoint'] = profile['debt_cc_midpoint'] + profile['debt_ps_midpoint'] + profile['debt_mortgage_midpoint']
+
+# Home value and real estate equity
+home_value_label = profile.get('home_value', 'None')
+if profile.get('debt_mortgage', 'None') == 'None':
+    home_value_label = 'None'
+profile['home_value'] = home_value_label
+profile['home_value_midpoint'] = home_value_midpoints.get(home_value_label, 0)
+# Allow negative equity (underwater mortgage)
+profile['real_estate_equity'] = profile['home_value_midpoint'] - profile['debt_mortgage_midpoint']
+
+# Tax estimation
+annual_income = profile.get('annual_income', 75000)
+monthly_income = annual_income / 12
+
+if country == "US":
+    if annual_income < 50000: est_tax_rate = 0.18
+    elif annual_income < 100000: est_tax_rate = 0.22
+    elif annual_income < 200000: est_tax_rate = 0.28
+    elif annual_income < 400000: est_tax_rate = 0.30
+    else: est_tax_rate = 0.33
+else:  # Canada
+    if annual_income < 55000: est_tax_rate = 0.20
+    elif annual_income < 110000: est_tax_rate = 0.28
+    elif annual_income < 155000: est_tax_rate = 0.32
+    elif annual_income < 220000: est_tax_rate = 0.36
+    else: est_tax_rate = 0.39
+
+monthly_tax = monthly_income * est_tax_rate
+monthly_net_income = monthly_income - monthly_tax
+monthly_expense = profile.get('monthly_expense', 4000)
+monthly_surplus = monthly_net_income - monthly_expense
+
+profile['est_tax_rate'] = est_tax_rate
+profile['monthly_tax'] = monthly_tax
+profile['monthly_net_income'] = monthly_net_income
+profile['monthly_surplus'] = monthly_surplus
+profile['annual_tax'] = annual_income * est_tax_rate
+profile['annual_surplus'] = monthly_surplus * 12
+
+# Ensure age_label exists
+if 'age_label' not in profile:
+    profile['age_label'] = str(profile.get('age', 35))
+
+print(f"Gross monthly: ${monthly_income:,.0f} | Tax (~{est_tax_rate:.0%}): ${monthly_tax:,.0f} | Net: ${monthly_net_income:,.0f}")
+print(f"Monthly surplus after expenses: approx. ${monthly_surplus:,.0f} {currency}")
 ```
 
 ---
@@ -676,8 +717,12 @@ Task(
     - Country: {country} ({currency})
     - Age: {profile.get('age', '--')} (exact age)
     - Annual income: ${profile['annual_income']:,.0f}
-    - Monthly income: ${monthly_income:,.0f}
-    - Monthly expenses: ${profile['monthly_expense']:,.0f}
+    - Monthly gross income: ${monthly_income:,.0f}
+    - Estimated tax rate: {profile['est_tax_rate']:.0%} (effective, federal + state/provincial)
+    - Monthly estimated tax: ${profile['monthly_tax']:,.0f}
+    - Monthly net income (after tax): ${profile['monthly_net_income']:,.0f}
+    - Monthly living expenses: ${profile['monthly_expense']:,.0f}
+    - Monthly surplus (net income - expenses): ${profile['monthly_surplus']:,.0f}
     - Savings: {profile['savings']} (midpoint: ${profile['savings_midpoint']:,.0f})
     - Investment assets: {profile['investment_assets']} (midpoint: ${profile['investment_midpoint']:,.0f})
     - Debt — Credit card: {profile['debt_credit_card']} (midpoint: ${profile['debt_cc_midpoint']:,.0f})
@@ -881,7 +926,7 @@ def read_agent_output(path, default):
     except (FileNotFoundError, json.JSONDecodeError):
         return default
 
-default_surplus = monthly_income - profile['monthly_expense']
+default_surplus = profile.get('monthly_surplus', monthly_income - profile['monthly_expense'])
 
 diag = read_agent_output(f"/tmp/wealth-guide-diagnostician-{TS}.json",
     {"status": "failed", "health_score": 50, "monthly_surplus": default_surplus,
@@ -1191,7 +1236,7 @@ Task(
 
     **Section 2: Current Financial Position**
     - 2.1 Net Worth table: category-level breakdown (savings, investments, real estate equity if mortgage exists, each debt type as negative). We do NOT have individual holdings — show only the aggregate categories from the interview
-    - 2.2 Cash Flow Summary: monthly and annual for income, estimated taxes, expenses, surplus
+    - 2.2 Cash Flow Summary: monthly and annual for gross income, estimated taxes, living expenses, and available surplus. Surplus = Gross Income - Estimated Taxes - Living Expenses. Use the provided tax estimate; do NOT show surplus as gross minus expenses.
     - 2.3 Health Score with ASCII bar [████████░░] and full metrics table
     - Status indicators: EXCELLENT / GOOD / NEEDS WORK / CRITICAL
     - Debt rows: only show credit card / personal-student / mortgage rows that apply (skip "None" categories)
@@ -1280,9 +1325,15 @@ Task(
     {json.dumps(workflow_paths, ensure_ascii=False)}
 
     Financial context:
-    - Annual income: ${profile['annual_income']:,.0f}
-    - Monthly expenses: ${profile['monthly_expense']:,.0f}
-    - Monthly surplus: ${phase1['diagnostician'].get('monthly_surplus', 1000):,.0f}
+    - Annual gross income: ${profile['annual_income']:,.0f}
+    - Estimated effective tax rate: {profile.get('est_tax_rate', 0.30):.0%}
+    - Estimated annual tax: ${profile.get('annual_tax', 0):,.0f}
+    - Monthly gross income: ${profile['annual_income']/12:,.0f}
+    - Monthly estimated tax: ${profile.get('monthly_tax', 0):,.0f}
+    - Monthly net income (after tax): ${profile.get('monthly_net_income', 0):,.0f}
+    - Monthly living expenses: ${profile['monthly_expense']:,.0f}
+    - Monthly surplus (net income - expenses): ${profile.get('monthly_surplus', 0):,.0f}
+    - Annual surplus: ${profile.get('annual_surplus', 0):,.0f}
     - Risk tolerance: {phase1['profile']['risk_tolerance']}
     - Experience: {phase1['profile'].get('experience', 'none')}
     - Goal: {phase1['profile'].get('goal', 'wealth building')}
@@ -1387,15 +1438,24 @@ if country == "US":
 else:
     print("3. Find a CFP: https://fpcanada.ca/")
 
-# Record session history to DB
+# Record session history to DB (use temp file to avoid SQL injection from single quotes in strategy titles)
 try:
-    matched_strats = json.dumps(phase1["knowledge"].get("matched_strategies", []), ensure_ascii=False)
-    sel_workflows = json.dumps(phase1["knowledge"].get("selected_workflows", []), ensure_ascii=False)
-    user_lvl = phase1["knowledge"].get("user_level", "beginner")
-    strat_title = ", ".join(s.get("title", "") for s in strategies[:3])
+    session_data = {
+        "user_level": phase1["knowledge"].get("user_level", "beginner"),
+        "selected_strategy": ", ".join(s.get("title", "") for s in strategies[:3]),
+        "matched_strategies": json.dumps(phase1["knowledge"].get("matched_strategies", []), ensure_ascii=False),
+        "selected_workflows": json.dumps(phase1["knowledge"].get("selected_workflows", []), ensure_ascii=False),
+        "roadmap_path": roadmap_path
+    }
+    import tempfile
+    session_tmp = tempfile.mktemp(suffix=".json")
+    with open(session_tmp, "w") as f:
+        json.dump(session_data, f, ensure_ascii=False)
 
     subprocess.run(["python3", "-c", f"""
-import sqlite3, json
+import sqlite3, json, os
+with open('{session_tmp}') as f:
+    d = json.load(f)
 conn = sqlite3.connect('{DB_PATH}')
 row = conn.execute("SELECT id FROM profiles ORDER BY id DESC LIMIT 1").fetchone()
 pid = row[0] if row else None
@@ -1403,12 +1463,11 @@ if pid:
     conn.execute('''INSERT INTO session_history
         (profile_id, user_level, selected_strategy, matched_strategies, selected_workflows, roadmap_path)
         VALUES (?, ?, ?, ?, ?, ?)''',
-        (pid, '{user_lvl}', '{strat_title}',
-         '''{matched_strats}''',
-         '''{sel_workflows}''',
-         '{roadmap_path}'))
+        (pid, d['user_level'], d['selected_strategy'],
+         d['matched_strategies'], d['selected_workflows'], d['roadmap_path']))
     conn.commit()
 conn.close()
+os.remove('{session_tmp}')
 """], check=True)
 except (subprocess.CalledProcessError, OSError):
     pass  # Session tracking failure is non-critical

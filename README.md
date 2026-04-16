@@ -102,7 +102,7 @@ The strategist runs on Opus because strategy generation requires complex reasoni
 
 ```bash
 # Clone the repo
-git clone https://github.com/YOUR_USERNAME/wealth-guide.git
+git clone https://github.com/Srivatsa-Kasagar/wealth-guide.git
 
 # Create the skill symlink
 mkdir -p ~/.claude/skills
@@ -266,24 +266,6 @@ Everything runs locally.
 - Roadmaps are saved locally as markdown files
 
 If you want to nuke your data: `rm -rf ~/.claude/skills/wealth-guide/data/`
-
----
-
-## Contributing
-
-This is an open-source project. Contributions welcome.
-
-**Good first contributions:**
-- Add knowledge base content for a new financial topic
-- Improve country-specific tax sections with current-year numbers
-- Add a new workflow (e.g., `home-buying.md`, `tax-season.md`)
-- Fix midpoint calculations or add more granular ranges
-- Add support for a new country
-
-**Before you PR:**
-- Run the full pipeline end-to-end and verify the roadmap output
-- Keep knowledge base files factual with citations
-- Don't add speculative investment advice or guaranteed return claims
 
 ---
 
