@@ -1695,6 +1695,23 @@ if curriculum:
     print()
 
 print(f"Generated roadmap: {roadmap_path}")
+
+# Convert to styled HTML for PDF export
+SCRIPT_DIR = os.path.expanduser("~/.claude/skills/wealth-guide/scripts")
+html_path = roadmap_path.replace(".md", ".html")
+try:
+    html_result = subprocess.run(
+        ["python3", os.path.join(SCRIPT_DIR, "md_to_html.py"), roadmap_path],
+        capture_output=True, text=True, timeout=30
+    )
+    if html_result.returncode == 0:
+        print(f"Print-ready HTML: {html_path}")
+        print("Open in browser and hit Cmd+P (or Ctrl+P) to save as PDF.")
+    else:
+        print("(HTML export encountered an error — the markdown roadmap is your complete output.)")
+except Exception:
+    print("(HTML export encountered an error — the markdown roadmap is your complete output.)")
+
 print()
 
 # Show verified sources
