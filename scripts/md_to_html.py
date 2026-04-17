@@ -352,6 +352,122 @@ def _build_projection_chart(headers, rows):
     return None
 
 
+def generate_donut_svg(assets, debts):
+    """Generate a donut chart SVG for net worth breakdown."""
+    if not assets:
+        return ""
+
+    cx, cy, r_outer, r_inner = 200, 180, 140, 85
+    total_assets = sum(v for _, v in assets)
+    if total_assets == 0:
+        return ""
+
+    asset_colors = ["#3498db", "#2ecc71", "#1abc9c", "#9b59b6", "#f1c40f"]
+    debt_colors = ["#e74c3c", "#e67e22", "#c0392b"]
+
+    paths = ""
+    labels_svg = ""
+    angle_start = -math.pi / 2
+
+    for i, (label, value) in enumerate(assets):
+        fraction = value / total_assets
+        angle_end = angle_start + fraction * 2 * math.pi
+        color = asset_colors[i % len(asset_colors)]
+
+        x1 = cx + r_outer * math.cos(angle_start)
+        y1 = cy + r_outer * math.sin(angle_start)
+        x2 = cx + r_outer * math.cos(angle_end)
+        y2 = cy + r_outer * math.sin(angle_end)
+        ix1 = cx + r_inner * math.cos(angle_end)
+        iy1 = cy + r_inner * math.sin(angle_end)
+        ix2 = cx + r_inner * math.cos(angle_start)
+        iy2 = cy + r_inner * math.sin(angle_start)
+
+        large_arc = 1 if fraction > 0.5 else 0
+
+        path = (
+            f"M {x1:.1f} {y1:.1f} "
+            f"A {r_outer} {r_outer} 0 {large_arc} 1 {x2:.1f} {y2:.1f} "
+            f"L {ix1:.1f} {iy1:.1f} "
+            f"A {r_inner} {r_inner} 0 {large_arc} 0 {ix2:.1f} {iy2:.1f} Z"
+        )
+        paths += f'<path d="{path}" fill="{color}"/>\n'
+
+        mid_angle = (angle_start + angle_end) / 2
+        label_r = r_outer + 20
+        lx = cx + label_r * math.cos(mid_angle)
+        ly = cy + label_r * math.sin(mid_angle)
+        anchor = "start" if lx > cx else "end"
+        short_label = label.split("(")[0].strip()
+        labels_svg += f'<text x="{lx:.1f}" y="{ly:.1f}" text-anchor="{anchor}" font-size="11" fill="#666">{short_label}</text>\n'
+
+        angle_start = angle_end
+
+    net_worth = total_assets - sum(v for _, v in debts)
+    center_text = _format_axis_value(net_worth)
+    center_svg = f'''
+    <text x="{cx}" y="{cy - 5}" text-anchor="middle" font-size="13" fill="#999">Net Worth</text>
+    <text x="{cx}" y="{cy + 18}" text-anchor="middle" font-size="20" font-weight="bold" fill="#1a2332">{center_text}</text>
+    '''
+
+    debt_bars = ""
+    if debts:
+        bar_y = cy + r_outer + 40
+        max_debt = max(v for _, v in debts) if debts else 1
+        bar_max_w = 250
+        for j, (label, value) in enumerate(debts):
+            by = bar_y + j * 30
+            bw = (value / max_debt) * bar_max_w if max_debt > 0 else 0
+            color = debt_colors[j % len(debt_colors)]
+            short_label = label.replace("Less: ", "").split("(")[0].strip()
+            debt_bars += f'<rect x="{cx - bar_max_w // 2}" y="{by}" width="{bw:.1f}" height="18" rx="3" fill="{color}" opacity="0.8"/>\n'
+            debt_bars += f'<text x="{cx - bar_max_w // 2 - 5}" y="{by + 13}" text-anchor="end" font-size="11" fill="#666">{short_label}</text>\n'
+            debt_bars += f'<text x="{cx - bar_max_w // 2 + bw + 5:.1f}" y="{by + 13}" font-size="11" fill="#666">{_format_axis_value(value)}</text>\n'
+
+    total_h = cy + r_outer + 40 + len(debts) * 30 + 20 if debts else cy + r_outer + 40
+    svg = f'''<div class="chart-container">
+<svg viewBox="0 0 400 {total_h}" xmlns="http://www.w3.org/2000/svg">
+  {paths}
+  {labels_svg}
+  {center_svg}
+  {debt_bars}
+</svg>
+</div>'''
+    return svg
+
+
+def _build_net_worth_chart(rows):
+    """Extract net worth data from table rows and generate donut chart."""
+    try:
+        assets = []
+        debts = []
+        for row in rows:
+            if len(row) < 2:
+                continue
+            label = row[0].replace("**", "").strip()
+            value_str = row[1].replace("**", "").strip()
+
+            if "net worth" in label.lower() or "total" in label.lower():
+                continue
+
+            try:
+                if value_str.startswith("-") or "less:" in label.lower():
+                    val = abs(parse_currency(value_str.lstrip("-")))
+                    debts.append((label, val))
+                else:
+                    val = parse_currency(value_str)
+                    if val > 0:
+                        assets.append((label, val))
+            except (ValueError, IndexError):
+                continue
+
+        if assets:
+            return generate_donut_svg(assets, debts)
+    except Exception:
+        pass
+    return None
+
+
 def render_blocks_to_html(blocks):
     """Convert a list of block dicts to an HTML string."""
     parts = []
@@ -432,7 +548,9 @@ def _render_table(block):
         if chart_svg:
             html_parts.append(chart_svg)
     elif chart_type == "net_worth_donut":
-        pass  # Task 6
+        chart_svg = _build_net_worth_chart(rows)
+        if chart_svg:
+            html_parts.append(chart_svg)
     elif chart_type == "cashflow_waterfall":
         pass  # Task 7
 

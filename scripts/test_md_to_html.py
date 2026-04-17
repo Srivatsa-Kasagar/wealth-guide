@@ -1,6 +1,6 @@
 import sys, os, tempfile
 sys.path.insert(0, os.path.dirname(__file__))
-from md_to_html import parse_blocks, parse_inline, render_blocks_to_html, generate_gauge_svg, generate_projection_svg, parse_currency
+from md_to_html import parse_blocks, parse_inline, render_blocks_to_html, generate_gauge_svg, generate_projection_svg, parse_currency, generate_donut_svg
 
 def test_parse_headers():
     md = "# Title\n\nSome text\n\n## Section\n\n### Subsection"
@@ -240,6 +240,27 @@ def test_projection_detected_in_table():
     assert "<svg" in html
     assert "<table" in html
 
+def test_donut_svg():
+    assets = [("Savings", 750000), ("Investments", 6250000), ("Real Estate", 7500000)]
+    debts = [("Credit Card", 25000), ("Loans", 2000000), ("Mortgage", 7500000)]
+    svg = generate_donut_svg(assets, debts)
+    assert "<svg" in svg
+    assert "Savings" in svg
+    assert "Investments" in svg
+
+def test_donut_detected_in_table():
+    md = """| Category | Value (INR) | Notes |
+|----------|-------------|-------|
+| Savings (cash, savings A/C) | ₹7,50,000 | Emergency fund |
+| Investment Assets (MF, equity, EPF) | ₹62,50,000 | Strong base |
+| Real Estate Equity (est.) | ₹75,00,000 | Home equity |
+| Less: Credit Card Debt | -₹25,000 | Clear immediately |
+| Less: Personal/Education Loans | -₹20,00,000 | 12% APR |
+| **ESTIMATED NET WORTH** | **₹1,24,75,000** | |"""
+    blocks = parse_blocks(md)
+    html = render_blocks_to_html(blocks)
+    assert "<svg" in html
+
 if __name__ == "__main__":
     test_parse_headers()
     test_parse_table()
@@ -271,4 +292,6 @@ if __name__ == "__main__":
     test_parse_currency_plain()
     test_projection_svg()
     test_projection_detected_in_table()
-    print("All parser + renderer + assembly + gauge chart + projection chart tests passed!")
+    test_donut_svg()
+    test_donut_detected_in_table()
+    print("All parser + renderer + assembly + gauge chart + projection chart + donut chart tests passed!")
