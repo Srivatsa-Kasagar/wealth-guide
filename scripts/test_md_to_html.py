@@ -1,6 +1,6 @@
 import sys, os, tempfile
 sys.path.insert(0, os.path.dirname(__file__))
-from md_to_html import parse_blocks, parse_inline, render_blocks_to_html, generate_gauge_svg
+from md_to_html import parse_blocks, parse_inline, render_blocks_to_html, generate_gauge_svg, generate_projection_svg, parse_currency
 
 def test_parse_headers():
     md = "# Title\n\nSome text\n\n## Section\n\n### Subsection"
@@ -208,6 +208,38 @@ def test_gauge_replaces_ascii():
     assert "<svg" in html
     assert "<pre>" not in html  # ASCII replaced, not rendered as code
 
+def test_parse_currency_inr():
+    assert parse_currency("₹1,17,22,500") == 11722500
+    assert parse_currency("₹7.54 Cr") == 75400000
+    assert parse_currency("₹35.8L") == 3580000
+
+def test_parse_currency_usd():
+    assert parse_currency("$150,000") == 150000
+    assert parse_currency("$1,200,000") == 1200000
+
+def test_parse_currency_plain():
+    assert parse_currency("100000") == 100000
+
+def test_projection_svg():
+    years = ["2027", "2028", "2029"]
+    conservative = [1172250, 1682280, 2233112]
+    base = [1193250, 1740757, 2348490]
+    optimistic = [1214250, 1800495, 2468814]
+    svg = generate_projection_svg(years, conservative, base, optimistic)
+    assert "<svg" in svg
+    assert "polyline" in svg
+    assert "Conservative" in svg
+
+def test_projection_detected_in_table():
+    md = """| Year | Age | Phase | Conservative (8%) | Base Case (11%) | Optimistic (14%) |
+|------|-----|-------|-------------------|-----------------|------------------|
+| 2027 | 36 | Growth | ₹1,17,22,500 | ₹1,19,32,500 | ₹1,21,42,500 |
+| 2028 | 37 | Growth | ₹1,68,22,800 | ₹1,74,07,575 | ₹1,80,04,950 |"""
+    blocks = parse_blocks(md)
+    html = render_blocks_to_html(blocks)
+    assert "<svg" in html
+    assert "<table" in html
+
 if __name__ == "__main__":
     test_parse_headers()
     test_parse_table()
@@ -234,4 +266,9 @@ if __name__ == "__main__":
     test_gauge_svg_low_score()
     test_gauge_svg_perfect()
     test_gauge_replaces_ascii()
-    print("All parser + renderer + assembly + gauge chart tests passed!")
+    test_parse_currency_inr()
+    test_parse_currency_usd()
+    test_parse_currency_plain()
+    test_projection_svg()
+    test_projection_detected_in_table()
+    print("All parser + renderer + assembly + gauge chart + projection chart tests passed!")

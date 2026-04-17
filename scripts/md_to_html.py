@@ -215,6 +215,143 @@ def generate_gauge_svg(score):
     return svg
 
 
+def parse_currency(value_str):
+    """Strip currency symbols and formatting, return float."""
+    cleaned = value_str.strip()
+    cleaned = re.sub(r"[₹$\s]", "", cleaned)
+    upper = cleaned.upper().rstrip(".")
+    if upper.endswith("CR"):
+        num = float(re.sub(r"[,]", "", upper[:-2]))
+        return round(num * 10000000)
+    if upper.endswith("L"):
+        num = float(re.sub(r"[,]", "", upper[:-1]))
+        return round(num * 100000)
+    cleaned = re.sub(r"[,]", "", cleaned)
+    return float(cleaned)
+
+
+def _format_axis_value(value):
+    """Format a numeric value for axis labels."""
+    if value >= 10000000:
+        return f"₹{value/10000000:.1f}Cr"
+    if value >= 100000:
+        return f"₹{value/100000:.0f}L"
+    if value >= 1000:
+        return f"{value/1000:.0f}K"
+    return str(int(value))
+
+
+def generate_projection_svg(years, conservative, base, optimistic):
+    """Generate a 3-line SVG chart for wealth projections."""
+    if len(years) < 2:
+        return ""
+
+    w, h = 780, 380
+    pad_l, pad_r, pad_t, pad_b = 80, 30, 30, 50
+    plot_w = w - pad_l - pad_r
+    plot_h = h - pad_t - pad_b
+
+    all_vals = conservative + base + optimistic
+    min_val = min(all_vals) * 0.9
+    max_val = max(all_vals) * 1.05
+    val_range = max_val - min_val if max_val != min_val else 1
+
+    def x_pos(i):
+        return pad_l + (i / (len(years) - 1)) * plot_w
+
+    def y_pos(v):
+        return pad_t + plot_h - ((v - min_val) / val_range) * plot_h
+
+    def points(values):
+        return " ".join(f"{x_pos(i):.1f},{y_pos(v):.1f}" for i, v in enumerate(values))
+
+    colors = {"Conservative": "#e74c3c", "Base Case": "#3498db", "Optimistic": "#27ae60"}
+
+    grid = ""
+    for i in range(6):
+        val = min_val + (val_range * i / 5)
+        y = y_pos(val)
+        grid += f'<line x1="{pad_l}" y1="{y:.1f}" x2="{w - pad_r}" y2="{y:.1f}" stroke="#e9ecef" stroke-width="1"/>\n'
+        grid += f'<text x="{pad_l - 10}" y="{y:.1f}" text-anchor="end" font-size="11" fill="#999" dominant-baseline="middle">{_format_axis_value(val)}</text>\n'
+
+    x_labels = ""
+    step = max(1, len(years) // 6)
+    for i, yr in enumerate(years):
+        if i % step == 0 or i == len(years) - 1:
+            x_labels += f'<text x="{x_pos(i):.1f}" y="{h - 10}" text-anchor="middle" font-size="11" fill="#999">{yr}</text>\n'
+
+    dots = ""
+    for values, color in [(conservative, colors["Conservative"]), (base, colors["Base Case"]), (optimistic, colors["Optimistic"])]:
+        for i, v in enumerate(values):
+            dots += f'<circle cx="{x_pos(i):.1f}" cy="{y_pos(v):.1f}" r="3" fill="{color}"/>\n'
+
+    legend_y = h - 5
+    legend = f'''
+    <rect x="{pad_l}" y="{legend_y}" width="12" height="3" fill="{colors['Conservative']}"/>
+    <text x="{pad_l + 16}" y="{legend_y + 3}" font-size="11" fill="#666">Conservative</text>
+    <rect x="{pad_l + 120}" y="{legend_y}" width="12" height="3" fill="{colors['Base Case']}"/>
+    <text x="{pad_l + 136}" y="{legend_y + 3}" font-size="11" fill="#666">Base Case</text>
+    <rect x="{pad_l + 240}" y="{legend_y}" width="12" height="3" fill="{colors['Optimistic']}"/>
+    <text x="{pad_l + 256}" y="{legend_y + 3}" font-size="11" fill="#666">Optimistic</text>
+    '''
+
+    svg = f'''<div class="chart-container">
+<svg viewBox="0 0 {w} {h}" xmlns="http://www.w3.org/2000/svg">
+  {grid}
+  {x_labels}
+  <polyline points="{points(conservative)}" fill="none" stroke="{colors['Conservative']}" stroke-width="2.5"/>
+  <polyline points="{points(base)}" fill="none" stroke="{colors['Base Case']}" stroke-width="2.5"/>
+  <polyline points="{points(optimistic)}" fill="none" stroke="{colors['Optimistic']}" stroke-width="2.5"/>
+  {dots}
+  {legend}
+</svg>
+</div>'''
+    return svg
+
+
+def _detect_chart_type(headers, rows):
+    """Match table headers to determine if a chart should be generated."""
+    header_text = " ".join(headers).lower()
+    if "conservative" in header_text and ("base" in header_text or "moderate" in header_text) and "optimistic" in header_text:
+        return "projection_line"
+    if ("category" in header_text or "item" in header_text) and ("value" in header_text or "inr" in header_text or "usd" in header_text):
+        row_text = " ".join(" ".join(r) for r in rows).lower()
+        if "savings" in row_text or "investment" in row_text:
+            return "net_worth_donut"
+    if "monthly" in header_text and "annual" in header_text:
+        row_text = " ".join(" ".join(r) for r in rows).lower()
+        if "income" in row_text or "surplus" in row_text:
+            return "cashflow_waterfall"
+    return None
+
+
+def _build_projection_chart(headers, rows):
+    """Extract projection data from table and generate line chart."""
+    try:
+        h_lower = [h.lower() for h in headers]
+        year_idx = next(i for i, h in enumerate(h_lower) if "year" in h)
+        con_idx = next(i for i, h in enumerate(h_lower) if "conservative" in h)
+        base_idx = next(i for i, h in enumerate(h_lower) if "base" in h)
+        opt_idx = next(i for i, h in enumerate(h_lower) if "optimistic" in h)
+
+        years, conservative, base, optimistic = [], [], [], []
+        for row in rows:
+            cleaned_row = [cell.replace("**", "") for cell in row]
+            try:
+                years.append(cleaned_row[year_idx].strip())
+                conservative.append(parse_currency(cleaned_row[con_idx]))
+                base.append(parse_currency(cleaned_row[base_idx]))
+                optimistic.append(parse_currency(cleaned_row[opt_idx]))
+            except (ValueError, IndexError):
+                continue
+
+        if len(years) >= 2:
+            return generate_projection_svg(years, conservative, base, optimistic)
+    except (StopIteration, ValueError, IndexError):
+        pass
+    return None
+
+
 def render_blocks_to_html(blocks):
     """Convert a list of block dicts to an HTML string."""
     parts = []
@@ -287,6 +424,17 @@ def _render_table(block):
             html_parts.append(f"<td{align}>{_detect_verdict(parse_inline(cell))}</td>")
         html_parts.append("</tr>")
     html_parts.append("</tbody></table>")
+
+    # Generate chart if this table matches a known pattern
+    chart_type = _detect_chart_type(headers, rows)
+    if chart_type == "projection_line":
+        chart_svg = _build_projection_chart(headers, rows)
+        if chart_svg:
+            html_parts.append(chart_svg)
+    elif chart_type == "net_worth_donut":
+        pass  # Task 6
+    elif chart_type == "cashflow_waterfall":
+        pass  # Task 7
 
     return "\n".join(html_parts)
 
