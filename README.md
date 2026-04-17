@@ -10,7 +10,7 @@ Works for the US, Canada, and India. No signup. No API keys. Just install and sa
 
 ## What You Get
 
-A 12-section financial plan that reads like you paid a CFP $2,000 for it:
+A 12-section financial plan that reads like you hired a certified financial planner:
 
 | Section | What's In It |
 |---------|-------------|
@@ -51,20 +51,11 @@ You ──> 10 interview screens ──> 6 specialists work your case ──> 12
 
 ### The Interview
 
-10 screens, all at the beginning. No interruptions mid-pipeline. Country-aware -- Indian users see ₹ ranges in lakhs and crores, US/Canada users see dollar ranges.
+10 screens. Takes about 3 minutes. The questions adapt to your country — Indian users see amounts in lakhs and crores, US and Canadian users see dollars.
 
-1. Country + age + financial goal
-2. Income bracket + monthly expenses
-3. Income drill-down (narrower range for precision)
-4. Savings + investment brackets
-5. Savings + investment drill-down
-6. Debt check (yes/no)
-7. Debt types (credit card, loans, mortgage -- multiselect)
-8. Debt amounts per type
-9. Home value (only if you have a mortgage)
-10. Risk tolerance + investing experience
+You'll walk through who you are (country, age, goal), what you earn and spend, what you've saved and invested, whether you carry any debt, and how much risk you're comfortable with.
 
-Age accepts your exact number. Everything else uses smart ranges with a two-step drill-down: pick a broad bracket, then narrow it. This keeps each question to 4 options max while covering the full spectrum.
+Every question is multiple choice — pick a broad range, then narrow it down. No mental math, no digging through bank statements. Four options max per screen so you're never overwhelmed.
 
 ### Your Team
 
@@ -120,7 +111,7 @@ If the interview starts, you're good.
 
 This is what makes the roadmap actually useful. A hand-curated knowledge base covering everything from beginner budgeting to advanced tax optimization -- with country-specific sections for the US, Canada, and India.
 
-Every file contains real numbers: current contribution limits, tax brackets, specific fund tickers with expense ratios, APR ranges, methodology citations, and step-by-step decision frameworks. The knowledge advisor reads all of it before matching strategies to your profile.
+Every file contains real numbers: current contribution limits, tax brackets, specific fund tickers with expense ratios, APR ranges, methodology citations, and step-by-step decision frameworks. The Research Analyst reads all of it before matching strategies to your profile.
 
 | File | What's Inside |
 |------|--------------|
@@ -134,7 +125,7 @@ Every file contains real numbers: current contribution limits, tax brackets, spe
 
 Plus 4 step-by-step workflow guides (wealth building, debt freedom, first investment, side hustle launch) with country-specific paths.
 
-The agents don't hallucinate financial advice. They read the knowledge base, find what matches your profile, and build the roadmap on that foundation.
+Every recommendation in your roadmap traces back to something in these files. The team reads the knowledge base first, finds what matches your profile, and builds your plan on that foundation.
 
 ---
 
@@ -144,7 +135,7 @@ The agents don't hallucinate financial advice. They read the knowledge base, fin
 
 ```yaml
 timeouts:
-  wealth_strategist: 120      # Seconds before timeout (Opus agents need more time)
+  wealth_strategist: 120      # Seconds before timeout (senior specialists need more time)
   action_plan_generator: 120
   financial_diagnostician: 60
   knowledge_advisor: 120
@@ -168,33 +159,17 @@ Your financial data is stored locally in a SQLite database at `~/.claude/skills/
 
 If you run the skill again within 24 hours, it offers to reuse your existing data. Between 1-30 days, it offers a partial refresh (update income/expenses only). After 30 days, fresh interview.
 
-Your data never leaves your machine. No API calls with your financial info. The agents receive aggregated midpoint values, not raw inputs.
+Your data never leaves your machine. No API calls with your financial info. The specialists receive aggregated midpoint values, not raw inputs.
 
 ---
 
 ## Country Support
 
-### United States
-- Tax-advantaged accounts: 401(k), Traditional IRA, Roth IRA, HSA, 529
-- Debt context: PMI removal, student loan programs (IDR, PSLF), 1031 exchanges
-- Tax strategy: standard vs itemized deduction, LTCG brackets, QBI deduction
-- Market data: S&P 500, Fed Funds rate, HYSA rates
+Your country isn't a flag on the output — it reshapes the entire plan. Every specialist knows your tax system, your retirement accounts, your local market, and the debt rules that apply to you.
 
-### Canada
-- Tax-advantaged accounts: RRSP, TFSA, RESP, FHSA
-- Debt context: CMHC insurance, stress test, mortgage renewal strategy
-- Tax strategy: RRSP meltdown, dividend tax credit, superficial loss rule, OAS clawback
-- Market data: TSX Composite, Bank of Canada rate, GIC rates, CREA HPI
+A US user gets Roth conversion ladders, HSA triple-tax-advantage breakdowns, and S&P 500 benchmarking. A Canadian user gets RRSP meltdown strategies, CPP deferral analysis, and Smith Manoeuvre math. An Indian user gets old vs new tax regime optimization, Section 80C/80D/80E layering, SIP-based wealth building with specific Nifty 50 fund tickers, and home loan deduction strategies under Section 24(b).
 
-### India
-- Tax-advantaged accounts: EPF, PPF, NPS, ELSS, SCSS, Sukanya Samriddhi
-- Tax regime: Old vs New regime optimization, Section 80C/80D/80E/24(b) deductions
-- Debt context: Home loan deductions, gold loans, CIBIL scores, RBI floating-rate prepayment rules
-- Capital gains: Equity STCG 20%, LTCG 12.5% above ₹1.25L, Sovereign Gold Bonds (zero LTCG at maturity)
-- Investment: Nifty 50/Sensex index funds, SIP culture, direct vs regular mutual fund plans
-- Market data: Nifty 50, Sensex, RBI repo rate, FD rates, NHB RESIDEX
-
-The entire pipeline adapts based on your country. A Canadian user gets RRSP meltdown strategies and CPP deferral analysis. A US user gets Roth conversion ladders and HSA triple-tax-advantage breakdowns. An Indian user gets old vs new tax regime analysis, Section 80C optimization, and SIP-based wealth building with specific fund tickers.
+Same team, same process — completely different playbook depending on where you live.
 
 ---
 
@@ -210,11 +185,11 @@ The entire pipeline adapts based on your country. A Canadian user gets RRSP melt
 
 ### Modifying Strategies
 
-The strategies aren't hardcoded. The knowledge advisor reads the knowledge base files and matches methodologies to the user's profile. To add a new strategy methodology:
+The strategies aren't hardcoded. The Research Analyst reads the knowledge base and matches methodologies to each user's profile. To add a new strategy:
 
 1. Add it to the relevant knowledge base file (e.g., `index-investing.md`)
 2. Include: methodology name, key principle, citations, risk level, typical returns
-3. The knowledge advisor will automatically pick it up if it matches the user's profile
+3. The Research Analyst will automatically pick it up when it matches a user's profile
 
 ### Changing the Roadmap Format
 
@@ -227,12 +202,12 @@ Edit `templates/roadmap-template.md`. Every `{PLACEHOLDER}` is filled by the act
 Everything runs locally.
 
 - Your financial data is stored in a local SQLite file on your machine
-- Agent prompts contain aggregated midpoint values, not raw answers
-- No data is sent to external services beyond the Claude API (which processes the agent prompts)
+- The specialists receive aggregated midpoint values, not your raw answers
+- No data is sent to external services beyond the Claude API (which powers the specialists)
 - The database file is created with `0600` permissions (owner read/write only)
 - Roadmaps are saved locally as markdown files
 
-If you want to nuke your data: `rm -rf ~/.claude/skills/wealth-guide/data/`
+To delete all your data: `rm -rf ~/.claude/skills/wealth-guide/data/`
 
 ---
 
