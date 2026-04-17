@@ -75,7 +75,7 @@ Six specialized agents, running in two phases:
 | Agent | Model | Job |
 |-------|-------|-----|
 | Financial Diagnostician | Sonnet | Health score, savings rate, DTI, emergency fund analysis |
-| Knowledge Advisor | Sonnet | Reads the entire knowledge base (~2,500 lines of curated financial strategy), matches methodologies to your profile, builds a learning curriculum, and searches the web for current financial news |
+| Knowledge Advisor | Sonnet | Reads a deep, hand-curated knowledge base covering financial strategy across all three countries, matches methodologies to your profile, builds a learning curriculum, and searches the web for current financial news |
 | Market Context Analyzer | Sonnet | Live web search for current rates, indices, real estate trends, inflation, gold prices |
 
 **Phase 2 (sequential):**
@@ -125,7 +125,7 @@ If the interview starts, you're good.
 
 ## The Knowledge Base
 
-This is what makes the roadmap actually useful. Nearly 2,500 lines of hand-curated financial strategy across 7 files, covering everything from beginner budgeting to advanced tax optimization -- with country-specific sections for the US, Canada, and India.
+This is what makes the roadmap actually useful. A hand-curated knowledge base covering everything from beginner budgeting to advanced tax optimization -- with country-specific sections for the US, Canada, and India.
 
 Every file contains real numbers: current contribution limits, tax brackets, specific fund tickers with expense ratios, APR ranges, methodology citations, and step-by-step decision frameworks. The knowledge advisor reads all of it before matching strategies to your profile.
 
