@@ -1,6 +1,6 @@
 import sys, os, tempfile
 sys.path.insert(0, os.path.dirname(__file__))
-from md_to_html import parse_blocks, parse_inline, render_blocks_to_html, generate_gauge_svg, generate_projection_svg, parse_currency, generate_donut_svg
+from md_to_html import parse_blocks, parse_inline, render_blocks_to_html, generate_gauge_svg, generate_projection_svg, parse_currency, generate_donut_svg, generate_waterfall_svg
 
 def test_parse_headers():
     md = "# Title\n\nSome text\n\n## Section\n\n### Subsection"
@@ -261,6 +261,29 @@ def test_donut_detected_in_table():
     html = render_blocks_to_html(blocks)
     assert "<svg" in html
 
+def test_waterfall_svg():
+    items = [
+        ("Gross Income", 562500, "income"),
+        ("Taxes", 140625, "expense"),
+        ("Living Expenses", 75000, "expense"),
+        ("Available Surplus", 346875, "surplus"),
+    ]
+    svg = generate_waterfall_svg(items)
+    assert "<svg" in svg
+    assert "rect" in svg
+    assert "Gross Income" in svg or "Gross Incom" in svg  # may truncate
+
+def test_waterfall_detected_in_table():
+    md = """| Item | Monthly | Annual |
+|------|---------|--------|
+| Gross Income | ₹5,62,500 | ₹67,50,000 |
+| Taxes (est. 25%) | ₹1,40,625 | ₹16,87,500 |
+| Living Expenses | ₹75,000 | ₹9,00,000 |
+| **Available Surplus** | **₹3,46,875** | **₹41,62,500** |"""
+    blocks = parse_blocks(md)
+    html = render_blocks_to_html(blocks)
+    assert "<svg" in html
+
 if __name__ == "__main__":
     test_parse_headers()
     test_parse_table()
@@ -294,4 +317,6 @@ if __name__ == "__main__":
     test_projection_detected_in_table()
     test_donut_svg()
     test_donut_detected_in_table()
-    print("All parser + renderer + assembly + gauge chart + projection chart + donut chart tests passed!")
+    test_waterfall_svg()
+    test_waterfall_detected_in_table()
+    print("All parser + renderer + assembly + gauge chart + projection chart + donut chart + waterfall chart tests passed!")

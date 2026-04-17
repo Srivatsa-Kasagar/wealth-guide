@@ -468,6 +468,104 @@ def _build_net_worth_chart(rows):
     return None
 
 
+def generate_waterfall_svg(items):
+    """Generate a waterfall bar chart SVG for cash flow."""
+    if not items:
+        return ""
+
+    w, h = 580, 330
+    pad_l, pad_r, pad_t, pad_b = 100, 30, 30, 60
+    plot_w = w - pad_l - pad_r
+    plot_h = h - pad_t - pad_b
+
+    income = items[0][1] if items else 1
+    if income == 0:
+        return ""
+
+    bar_w = min(80, plot_w // (len(items) * 2))
+    gap = (plot_w - bar_w * len(items)) / (len(items) + 1)
+
+    running = 0
+    bars = ""
+    connectors = ""
+    labels = ""
+
+    for i, (label, value, item_type) in enumerate(items):
+        x = pad_l + gap + i * (bar_w + gap)
+
+        if item_type == "income":
+            bar_h = plot_h
+            y = pad_t
+            running = value
+            color = "#27ae60"
+        elif item_type == "expense":
+            bar_h = (value / income) * plot_h
+            y = pad_t + ((income - running) / income) * plot_h
+            running -= value
+            color = "#e74c3c"
+        else:  # surplus
+            bar_h = (value / income) * plot_h
+            y = pad_t + plot_h - bar_h
+            color = "#27ae60"
+
+        bars += f'<rect x="{x:.1f}" y="{y:.1f}" width="{bar_w}" height="{bar_h:.1f}" rx="3" fill="{color}" opacity="0.85"/>\n'
+
+        val_label = _format_axis_value(value)
+        label_y = y - 8 if item_type != "expense" else y + bar_h + 15
+        bars += f'<text x="{x + bar_w / 2:.1f}" y="{label_y:.1f}" text-anchor="middle" font-size="12" font-weight="bold" fill="{color}">{val_label}</text>\n'
+
+        short_label = label.replace("**", "").strip()
+        if len(short_label) > 12:
+            short_label = short_label[:12] + "..."
+        labels += f'<text x="{x + bar_w / 2:.1f}" y="{h - 15}" text-anchor="middle" font-size="11" fill="#666">{short_label}</text>\n'
+
+        if i < len(items) - 1 and item_type != "surplus":
+            next_x = pad_l + gap + (i + 1) * (bar_w + gap)
+            if item_type == "income":
+                conn_y = y + bar_h
+            else:
+                conn_y = y + bar_h
+            connectors += f'<line x1="{x + bar_w:.1f}" y1="{conn_y:.1f}" x2="{next_x:.1f}" y2="{conn_y:.1f}" stroke="#ccc" stroke-width="1" stroke-dasharray="4,3"/>\n'
+
+    svg = f'''<div class="chart-container">
+<svg viewBox="0 0 {w} {h}" xmlns="http://www.w3.org/2000/svg">
+  {connectors}
+  {bars}
+  {labels}
+</svg>
+</div>'''
+    return svg
+
+
+def _build_cashflow_chart(rows):
+    """Extract cash flow data from table rows and generate waterfall chart."""
+    try:
+        items = []
+        for row in rows:
+            if len(row) < 2:
+                continue
+            label = row[0].replace("**", "").strip()
+            value_str = row[1].replace("**", "").strip()
+            try:
+                value = parse_currency(value_str)
+            except (ValueError, IndexError):
+                continue
+
+            label_lower = label.lower()
+            if "income" in label_lower and "sustainable" not in label_lower:
+                items.append((label, value, "income"))
+            elif "tax" in label_lower or "expense" in label_lower:
+                items.append((label, value, "expense"))
+            elif "surplus" in label_lower or "available" in label_lower:
+                items.append((label, value, "surplus"))
+
+        if items and any(t == "income" for _, _, t in items):
+            return generate_waterfall_svg(items)
+    except Exception:
+        pass
+    return None
+
+
 def render_blocks_to_html(blocks):
     """Convert a list of block dicts to an HTML string."""
     parts = []
@@ -552,7 +650,9 @@ def _render_table(block):
         if chart_svg:
             html_parts.append(chart_svg)
     elif chart_type == "cashflow_waterfall":
-        pass  # Task 7
+        chart_svg = _build_cashflow_chart(rows)
+        if chart_svg:
+            html_parts.append(chart_svg)
 
     return "\n".join(html_parts)
 
