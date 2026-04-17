@@ -239,3 +239,178 @@ def _render_table(block):
     html_parts.append("</tbody></table>")
 
     return "\n".join(html_parts)
+
+
+CSS = """
+:root {
+    --navy: #1a2332;
+    --text: #2c3e50;
+    --bg: #ffffff;
+    --table-header-bg: #f8f9fa;
+    --table-stripe: #f8f9fa;
+    --blockquote-border: #3498db;
+    --link: #2980b9;
+    --code-bg: #f4f5f7;
+    --green-bg: #d4edda; --green-text: #155724;
+    --amber-bg: #fff3cd; --amber-text: #856404;
+    --red-bg: #f8d7da; --red-text: #721c24;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    color: var(--text);
+    background: var(--bg);
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2rem;
+    line-height: 1.6;
+}
+
+h1, h2, h3 {
+    color: var(--navy);
+    margin-top: 1.5em;
+    margin-bottom: 0.5em;
+}
+h1 { font-size: 2em; border-bottom: 3px solid var(--navy); padding-bottom: 0.3em; }
+h2 { font-size: 1.5em; border-bottom: 1px solid #e0e0e0; padding-bottom: 0.2em; }
+h3 { font-size: 1.2em; }
+
+p { margin: 0.8em 0; }
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1em 0;
+    font-size: 0.9em;
+}
+thead th {
+    background: var(--table-header-bg);
+    font-weight: 600;
+    padding: 0.6rem 1rem;
+    border-bottom: 2px solid #dee2e6;
+    text-align: left;
+}
+tbody td {
+    padding: 0.6rem 1rem;
+    border-bottom: 1px solid #e9ecef;
+}
+tbody tr:nth-child(even) { background: var(--table-stripe); }
+tbody tr:hover { background: #e8f4f8; }
+
+blockquote {
+    border-left: 4px solid var(--blockquote-border);
+    background: var(--table-stripe);
+    padding: 1em 1.5em;
+    margin: 1em 0;
+    font-style: italic;
+    border-radius: 0 4px 4px 0;
+}
+
+ul {
+    margin: 0.8em 0;
+    padding-left: 1.5em;
+}
+li { margin: 0.3em 0; }
+
+pre {
+    background: var(--code-bg);
+    padding: 1em;
+    border-radius: 6px;
+    overflow-x: auto;
+    margin: 1em 0;
+    font-size: 0.85em;
+}
+code {
+    font-family: "SF Mono", "Fira Code", "Consolas", monospace;
+    font-size: 0.9em;
+}
+p code, li code, td code {
+    background: var(--code-bg);
+    padding: 0.15em 0.4em;
+    border-radius: 3px;
+}
+
+a { color: var(--link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+hr {
+    border: none;
+    border-top: 1px solid #e0e0e0;
+    margin: 2em 0;
+}
+
+.verdict {
+    display: inline-block;
+    padding: 0.15em 0.6em;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 0.85em;
+    letter-spacing: 0.02em;
+}
+.verdict-recommended { background: var(--green-bg); color: var(--green-text); }
+.verdict-caution { background: var(--amber-bg); color: var(--amber-text); }
+.verdict-not-suitable { background: var(--red-bg); color: var(--red-text); }
+
+.chart-container {
+    text-align: center;
+    margin: 1.5em 0;
+    padding: 1em;
+    background: #fafbfc;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+.chart-container svg { max-width: 100%; height: auto; }
+
+@media print {
+    body { max-width: none; padding: 0; color: #000; }
+    h2 { page-break-before: always; }
+    h2:first-of-type { page-break-before: avoid; }
+    table, .chart-container, pre, blockquote { page-break-inside: avoid; }
+    a[href^="http"]::after { content: " (" attr(href) ")"; font-size: 0.8em; color: #666; }
+    .chart-container { box-shadow: none; background: none; }
+    @page { margin: 1.5cm; }
+}
+"""
+
+
+def convert_file(md_path):
+    """Read a markdown file, convert to styled HTML, save alongside it.
+
+    Args:
+        md_path: Path to the markdown file.
+
+    Returns:
+        Path to the generated HTML file.
+    """
+    with open(md_path, "r", encoding="utf-8") as f:
+        md = f.read()
+
+    blocks = parse_blocks(md)
+    body = render_blocks_to_html(blocks)
+
+    title = "Wealth Roadmap"
+    for block in blocks:
+        if block["type"] == "header" and block["level"] == 1:
+            title = block["text"]
+            break
+
+    full_html = f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{html_module.escape(title)}</title>
+<style>{CSS}</style>
+</head>
+<body>
+{body}
+</body>
+</html>"""
+
+    html_path = re.sub(r"\.md$", ".html", md_path)
+    with open(html_path, "w", encoding="utf-8") as f:
+        f.write(full_html)
+
+    return html_path

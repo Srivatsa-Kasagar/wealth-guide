@@ -1,4 +1,4 @@
-import sys, os
+import sys, os, tempfile
 sys.path.insert(0, os.path.dirname(__file__))
 from md_to_html import parse_blocks, parse_inline, render_blocks_to_html
 
@@ -136,6 +136,55 @@ def test_render_verdict_badges():
     html = render_blocks_to_html(blocks)
     assert "verdict-recommended" in html
 
+def test_convert_file_creates_html():
+    md_content = """# Test Roadmap
+
+> **Prepared:** 16 April 2026
+
+## 1. Executive Summary
+
+Some summary text with **bold** and [link](https://example.com).
+
+| Name | Value |
+|------|-------|
+| A    | 100   |
+
+---
+
+## 2. Details
+
+- Item one
+- Item two
+
+```
+[====-----] 75/100
+```
+"""
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".md", delete=False) as f:
+        f.write(md_content)
+        md_path = f.name
+
+    from md_to_html import convert_file
+    html_path = convert_file(md_path)
+
+    assert html_path.endswith(".html")
+    assert os.path.exists(html_path)
+
+    with open(html_path) as f:
+        html = f.read()
+
+    assert "<!DOCTYPE html>" in html
+    assert "<style>" in html
+    assert "max-width" in html
+    assert "@media print" in html
+    assert "Test Roadmap" in html
+    assert "<table" in html
+    assert "<blockquote>" in html
+
+    os.unlink(md_path)
+    os.unlink(html_path)
+
+
 if __name__ == "__main__":
     test_parse_headers()
     test_parse_table()
@@ -157,4 +206,5 @@ if __name__ == "__main__":
     test_render_list()
     test_render_hr()
     test_render_verdict_badges()
-    print("All parser + renderer tests passed!")
+    test_convert_file_creates_html()
+    print("All parser + renderer + assembly tests passed!")
