@@ -112,3 +112,130 @@ def parse_blocks(md):
             blocks.append({"type": "paragraph", "lines": para_lines})
 
     return blocks
+
+
+def parse_inline(text):
+    """Convert inline markdown (bold, links, code) to HTML."""
+    parts = []
+    remaining = text
+    while "`" in remaining:
+        before, _, after = remaining.partition("`")
+        if "`" in after:
+            code_content, _, after = after.partition("`")
+            parts.append(_escape_and_inline(before))
+            parts.append(f"<code>{html_module.escape(code_content)}</code>")
+            remaining = after
+        else:
+            parts.append(_escape_and_inline(before + "`" + after))
+            remaining = ""
+            break
+    if remaining:
+        parts.append(_escape_and_inline(remaining))
+    return "".join(parts)
+
+
+def _escape_and_inline(text):
+    """Apply bold and link transforms to text (no code spans here)."""
+    text = re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", text)
+    text = re.sub(
+        r"\[([^\]]+)\]\(([^)]+)\)",
+        r'<a href="\2" target="_blank">\1</a>',
+        text
+    )
+    return text
+
+
+def _slugify(text):
+    """Create a URL-friendly id from header text."""
+    slug = re.sub(r"[^\w\s-]", "", text.lower())
+    return re.sub(r"[\s]+", "-", slug).strip("-")
+
+
+def _detect_verdict(text):
+    """Wrap verdict keywords in styled spans."""
+    text = re.sub(
+        r"\bRECOMMENDED\b",
+        '<span class="verdict verdict-recommended">RECOMMENDED</span>',
+        text
+    )
+    text = re.sub(
+        r"\bPROCEED WITH CAUTION\b",
+        '<span class="verdict verdict-caution">PROCEED WITH CAUTION</span>',
+        text
+    )
+    text = re.sub(
+        r"\bNOT SUITABLE[^<]*",
+        lambda m: f'<span class="verdict verdict-not-suitable">{m.group(0).strip()}</span>',
+        text
+    )
+    return text
+
+
+def render_blocks_to_html(blocks):
+    """Convert a list of block dicts to an HTML string."""
+    parts = []
+    for block in blocks:
+        btype = block["type"]
+
+        if btype == "header":
+            slug = _slugify(block["text"])
+            level = block["level"]
+            text = _detect_verdict(parse_inline(block["text"]))
+            parts.append(f'<h{level} id="{slug}">{text}</h{level}>')
+
+        elif btype == "table":
+            parts.append(_render_table(block))
+
+        elif btype == "paragraph":
+            text = " ".join(block["lines"])
+            text = _detect_verdict(parse_inline(text))
+            parts.append(f"<p>{text}</p>")
+
+        elif btype == "code":
+            escaped = html_module.escape(block["content"])
+            parts.append(f"<pre><code>{escaped}</code></pre>")
+
+        elif btype == "blockquote":
+            inner = "<br>".join(parse_inline(line) for line in block["lines"])
+            parts.append(f"<blockquote>{inner}</blockquote>")
+
+        elif btype == "list":
+            items = "".join(f"<li>{_detect_verdict(parse_inline(item))}</li>" for item in block["items"])
+            parts.append(f"<ul>{items}</ul>")
+
+        elif btype == "hr":
+            parts.append("<hr>")
+
+    return "\n".join(parts)
+
+
+def _render_table(block):
+    """Render a table block to HTML with alignment and currency detection."""
+    headers = block["headers"]
+    rows = block["rows"]
+    alignments = block.get("alignments", ["left"] * len(headers))
+
+    while len(alignments) < len(headers):
+        alignments.append("left")
+
+    html_parts = ['<table>']
+
+    html_parts.append("<thead><tr>")
+    for i, h in enumerate(headers):
+        align = f' style="text-align:{alignments[i]}"' if alignments[i] != "left" else ""
+        html_parts.append(f"<th{align}>{_detect_verdict(parse_inline(h))}</th>")
+    html_parts.append("</tr></thead>")
+
+    html_parts.append("<tbody>")
+    for row in rows:
+        html_parts.append("<tr>")
+        for i, cell in enumerate(row):
+            align_str = alignments[i] if i < len(alignments) else "left"
+            if re.search(r"[₹$]|^\s*-?[\d,]+\s*$", cell):
+                align_str = "right"
+            align = f' style="text-align:{align_str}"' if align_str != "left" else ""
+            html_parts.append(f"<td{align}>{_detect_verdict(parse_inline(cell))}</td>")
+        html_parts.append("</tr>")
+    html_parts.append("</tbody></table>")
+
+    return "\n".join(html_parts)
