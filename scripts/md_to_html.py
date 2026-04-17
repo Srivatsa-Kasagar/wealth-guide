@@ -171,6 +171,50 @@ def _detect_verdict(text):
     return text
 
 
+def generate_gauge_svg(score):
+    """Generate a semi-circular gauge SVG for the health score."""
+    score = max(0, min(100, score))
+    cx, cy, r = 150, 140, 110
+    angle = math.pi * (1 - score / 100)
+    end_x = cx + r * math.cos(angle)
+    end_y = cy - r * math.sin(angle)
+
+    bg_arc = f'M {cx - r} {cy} A {r} {r} 0 1 1 {cx + r} {cy}'
+
+    large_arc = 1 if score > 50 else 0
+    score_arc = f'M {cx - r} {cy} A {r} {r} 0 {large_arc} 1 {end_x:.1f} {end_y:.1f}'
+
+    if score < 40:
+        color = "#e74c3c"
+    elif score < 70:
+        color = "#f39c12"
+    else:
+        color = "#27ae60"
+
+    ticks = ""
+    for val in [0, 25, 50, 75, 100]:
+        a = math.pi * (1 - val / 100)
+        tx = cx + (r + 15) * math.cos(a)
+        ty = cy - (r + 15) * math.sin(a)
+        ticks += f'<text x="{tx:.1f}" y="{ty:.1f}" text-anchor="middle" font-size="11" fill="#999">{val}</text>\n'
+
+    needle_len = r - 15
+    nx = cx + needle_len * math.cos(angle)
+    ny = cy - needle_len * math.sin(angle)
+
+    svg = f'''<div class="chart-container">
+<svg viewBox="0 0 300 180" xmlns="http://www.w3.org/2000/svg">
+  <path d="{bg_arc}" fill="none" stroke="#e9ecef" stroke-width="20" stroke-linecap="round"/>
+  <path d="{score_arc}" fill="none" stroke="{color}" stroke-width="20" stroke-linecap="round"/>
+  <line x1="{cx}" y1="{cy}" x2="{nx:.1f}" y2="{ny:.1f}" stroke="{color}" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="{cx}" cy="{cy}" r="6" fill="{color}"/>
+  <text x="{cx}" y="{cy + 35}" text-anchor="middle" font-size="28" font-weight="bold" fill="{color}">{score}/100</text>
+  {ticks}
+</svg>
+</div>'''
+    return svg
+
+
 def render_blocks_to_html(blocks):
     """Convert a list of block dicts to an HTML string."""
     parts = []
@@ -192,8 +236,14 @@ def render_blocks_to_html(blocks):
             parts.append(f"<p>{text}</p>")
 
         elif btype == "code":
-            escaped = html_module.escape(block["content"])
-            parts.append(f"<pre><code>{escaped}</code></pre>")
+            content = block["content"]
+            score_match = re.search(r"(\d+)/100", content)
+            if score_match and re.search(r"\[=+", content):
+                score = int(score_match.group(1))
+                parts.append(generate_gauge_svg(score))
+            else:
+                escaped = html_module.escape(content)
+                parts.append(f"<pre><code>{escaped}</code></pre>")
 
         elif btype == "blockquote":
             inner = "<br>".join(parse_inline(line) for line in block["lines"])

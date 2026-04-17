@@ -1,6 +1,6 @@
 import sys, os, tempfile
 sys.path.insert(0, os.path.dirname(__file__))
-from md_to_html import parse_blocks, parse_inline, render_blocks_to_html
+from md_to_html import parse_blocks, parse_inline, render_blocks_to_html, generate_gauge_svg
 
 def test_parse_headers():
     md = "# Title\n\nSome text\n\n## Section\n\n### Subsection"
@@ -110,7 +110,7 @@ def test_render_paragraph():
     assert "Hello world" in html
 
 def test_render_code():
-    blocks = [{"type": "code", "content": "[====] 75/100"}]
+    blocks = [{"type": "code", "content": "def hello():\n    return 42"}]
     html = render_blocks_to_html(blocks)
     assert "<pre>" in html
     assert "<code>" in html
@@ -185,6 +185,29 @@ Some summary text with **bold** and [link](https://example.com).
     os.unlink(html_path)
 
 
+def test_gauge_svg_basic():
+    svg = generate_gauge_svg(75)
+    assert "<svg" in svg
+    assert "75" in svg
+    assert "viewBox" in svg
+
+def test_gauge_svg_low_score():
+    svg = generate_gauge_svg(25)
+    assert "<svg" in svg
+    assert "25" in svg
+
+def test_gauge_svg_perfect():
+    svg = generate_gauge_svg(100)
+    assert "<svg" in svg
+    assert "100" in svg
+
+def test_gauge_replaces_ascii():
+    md = "### 2.3 Financial Health Score: 75/100\n\n```\n[===============-----------] 75/100\n Savings ██████  Debt ████  Investing █████  Protection ███\n```"
+    blocks = parse_blocks(md)
+    html = render_blocks_to_html(blocks)
+    assert "<svg" in html
+    assert "<pre>" not in html  # ASCII replaced, not rendered as code
+
 if __name__ == "__main__":
     test_parse_headers()
     test_parse_table()
@@ -207,4 +230,8 @@ if __name__ == "__main__":
     test_render_hr()
     test_render_verdict_badges()
     test_convert_file_creates_html()
-    print("All parser + renderer + assembly tests passed!")
+    test_gauge_svg_basic()
+    test_gauge_svg_low_score()
+    test_gauge_svg_perfect()
+    test_gauge_replaces_ascii()
+    print("All parser + renderer + assembly + gauge chart tests passed!")
