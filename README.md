@@ -40,6 +40,8 @@ Here's what the executive summary actually looks like:
 
 Not "consider diversifying your portfolio." Real numbers. Real tickers. Real deadlines.
 
+Every roadmap also generates a print-ready HTML version with charts — a net worth donut, wealth projection lines, cash flow waterfall, and a health score gauge. Open it in your browser and hit Cmd+P to save as a clean PDF.
+
 ---
 
 ## How It Works
@@ -68,7 +70,7 @@ Think of it as hiring a boutique wealth management firm — except the entire te
 | **The Market Analyst** | Eyes on the market, right now. Current interest rates, index performance, real estate trends, inflation, gold prices — all pulled live. Your plan gets built on today's numbers, not textbook assumptions. |
 | **The Strategist** | The senior partner who designs your playbook. Takes everything the first three found and architects 3-5 distinct strategies — each with specific fund tickers, monthly allocations, and tax-optimized account placement. No generic "diversify your portfolio" advice. |
 | **The Risk Officer** | The one who tries to break your plan. Stress-tests every strategy against market crashes, job loss, and rate changes. Scores each one for risk, return, and fit — then stamps a verdict: RECOMMENDED, PROCEED WITH CAUTION, or NOT SUITABLE FOR YOUR PROFILE. |
-| **The Planner** | Puts it all together. Synthesizes everything into your final 12-section roadmap — specific actions, real deadlines, fund names, dollar amounts, and a prioritized checklist you can start executing Monday morning. |
+| **The Planner** | Puts it all together. Synthesizes everything into your final 12-section roadmap — specific actions, real deadlines, fund names, dollar amounts, and a prioritized checklist you can start executing Monday morning. Also generates a print-ready HTML version with charts that you can save as PDF. |
 
 The Diagnostician, Research Analyst, and Market Analyst work your case simultaneously. Then the Strategist, Risk Officer, and Planner build on their findings — so nothing reaches your roadmap without being cross-checked by the full team.
 
