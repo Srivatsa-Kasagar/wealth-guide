@@ -830,3 +830,22 @@ def convert_file(md_path):
         f.write(full_html)
 
     return html_path
+
+
+if __name__ == "__main__":
+    if len(sys.argv) != 2:
+        print("Usage: python3 md_to_html.py <roadmap.md>", file=sys.stderr)
+        sys.exit(1)
+
+    md_path = sys.argv[1]
+
+    if not os.path.isfile(md_path):
+        print(f"Error: File not found: {md_path}", file=sys.stderr)
+        sys.exit(1)
+
+    try:
+        html_path = convert_file(md_path)
+        print(f"Generated: {html_path}")
+    except Exception as e:
+        print(f"Error converting {md_path}: {e}", file=sys.stderr)
+        sys.exit(1)

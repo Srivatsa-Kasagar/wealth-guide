@@ -1,4 +1,4 @@
-import sys, os, tempfile
+import sys, os, tempfile, subprocess
 sys.path.insert(0, os.path.dirname(__file__))
 from md_to_html import parse_blocks, parse_inline, render_blocks_to_html, generate_gauge_svg, generate_projection_svg, parse_currency, generate_donut_svg, generate_waterfall_svg
 
@@ -284,6 +284,40 @@ def test_waterfall_detected_in_table():
     html = render_blocks_to_html(blocks)
     assert "<svg" in html
 
+def test_cli_success():
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".md", delete=False) as f:
+        f.write("# Test\n\nHello world\n")
+        md_path = f.name
+
+    result = subprocess.run(
+        ["python3", "scripts/md_to_html.py", md_path],
+        capture_output=True, text=True,
+        cwd="/Users/srivatsakasagar/Development/skills-Finance"
+    )
+    assert result.returncode == 0
+    html_path = md_path.replace(".md", ".html")
+    assert os.path.exists(html_path)
+    os.unlink(md_path)
+    os.unlink(html_path)
+
+def test_cli_missing_file():
+    result = subprocess.run(
+        ["python3", "scripts/md_to_html.py", "/nonexistent/file.md"],
+        capture_output=True, text=True,
+        cwd="/Users/srivatsakasagar/Development/skills-Finance"
+    )
+    assert result.returncode != 0
+
+def test_cli_no_args():
+    result = subprocess.run(
+        ["python3", "scripts/md_to_html.py"],
+        capture_output=True, text=True,
+        cwd="/Users/srivatsakasagar/Development/skills-Finance"
+    )
+    assert result.returncode != 0
+    assert "Usage" in result.stderr
+
+
 if __name__ == "__main__":
     test_parse_headers()
     test_parse_table()
@@ -319,4 +353,7 @@ if __name__ == "__main__":
     test_donut_detected_in_table()
     test_waterfall_svg()
     test_waterfall_detected_in_table()
-    print("All parser + renderer + assembly + gauge chart + projection chart + donut chart + waterfall chart tests passed!")
+    test_cli_success()
+    test_cli_missing_file()
+    test_cli_no_args()
+    print("All parser + renderer + assembly + gauge chart + projection chart + donut chart + waterfall chart + CLI tests passed!")
