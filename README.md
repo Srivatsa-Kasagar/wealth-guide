@@ -1,6 +1,6 @@
 # Wealth Guide
 
-A Claude Code skill that builds you a personalized, CFP-quality financial roadmap. You answer 10 questions about your money. Six AI agents analyze your situation in parallel. You get a 600+ line wealth plan with real numbers, specific fund tickers, tax strategies, and a prioritized action checklist.
+A Claude Code skill that puts a team of six financial specialists on your case. You answer 10 questions about your money. They analyze your situation in parallel — a diagnostician, a research analyst, a market analyst, a strategist, a risk officer, and a planner. You get a CFP-quality wealth plan with real numbers, specific fund tickers, tax strategies, and a prioritized action checklist.
 
 Works for the US, Canada, and India. No signup. No API keys. Just install and say "wealth guide."
 
@@ -30,12 +30,12 @@ A 12-section financial plan that reads like you paid a CFP $2,000 for it:
 Here's what the executive summary actually looks like:
 
 ```
-| Metric                          | Current (Age 35)  | Projected (Age 45, 2036)  |
-|---------------------------------|-------------------|---------------------------|
-| Total Net Worth (est.)          | ₹1,24,75,000      | ₹1,13,34,000 - ₹1,30,30,000 |
-| Liquid Investable Portfolio     | ₹70,00,000        | ₹89,48,000 (base case)    |
-| Annual Savings Capacity         | ₹41,62,500        | --                        |
-| Sustainable Annual Income (4%)  | --                | ₹35,79,250                |
+| Metric                          | Current (Age 35)  | Projected (Age 45, 2036)     |
+|---------------------------------|-------------------|------------------------------|
+| Total Net Worth (est.)          | ₹1,24,75,000      | ₹7,54,12,791 - ₹10,64,42,040 |
+| Liquid Investable Portfolio     | ₹70,00,000        | ₹8,94,81,309 (base case)     |
+| Annual Savings Capacity         | ₹41,62,500        | --                           |
+| Sustainable Annual Income (4%)  | --                | ₹35,79,252                   |
 ```
 
 Not "consider diversifying your portfolio." Real numbers. Real tickers. Real deadlines.
@@ -45,8 +45,8 @@ Not "consider diversifying your portfolio." Real numbers. Real tickers. Real dea
 ## How It Works
 
 ```
-You ──> 10 interview screens ──> 6 AI agents (parallel) ──> 12-section roadmap
-        (~3 minutes)              (~3-5 minutes)             (saved as markdown)
+You ──> 10 interview screens ──> 6 specialists work your case ──> 12-section roadmap
+        (~3 minutes)              (~3-5 minutes)                   (saved as markdown)
 ```
 
 ### The Interview
@@ -66,27 +66,20 @@ You ──> 10 interview screens ──> 6 AI agents (parallel) ──> 12-secti
 
 Age accepts your exact number. Everything else uses smart ranges with a two-step drill-down: pick a broad bracket, then narrow it. This keeps each question to 4 options max while covering the full spectrum.
 
-### The Pipeline
+### Your Team
 
-Six specialized agents, running in two phases:
+Think of it as hiring a boutique wealth management firm — except the entire team works your case in under 5 minutes.
 
-**Phase 1 (parallel -- all 3 run simultaneously):**
+| Who | What They Do For You |
+|-----|---------------------|
+| **The Diagnostician** | Your financial health checkup. Savings rate, debt-to-income, emergency fund coverage, spending patterns — scored and benchmarked against people in your country and income bracket. Finds what's working and what's bleeding money before anyone else touches your file. |
+| **The Research Analyst** | The one who's read everything. Digs through the entire knowledge base — tax codes, investment strategies, retirement frameworks, debt playbooks — and pulls out exactly what applies to someone with your profile. Also scans current financial news so nothing in your plan is built on yesterday's world. |
+| **The Market Analyst** | Eyes on the market, right now. Current interest rates, index performance, real estate trends, inflation, gold prices — all pulled live. Your plan gets built on today's numbers, not textbook assumptions. |
+| **The Strategist** | The senior partner who designs your playbook. Takes everything the first three found and architects 3-5 distinct strategies — each with specific fund tickers, monthly allocations, and tax-optimized account placement. No generic "diversify your portfolio" advice. |
+| **The Risk Officer** | The one who tries to break your plan. Stress-tests every strategy against market crashes, job loss, and rate changes. Scores each one for risk, return, and fit — then stamps a verdict: RECOMMENDED, PROCEED WITH CAUTION, or NOT SUITABLE FOR YOUR PROFILE. |
+| **The Planner** | Puts it all together. Synthesizes everything into your final 12-section roadmap — specific actions, real deadlines, fund names, dollar amounts, and a prioritized checklist you can start executing Monday morning. |
 
-| Agent | Model | Job |
-|-------|-------|-----|
-| Financial Diagnostician | Sonnet | Health score, savings rate, DTI, emergency fund analysis |
-| Knowledge Advisor | Sonnet | Reads a deep, hand-curated knowledge base covering financial strategy across all three countries, matches methodologies to your profile, builds a learning curriculum, and searches the web for current financial news |
-| Market Context Analyzer | Sonnet | Live web search for current rates, indices, real estate trends, inflation, gold prices |
-
-**Phase 2 (sequential):**
-
-| Agent | Model | Job |
-|-------|-------|-----|
-| Wealth Strategist | Opus | Generates 3-5 diverse strategies grounded in matched methodologies |
-| Risk/Reward Evaluator | Sonnet | Scores each strategy, assigns verdicts (RECOMMENDED / PROCEED WITH CAUTION / NOT SUITABLE) |
-| Action Plan Generator | Opus | Produces the final 12-section CFP-quality roadmap |
-
-The strategist runs on Opus because strategy generation requires complex reasoning across financial data, tax rules, and methodology matching. The action plan generator runs on Opus because it synthesizes everything into a coherent 600+ line document. Everything else runs on Sonnet for speed.
+The Diagnostician, Research Analyst, and Market Analyst work your case simultaneously. Then the Strategist, Risk Officer, and Planner build on their findings — so nothing reaches your roadmap without being cross-checked by the full team.
 
 ---
 
