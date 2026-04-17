@@ -174,7 +174,14 @@ def _detect_verdict(text):
 def generate_gauge_svg(score):
     """Generate a semi-circular gauge SVG for the health score."""
     score = max(0, min(100, score))
-    cx, cy, r = 150, 140, 110
+    sw = 18  # stroke width
+    r = 100
+    pad = sw + 25  # padding for stroke + tick labels
+    cx = pad + r
+    cy = pad + r
+    vw = 2 * (pad + r)
+    vh = pad + r + 50  # half circle + room for score text
+
     angle = math.pi * (1 - score / 100)
     end_x = cx + r * math.cos(angle)
     end_y = cy - r * math.sin(angle)
@@ -194,18 +201,18 @@ def generate_gauge_svg(score):
     ticks = ""
     for val in [0, 25, 50, 75, 100]:
         a = math.pi * (1 - val / 100)
-        tx = cx + (r + 15) * math.cos(a)
-        ty = cy - (r + 15) * math.sin(a)
+        tx = cx + (r + sw / 2 + 12) * math.cos(a)
+        ty = cy - (r + sw / 2 + 12) * math.sin(a)
         ticks += f'<text x="{tx:.1f}" y="{ty:.1f}" text-anchor="middle" font-size="11" fill="#999">{val}</text>\n'
 
     needle_len = r - 15
     nx = cx + needle_len * math.cos(angle)
     ny = cy - needle_len * math.sin(angle)
 
-    svg = f'''<div class="chart-container">
-<svg viewBox="0 0 300 180" xmlns="http://www.w3.org/2000/svg">
-  <path d="{bg_arc}" fill="none" stroke="#e9ecef" stroke-width="20" stroke-linecap="round"/>
-  <path d="{score_arc}" fill="none" stroke="{color}" stroke-width="20" stroke-linecap="round"/>
+    svg = f'''<div class="chart-container chart-container--gauge">
+<svg viewBox="0 0 {vw} {vh}" xmlns="http://www.w3.org/2000/svg">
+  <path d="{bg_arc}" fill="none" stroke="#e9ecef" stroke-width="{sw}" stroke-linecap="round"/>
+  <path d="{score_arc}" fill="none" stroke="{color}" stroke-width="{sw}" stroke-linecap="round"/>
   <line x1="{cx}" y1="{cy}" x2="{nx:.1f}" y2="{ny:.1f}" stroke="{color}" stroke-width="3" stroke-linecap="round"/>
   <circle cx="{cx}" cy="{cy}" r="6" fill="{color}"/>
   <text x="{cx}" y="{cy + 35}" text-anchor="middle" font-size="28" font-weight="bold" fill="{color}">{score}/100</text>
@@ -357,7 +364,7 @@ def generate_donut_svg(assets, debts):
     if not assets:
         return ""
 
-    cx, cy, r_outer, r_inner = 200, 180, 140, 85
+    cx, cy, r_outer, r_inner = 280, 180, 130, 80
     total_assets = sum(v for _, v in assets)
     if total_assets == 0:
         return ""
@@ -394,12 +401,15 @@ def generate_donut_svg(assets, debts):
         paths += f'<path d="{path}" fill="{color}"/>\n'
 
         mid_angle = (angle_start + angle_end) / 2
-        label_r = r_outer + 20
+        label_r = r_outer + 18
         lx = cx + label_r * math.cos(mid_angle)
         ly = cy + label_r * math.sin(mid_angle)
         anchor = "start" if lx > cx else "end"
-        short_label = label.split("(")[0].strip()
-        labels_svg += f'<text x="{lx:.1f}" y="{ly:.1f}" text-anchor="{anchor}" font-size="11" fill="#666">{short_label}</text>\n'
+        short_label = label.replace("Less: ", "").split("(")[0].strip()
+        if len(short_label) > 20:
+            short_label = short_label[:18] + "..."
+        val_label = _format_axis_value(value)
+        labels_svg += f'<text x="{lx:.1f}" y="{ly:.1f}" text-anchor="{anchor}" font-size="11" fill="#666">{short_label} ({val_label})</text>\n'
 
         angle_start = angle_end
 
@@ -414,19 +424,23 @@ def generate_donut_svg(assets, debts):
     if debts:
         bar_y = cy + r_outer + 40
         max_debt = max(v for _, v in debts) if debts else 1
-        bar_max_w = 250
+        bar_max_w = 220
+        bar_x_start = cx - 50
         for j, (label, value) in enumerate(debts):
             by = bar_y + j * 30
             bw = (value / max_debt) * bar_max_w if max_debt > 0 else 0
             color = debt_colors[j % len(debt_colors)]
             short_label = label.replace("Less: ", "").split("(")[0].strip()
-            debt_bars += f'<rect x="{cx - bar_max_w // 2}" y="{by}" width="{bw:.1f}" height="18" rx="3" fill="{color}" opacity="0.8"/>\n'
-            debt_bars += f'<text x="{cx - bar_max_w // 2 - 5}" y="{by + 13}" text-anchor="end" font-size="11" fill="#666">{short_label}</text>\n'
-            debt_bars += f'<text x="{cx - bar_max_w // 2 + bw + 5:.1f}" y="{by + 13}" font-size="11" fill="#666">{_format_axis_value(value)}</text>\n'
+            if len(short_label) > 22:
+                short_label = short_label[:20] + "..."
+            debt_bars += f'<rect x="{bar_x_start}" y="{by}" width="{bw:.1f}" height="18" rx="3" fill="{color}" opacity="0.8"/>\n'
+            debt_bars += f'<text x="{bar_x_start - 5}" y="{by + 13}" text-anchor="end" font-size="11" fill="#666">{short_label}</text>\n'
+            debt_bars += f'<text x="{bar_x_start + bw + 5:.1f}" y="{by + 13}" font-size="11" fill="#666">{_format_axis_value(value)}</text>\n'
 
     total_h = cy + r_outer + 40 + len(debts) * 30 + 20 if debts else cy + r_outer + 40
+    svg_w = 560
     svg = f'''<div class="chart-container">
-<svg viewBox="0 0 400 {total_h}" xmlns="http://www.w3.org/2000/svg">
+<svg viewBox="0 0 {svg_w} {total_h}" xmlns="http://www.w3.org/2000/svg">
   {paths}
   {labels_svg}
   {center_svg}
@@ -473,8 +487,8 @@ def generate_waterfall_svg(items):
     if not items:
         return ""
 
-    w, h = 580, 330
-    pad_l, pad_r, pad_t, pad_b = 100, 30, 30, 60
+    w, h = 650, 340
+    pad_l, pad_r, pad_t, pad_b = 100, 30, 30, 70
     plot_w = w - pad_l - pad_r
     plot_h = h - pad_t - pad_b
 
@@ -515,9 +529,9 @@ def generate_waterfall_svg(items):
         bars += f'<text x="{x + bar_w / 2:.1f}" y="{label_y:.1f}" text-anchor="middle" font-size="12" font-weight="bold" fill="{color}">{val_label}</text>\n'
 
         short_label = label.replace("**", "").strip()
-        if len(short_label) > 12:
-            short_label = short_label[:12] + "..."
-        labels += f'<text x="{x + bar_w / 2:.1f}" y="{h - 15}" text-anchor="middle" font-size="11" fill="#666">{short_label}</text>\n'
+        if len(short_label) > 20:
+            short_label = short_label[:18] + "..."
+        labels += f'<text x="{x + bar_w / 2:.1f}" y="{h - 25}" text-anchor="middle" font-size="10" fill="#666">{short_label}</text>\n'
 
         if i < len(items) - 1 and item_type != "surplus":
             next_x = pad_l + gap + (i + 1) * (bar_w + gap)
@@ -623,7 +637,10 @@ def _render_table(block):
 
     html_parts.append("<thead><tr>")
     for i, h in enumerate(headers):
-        align = f' style="text-align:{alignments[i]}"' if alignments[i] != "left" else ""
+        align_str = alignments[i] if i < len(alignments) else "left"
+        if i > 0:
+            align_str = "right"
+        align = f' style="text-align:{align_str}"' if align_str != "left" else ""
         html_parts.append(f"<th{align}>{_detect_verdict(parse_inline(h))}</th>")
     html_parts.append("</tr></thead>")
 
@@ -631,9 +648,7 @@ def _render_table(block):
     for row in rows:
         html_parts.append("<tr>")
         for i, cell in enumerate(row):
-            align_str = alignments[i] if i < len(alignments) else "left"
-            if re.search(r"[₹$]|^\s*-?[\d,]+\s*$", cell):
-                align_str = "right"
+            align_str = "right" if i > 0 else "left"
             align = f' style="text-align:{align_str}"' if align_str != "left" else ""
             html_parts.append(f"<td{align}>{_detect_verdict(parse_inline(cell))}</td>")
         html_parts.append("</tr>")
@@ -778,6 +793,7 @@ hr {
     box-shadow: 0 2px 8px rgba(0,0,0,0.08);
 }
 .chart-container svg { max-width: 100%; height: auto; }
+.chart-container--gauge svg { max-width: 380px; }
 
 @media print {
     body { max-width: none; padding: 0; color: #000; }
